@@ -1,0 +1,62 @@
+/*
+ Theme Name:   Source Innovation Ltd.
+ Theme URI:    http://www.respondiv.com
+ Description:  Replete Child Theme
+ Author:       Sushil Prasai
+ Author URI:   http://www.respondiv.com
+ Template:     replete
+ Version:      1.0.0
+*/
+
+@import url("../replete/style.css");
+
+/* =Theme customization starts here
+-------------------------------------------------------------- */
+
+
+/* Need Help - located @ footer */
+.footer-help{
+	color: #dd3333;
+}
+
+.footer-help a{
+	text-decoration: none !important;
+}
+
+.footer-help a:hover{
+	text-decoration: underline !important;
+	color: #dd3333 !important;
+}
+
+/* Hide Additional Information tab */
+div.product .additional_information_tab,
+div.product #tab-additional_information{ 
+	display: none !important; /* Hides whole section */ 
+}
+
+/* Set Tabel Border to 0 */
+table, th, tr, td {
+    border: 0px;
+    background: transparent;
+}
+
+/*hide single post blog meta */
+.single-post .blog-meta,
+.single-post .post_nav{
+	display: none;
+}
+
+/* hide Socket Copyright Info */
+#socket{
+	display: none;
+}
+
+/* Hide Related products */
+.single-product .related{
+	display: none;
+}
+
+/* Sale badge background color */
+.onsale{
+	background-color: #dd3333 !important;
+}

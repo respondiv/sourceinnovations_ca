@@ -1,0 +1,4 @@
+whoami
+exit
+ls
+exit
