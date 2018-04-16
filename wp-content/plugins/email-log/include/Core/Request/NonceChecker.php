@@ -50,7 +50,11 @@ class NonceChecker implements Loadie {
 				return;
 			}
 
-			if ( ! wp_verify_nonce( $_REQUEST[ LogListPage::DELETE_LOG_NONCE_FIELD ], LogListPage::DELETE_LOG_ACTION ) ) {
+			if ( ! isset( $_REQUEST[ LogListPage::LOG_LIST_ACTION_NONCE_FIELD ] ) ) {
+				return;
+			}
+
+			if ( ! wp_verify_nonce( $_REQUEST[ LogListPage::LOG_LIST_ACTION_NONCE_FIELD ], LogListPage::LOG_LIST_ACTION_NONCE ) ) {
 				return;
 			}
 		}

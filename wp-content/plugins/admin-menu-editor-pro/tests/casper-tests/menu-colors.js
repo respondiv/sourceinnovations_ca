@@ -45,7 +45,7 @@ casper.waitWhileVisible('#ws-ame-menu-color-settings', function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	//Verify that the background color was changed.
 	casper.test.assertEvalEquals(
 		function() {
@@ -100,7 +100,7 @@ casper.waitWhileVisible('#ws-ame-menu-color-settings', function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	//Verify that the colors were changed.
 	casper.test.assertEvalEquals(
 		function() {

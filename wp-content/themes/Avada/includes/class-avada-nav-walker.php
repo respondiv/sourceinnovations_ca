@@ -303,7 +303,7 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 			$header_position                 = Avada()->settings->get( 'header_position' );
 			$menu_icon_position              = Avada()->settings->get( 'menu_icon_position' );
 			$menu_display_dropdown_indicator = Avada()->settings->get( 'menu_display_dropdown_indicator' );
-			$menu_heighlight_style           = Avada()->settings->get( 'menu_highlight_style' );
+			$menu_highlight_style            = Avada()->settings->get( 'menu_highlight_style' );
 
 			if ( null === $item->menu_item_parent ) {
 				$item->menu_item_parent = '0';
@@ -404,7 +404,19 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 
 				$this->menu_megamenu_title      = isset( $avada_meta['title'] ) ? $avada_meta['title'] : '';
 				$this->menu_megamenu_widgetarea = isset( $avada_meta['widgetarea'] ) ? $avada_meta['widgetarea'] : '';
-				$this->menu_megamenu_thumbnail  = isset( $avada_meta['thumbnail'] ) ? $avada_meta['thumbnail'] : '';
+
+				if ( ! empty( $avada_meta['thumbnail'] ) ) {
+					$thumbnail_data = Avada()->images->get_attachment_data_from_url( $avada_meta['thumbnail'] );
+
+					if ( $thumbnail_data ) {
+						$this->menu_megamenu_thumbnail  = '<img src="' . $thumbnail_data['url'] . '" alt="' . $thumbnail_data['alt'] . '" title="' . $thumbnail_data['title'] . '">';
+					} else {
+						$this->menu_megamenu_thumbnail  = '<img src="' . $avada_meta['thumbnail'] . '">';
+					}
+				} else {
+					$this->menu_megamenu_thumbnail = '';
+				}
+
 				// Megamenu is disabled.
 			} else {
 				$this->menu_megamenu_status = 'disabled';
@@ -471,7 +483,7 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 					// Check if we need to set an image.
 					$title_enhance = '';
 					if ( ! empty( $this->menu_megamenu_thumbnail ) ) {
-						$title_enhance = '<span class="fusion-megamenu-icon fusion-megamenu-thumbnail"><img src="' . $this->menu_megamenu_thumbnail . '"></span>';
+						$title_enhance = '<span class="fusion-megamenu-icon fusion-megamenu-thumbnail">' . $this->menu_megamenu_thumbnail . '</span>';
 					} elseif ( ! empty( $this->menu_megamenu_icon ) ) {
 						$title_enhance = '<span class="fusion-megamenu-icon"><i class="fa glyphicon ' . avada_font_awesome_name_handler( $this->menu_megamenu_icon ) . '"></i></span>';
 					} elseif ( 'disabled' === $this->menu_megamenu_title ) {
@@ -530,9 +542,7 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 					}
 				}
 
-				if ( 'arrow' === $menu_heighlight_style ) {
-					$atts['class'][] = 'fusion-arrow-highlight';
-				}
+				$atts['class'][] = 'fusion-' . $menu_highlight_style . '-highlight';
 
 				if ( 0 === $depth && $item->description ) {
 					$atts['class'][] = 'fusion-has-description';
@@ -578,7 +588,7 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 					$this->menu_megamenu_icon .= ' fa-fw';
 				}
 				if ( ! empty( $this->menu_megamenu_thumbnail ) && 'enabled' === $this->menu_megamenu_status ) {
-					$icon = '<span class="' . $icon_wrapper_class . ' fusion-megamenu-image"><img src="' . $this->menu_megamenu_thumbnail . '"></span>';
+					$icon = '<span class="' . $icon_wrapper_class . ' fusion-megamenu-image">' . $this->menu_megamenu_thumbnail . '</span>';
 				} elseif ( ! empty( $this->menu_megamenu_icon ) ) {
 					$icon = '<span class="' . $icon_wrapper_class . '"><i class="fa glyphicon ' . $this->menu_megamenu_icon . '"></i></span>';
 				} elseif ( 0 !== $depth && 'enabled' === $this->menu_megamenu_status ) {
@@ -613,60 +623,14 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 					$title = '<span class="fusion-button-text-left">' . $title . '</span>';
 				} elseif ( false !== strpos( $icon, 'button-icon-divider-right' ) ) {
 					$title = '<span class="fusion-button-text-right">' . $title . '</span>';
+				} else if ( 'icononly' === $this->menu_title_only && 0 === $depth ) {
+					$title = '<span class="menu-title">' . $title . '</span>';
 				}
 
 				// SVG creation for menu item hover/active.
-				if ( 'arrow' === $menu_heighlight_style && 0 === $depth && 'v6' !== $header_layout && ( ! $this->menu_style || $args->has_children ) ) {
-					$svg              = '';
-					$svg_height       = Fusion_Sanitize::size( Avada()->settings->get( 'menu_arrow_size', 'height' ) );
-					$svg_height_int   = intval( $svg_height );
-					$svg_width        = Fusion_Sanitize::size( Avada()->settings->get( 'menu_arrow_size', 'width' ) );
-					$svg_width_int    = intval( $svg_width );
-					$svg_bg           = 'fill="' . Fusion_Sanitize::color( Avada()->settings->get( 'header_bg_color' ) ) . '"';
-					$svg_border_color = Fusion_Sanitize::color( Avada()->settings->get( 'header_border_color' ) );
-					$svg_border       = '';
-
-					$header_2_3_border = ( 'v2' === $header_layout || 'v3' === $header_layout );
-					$header_4_5_border = ( ( 'v4' === $header_layout || 'v5' === $header_layout ) && 1 === Fusion_Color::new_color( Fusion_Sanitize::color( Avada()->settings->get( 'header_bg_color' ) ) )->alpha );
-
-					if ( 'Top' !== $header_position || $header_2_3_border || $header_4_5_border ) {
-						$svg_border = 'stroke="' . $svg_border_color . '" stroke-width="1"';
-					}
-
-					if ( 'Left' === $header_position ) {
-						$svg = '<span class="fusion-arrow-svg"><svg height="' . $svg_height . '" width="' . $svg_width . '">
-							<path d="M0 0 L' . $svg_width_int . ' ' . ( $svg_height_int / 2 ) . ' L0 ' . $svg_height_int . ' Z" ' . $svg_bg . ' ' . $svg_border . '/>
-							</svg></span>';
-					} elseif ( 'Right' === $header_position ) {
-						$svg = '<span class="fusion-arrow-svg"><svg height="' . $svg_height . '" width="' . $svg_width . '">
-						<path d="M' . $svg_width_int . ' 0 L0 ' . ( $svg_height_int / 2 ) . ' L' . $svg_width_int . ' ' . $svg_height_int . ' Z" ' . $svg_bg . ' ' . $svg_border . '/>
-						</svg></span>';
-					} elseif ( 'Top' === $header_position ) {
-						$svg = '<span class="fusion-arrow-svg"><svg height="' . $svg_height . '" width="' . $svg_width . '">
-						<path d="M0 0 L' . ( $svg_width_int / 2 ) . ' ' . $svg_height_int . ' L' . $svg_width_int . ' 0 Z" ' . $svg_bg . ' ' . $svg_border . '/>
-						</svg></span>';
-					}
-
-					// Add svg markup for dropdown.
-					if ( $args->has_children ) {
-						$svg_bg = 'fill="' . Fusion_Sanitize::color( Avada()->settings->get( 'menu_sub_bg_color' ) ) . '"';
-						if ( 'Top' === $header_position ) {
-							$dropdownsvg = '<span class="fusion-dropdown-svg"><svg height="' . $svg_height . '" width="' . $svg_width . '">
-							<path d="M0 ' . $svg_height_int . ' L' . ( $svg_width_int / 2 ) . ' 0 L' . $svg_width_int . ' ' . $svg_height_int . ' Z" ' . $svg_bg . '/>
-							</svg></span>';
-						} elseif ( 'Left' === $header_position ) {
-							$dropdownsvg = '<span class="fusion-dropdown-svg"><svg height="' . $svg_height . '" width="' . $svg_width . '">
-							<path d="M' . $svg_width_int . ' 0 L0 ' . ( $svg_height_int / 2 ) . ' L' . $svg_width_int . ' ' . $svg_height_int . ' Z" ' . $svg_bg . '/>
-							</svg></span>';
-						} elseif ( 'Right' === $header_position ) {
-							$dropdownsvg = '<span class="fusion-dropdown-svg"><svg height="' . $svg_height . '" width="' . $svg_width . '">
-							<path d="M0 0 L' . $svg_width_int . ' ' . ( $svg_height_int / 2 ) . ' L0 ' . $svg_height_int . ' Z" ' . $svg_bg . '/>
-							</svg></span>';
-						}
-						$svg = $svg . $dropdownsvg;
-					}
-					$title .= $svg;
-				} // End if().
+				if ( 0 === $depth && ( ! $this->menu_style || $args->has_children ) ) {
+					$title = apply_filters( 'avada_menu_arrow_hightlight', $title, $args->has_children );
+				}
 
 				$menu_icon_right = ( ( ! $is_rtl && 'right' === $menu_icon_position ) || ( $is_rtl && 'left' === $menu_icon_position ) );
 
@@ -674,8 +638,8 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 
 				// If we have an icon or thumbnail and the position is not left, then change order.
 				if ( ( ! empty( $this->menu_megamenu_icon ) || ! empty( $this->menu_megamenu_thumbnail ) ) &&
-				     ( $menu_icon_right || 'bottom' === $menu_icon_position )
-				     && ! $this->menu_style && 0 === $depth ) {
+					 ( $menu_icon_right || 'bottom' === $menu_icon_position )
+					 && ! $this->menu_style && 0 === $depth ) {
 					$item_output = $item_output . $opening_span . $title . '</span>' . $icon;
 				} elseif ( $this->menu_style || 0 !== $depth ) {
 					$item_output = $item_output . $opening_span . $icon . $title . '</span>';
@@ -765,7 +729,7 @@ if ( ! class_exists( 'Avada_Nav_Walker' ) ) {
 		 * @param int    $depth Depth of page. Not Used.
 		 * @param  array  $args Not used.
 		 */
-		function end_el( &$output, $item, $depth = 0, $args = array() ) {
+		public function end_el( &$output, $item, $depth = 0, $args = array() ) {
 			$output .= '</li>';
 
 			if ( null === $item->menu_item_parent ) {

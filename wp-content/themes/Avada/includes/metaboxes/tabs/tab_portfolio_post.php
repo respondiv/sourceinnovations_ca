@@ -22,6 +22,7 @@ $this->radio_buttonset(
 		'full'    => esc_attr__( 'Full Width', 'Avada' ),
 		'half'    => esc_attr__( 'Half Width', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose if the featured image is full or half width. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_featured_image_width', '', 'select' ) )
 );
 
@@ -33,6 +34,7 @@ $this->radio_buttonset(
 		'no'      => esc_attr__( 'No', 'Avada' ),
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to set this post to 100&#37; browser width. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_width_100', '', 'yesno' ) )
 );
 
@@ -44,6 +46,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide the project description title. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_project_desc_title', '', 'yesno' ) )
 );
 
@@ -55,6 +58,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide the project details text. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_project_details', '', 'yesno' ) )
 );
 
@@ -66,6 +70,7 @@ $this->radio_buttonset(
 		'no'      => esc_attr__( 'No', 'Avada' ),
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Disable the 1st featured image on single post pages. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_disable_first_featured_image', '', 'reverseyesno' ) )
 );
 
@@ -140,44 +145,25 @@ $this->select(
 		'zoom'     => esc_attr__( 'Zoom', 'Avada' ),
 		'no'       => esc_attr__( 'No Icons', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose which icons display on this post. %s', 'Avada' ), Avada()->settings->get_default_description( 'link_image_rollover', '', 'rollover' ) )
 );
 
-// Dependency check for whether link icon is showing.
-$link_dependency = array(
-	array(
-		'field'      => 'image_rollover_icons',
-		'value'      => 'zoom',
-		'comparison' => '!=',
-	),
-	array(
-		'field'      => 'image_rollover_icons',
-		'value'      => 'no',
-		'comparison' => '!=',
-	),
-);
-if ( 0 == Avada()->settings->get( 'image_rollover' ) || 0 == Avada()->settings->get( 'link_image_rollover' ) ) {
-	$link_dependency[] = array(
-		'field'      => 'image_rollover_icons',
-		'value'      => 'default',
-		'comparison' => '!=',
-	);
-}
 $this->text(
 	'link_icon_url',
-	esc_attr__( 'Link Icon URL', 'Avada' ),
-	esc_attr__( 'Leave blank for post URL.', 'Avada' ),
-	$link_dependency
+	esc_attr__( 'Custom Link URL On Archives', 'Avada' ),
+	esc_attr__( 'Link URL that will be used on archives either for the rollover link icon or on the image if rollover icons are disabled. Leave blank for post URL.', 'Avada' )
 );
 
 $this->radio_buttonset(
 	'link_icon_target',
-	esc_attr__( 'Open Post Links In New Window', 'Avada' ),
+	esc_attr__( 'Open Portfolio Links In New Window', 'Avada' ),
 	array(
 		'default' => esc_attr__( 'Default', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to open the single post page, project url and copyright url links in a new window. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_link_icon_target', '', 'yesno' ) )
 );
 
@@ -189,6 +175,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Show', 'Avada' ),
 		'no'      => esc_attr__( 'Hide', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide related projects on this post. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_related_posts', '', 'showhide' ) )
 );
 
@@ -200,6 +187,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Show', 'Avada' ),
 		'no'      => esc_attr__( 'Hide', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide the social share box. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_social_sharing_box', '', 'showhide' ) )
 );
 
@@ -211,6 +199,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Show', 'Avada' ),
 		'no'      => esc_attr__( 'Hide', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide the post navigation. %s', 'Avada' ), Avada()->settings->get_default_description( 'portfolio_pn_nav', '', 'showhide' ) )
 );
 

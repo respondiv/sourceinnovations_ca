@@ -31,7 +31,7 @@ casper.then(function() {
 });
 
 //Wait for the "settings saved" message.
-casper.waitForSelector('#message.updated');
+ameTest.waitForSettingsSavedMessage();
 
 casper.thenOpen(ameTestConfig.adminUrl + '/plugins.php', function() {
 	casper.test.assertSelectorHasText(

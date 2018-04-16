@@ -28,6 +28,7 @@ $author_custom      = get_the_author_meta( 'author_custom', $author_id );
 // If no description was added by user, add some default text and stats.
 if ( empty( $author_description ) ) {
 	$author_description  = esc_html__( 'This author has not yet filled in any details.', 'Avada' );
+	/* translators: %1$s: Username. %2$s: Number. */
 	$author_description .= '<br />' . sprintf( esc_html__( 'So far %1$s has created %2$s blog entries.', 'Avada' ), $author_name, count_user_posts( $author_id ) );
 }
 ?>
@@ -36,11 +37,14 @@ if ( empty( $author_description ) ) {
 		<?php echo $author_avatar; // WPCS: XSS ok. ?>
 	</div>
 	<div class="fusion-author-info">
-		<h3 class="fusion-author-title<?php echo ( Avada()->settings->get( 'disable_date_rich_snippet_pages' ) && Avada()->settings->get( 'disable_rich_snippet_author' )  ) ? ' vcard' : ''; ?>">
-			<?php printf(
+		<h3 class="fusion-author-title<?php echo ( Avada()->settings->get( 'disable_date_rich_snippet_pages' ) && Avada()->settings->get( 'disable_rich_snippet_author' ) ) ? ' vcard' : ''; ?>">
+			<?php
+			printf(
+				/* translators: The user. */
 				esc_html__( 'About %s', 'Avada' ),
 				( Avada()->settings->get( 'disable_date_rich_snippet_pages' ) && Avada()->settings->get( 'disable_rich_snippet_author' ) ) ? '<span class="fn">' . esc_attr( $author_name ) . '</span>' : esc_attr( $author_name )
-			); ?>
+			);
+			?>
 			<?php // If user can edit his profile, offer a link for it. ?>
 			<?php if ( current_user_can( 'edit_users' ) || get_current_user_id() == $author_id ) : ?>
 				<span class="fusion-edit-profile">(<a href="<?php echo esc_url_raw( admin_url( 'profile.php?user_id=' . $author_id ) ); ?>"><?php esc_attr_e( 'Edit profile', 'Avada' ); ?></a>)</span>

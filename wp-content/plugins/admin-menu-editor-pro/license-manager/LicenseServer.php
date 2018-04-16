@@ -101,7 +101,7 @@ class Wslm_LicenseServer {
 		//to ensure only valid fields are included in the query.
 		$licenseDbFields = array(
 			'license_id', 'license_key', 'product_id', 'product_slug', 'customer_id',
-			'status', 'issued_on', 'expires_on', 'max_sites'
+			'status', 'issued_on', 'expires_on', 'max_sites', 'base_price', 'renewal_price',
 		);
 		$licenseDbFields = apply_filters('wslm_license_db_fields', $licenseDbFields);
 		$data = array_intersect_key($data, array_flip($licenseDbFields));
@@ -128,6 +128,34 @@ class Wslm_LicenseServer {
 			$query .= ' WHERE license_id = ' . absint($license['license_id']);
 			$this->wpdb->query($query);
 		}
+
+		//Save add-ons.
+		$this->wpdb->query('START TRANSACTION');
+		//Delete old add-on records first.
+		$query = $this->wpdb->prepare(
+			"DELETE FROM `{$this->tablePrefix}license_addons` WHERE license_id = %d",
+			$license['license_id']
+		);
+		$this->wpdb->query($query);
+
+		//Insert new license-to-add-on relations.
+		if ( !empty($license['addons']) ) {
+			$query =
+				"INSERT INTO `{$this->tablePrefix}license_addons`(license_id, addon_id)
+				SELECT %d AS license_id, addon_id 
+				FROM `{$this->tablePrefix}addons`";
+			$query = $this->wpdb->prepare($query, $license['license_id']);
+
+			$preparedSlugs = array();
+			foreach($license['addons'] as $slug => $ignored) {
+				$preparedSlugs[] = $this->wpdb->prepare('%s', $slug);
+			}
+			$query .= ' WHERE slug IN (' . implode($preparedSlugs) . ')';
+
+			$this->wpdb->query($query);
+		}
+		$this->wpdb->query('COMMIT');
+
 		return $license;
 	}
 
@@ -232,8 +260,12 @@ class Wslm_LicenseServer {
 			}
 		}
 
-		if ( $license['product_slug'] != $productSlug ) {
-			return new WP_Error('not_found', 'This license key is for a different product.', 404);
+		if ( $license['product_slug'] !== $productSlug ) {
+			if ( $license->hasAddOn($productSlug) ) {
+				//This request is for an add-on, not the main product. That's fine.
+			} else {
+				return new WP_Error('not_found', 'This license key is for a different product.', 404);
+			}
 		}
 
 		//Make sure the site token was actually issued to that site and not another one.
@@ -282,8 +314,9 @@ class Wslm_LicenseServer {
 
 		$license = $this->db->getRow($query, $params);
 		if ( !empty($license) ) {
-			//Also include the list of sites associated with this license.
+			//Also include the list of sites and add-ons associated with this license.
 			$license['sites'] = $this->loadLicenseSites($license['license_id']);
+			$license['addons'] = $this->loadLicenseAddOns($license['license_id']);
 			$license = new Wslm_ProductLicense($license);
 
 			$license['renewal_url'] = 'http://adminmenueditor.com/renew-license/'; //TODO: Put this in a config of some sort instead.
@@ -304,6 +337,24 @@ class Wslm_LicenseServer {
 		return $licensedSites;
 	}
 
+	protected function loadLicenseAddOns($licenseId) {
+		$rows = $this->db->getResults(
+			"SELECT addons.slug, addons.name
+			 FROM 
+			 	{$this->tablePrefix}license_addons AS license_addons 
+			 	JOIN {$this->tablePrefix}addons AS addons
+			 	ON (license_addons.addon_id = addons.addon_id)  
+			 WHERE license_addons.license_id = ?",
+			array($licenseId)
+		);
+
+		$addOns = array();
+		foreach($rows as $row) {
+			$addOns[$row['slug']] = $row['name'];
+		}
+		return $addOns;
+	}
+
 	/**
 	 * @param Wslm_ProductLicense $license
 	 * @param bool $usingToken
@@ -322,7 +373,7 @@ class Wslm_LicenseServer {
 
 		$visibleFields = array_fill_keys(array(
 			'license_key', 'product_slug', 'status', 'issued_on', 'max_sites',
-			'expires_on', 'sites', 'site_url', 'error', 'renewal_url',
+			'expires_on', 'sites', 'site_url', 'error', 'renewal_url', 'addons',
 		), true);
 		if ( $usingToken ) {
 			$visibleFields = array_merge($visibleFields, array(
@@ -470,7 +521,7 @@ class Wslm_LicenseServer {
 		$this->outputResponse($response);
 	}
 
-	protected function generateRandomString($length, $alphabet = null) {
+	public function generateRandomString($length, $alphabet = null) {
 		if ( $alphabet === null ) {
 			$alphabet = 'ABDEFGHJKLMNOPQRSTVWXYZ0123456789';
 			//U and C intentionally left out to lessen the chances of generating an obscene string.
@@ -607,14 +658,15 @@ class Wslm_LicenseServer {
 			'index.php?licensing_api=1&license_product=$matches[1]&license_key=$matches[2]&license_action=$matches[3]',
 		);
 
-		//Add the rules only if they don't exist yet.
+		foreach ($apiRewriteRules as $pattern => $redirect) {
+			add_rewrite_rule($pattern, $redirect, 'top');
+		}
+
+		//Flush the rules only if they didn't exist before.
 		$wp_rewrite = $GLOBALS['wp_rewrite']; /** @var WP_Rewrite $wp_rewrite */
 		$missingRules = array_diff_assoc($apiRewriteRules, $wp_rewrite->wp_rewrite_rules());
 		if ( !empty($missingRules) ) {
-			foreach ($apiRewriteRules as $pattern => $redirect) {
-				add_rewrite_rule($pattern, $redirect, 'top');
-			}
-			flush_rewrite_rules();
+			flush_rewrite_rules(false);
 		}
 	}
 

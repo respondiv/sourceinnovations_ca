@@ -31,7 +31,8 @@ function avada_options_section_custom_css( $sections ) {
 		'fields'   => array(
 			'custom_css' => array(
 				'label'       => esc_html__( 'CSS Code', 'Avada' ),
-				'description' => sprintf( esc_html__( 'Enter your CSS code in the field below. Do not include any tags or HTML in the field. Custom CSS entered here will override the theme CSS. In some cases, the !important tag may be needed. Don\'t URL encode image or svg paths. Contents of this field will be auto encoded.', 'Avada' ), '<code>!important</code>' ),
+				/* translators: <code>!important</code> */
+				'description' => sprintf( esc_html__( 'Enter your CSS code in the field below. Do not include any tags or HTML in the field. Custom CSS entered here will override the theme CSS. In some cases, the %s tag may be needed. Don\'t URL encode image or svg paths. Contents of this field will be auto encoded.', 'Avada' ), '<code>!important</code>' ),
 				'id'          => 'custom_css',
 				'default'     => '',
 				'type'        => 'code',

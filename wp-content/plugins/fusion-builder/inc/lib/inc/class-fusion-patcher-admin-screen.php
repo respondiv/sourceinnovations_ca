@@ -164,7 +164,9 @@ class Fusion_Patcher_Admin_Screen {
 			$theme_options_entry = $submenu['avada'][7];
 			$patcher_entry = $submenu['avada'][8];
 
+			// @codingStandardsIgnoreLine ordPress.Variables.GlobalVariables.OverrideProhibited
 			$submenu['avada'][7] = $patcher_entry;
+			// @codingStandardsIgnoreLine ordPress.Variables.GlobalVariables.OverrideProhibited
 			$submenu['avada'][8] = $theme_options_entry;
 		}
 	}
@@ -286,15 +288,17 @@ class Fusion_Patcher_Admin_Screen {
 				<div class="fusion-patcher-heading">
 					<p class="description">
 						<?php if ( empty( $available_patches ) ) : ?>
-							<?php printf( esc_html__( 'Fusion Patcher: Currently there are no patches available for %1$s version %2$s', 'fusion-builder' ), esc_attr( $this->patcher->get_args( 'name' ) ), esc_attr( $this->patcher->get_args( 'version' ) ) ); ?>
+							<?php /* translators: The product name and its version. */ ?>
+							<?php printf( esc_attr__( 'Fusion Patcher: Currently there are no patches available for %1$s version %2$s', 'Avada' ), esc_attr( $this->patcher->get_args( 'name' ) ), esc_attr( $this->patcher->get_args( 'version' ) ) ); ?>
 						<?php else : ?>
-							<?php printf( esc_html__( 'Fusion Patcher: The following patches are available for %1$s version %2$s', 'fusion-builder' ), esc_attr( $this->patcher->get_args( 'name' ) ), esc_attr( $this->patcher->get_args( 'version' ) ) ); ?>
+							<?php /* translators: The product name and its version. */ ?>
+							<?php printf( esc_attr__( 'Fusion Patcher: The following patches are available for %1$s version %2$s', 'Avada' ), esc_attr( $this->patcher->get_args( 'name' ) ), esc_attr( $this->patcher->get_args( 'version' ) ) ); ?>
 						<?php endif; ?>
-						<span class="fusion-auto-patcher learn-more"><a href="https://theme-fusion.com/avada-doc/avada-patcher/" target="_blank" rel="noopener noreferrer"><?php esc_attr_e( 'Learn More', 'fusion-builder' ); ?></a></span>
+						<span class="fusion-auto-patcher learn-more"><a href="https://theme-fusion.com/avada-doc/avada-patcher/" target="_blank" rel="noopener noreferrer"><?php esc_attr_e( 'Learn More', 'Avada' ); ?></a></span>
 					</p>
 					<?php if ( ! empty( $available_patches ) ) : ?>
 						<p class="sub-description">
-							<?php esc_html_e( 'The status column displays if a patch was applied. However, a patch can be reapplied if necessary.', 'fusion-builder' ); ?>
+							<?php esc_attr_e( 'The status column displays if a patch was applied. However, a patch can be reapplied if necessary.', 'Avada' ); ?>
 						</p>
 					<?php endif; ?>
 				</div>
@@ -303,27 +307,28 @@ class Fusion_Patcher_Admin_Screen {
 						<?php if ( false !== strpos( $message_id, 'write-permissions-' ) ) : ?>
 							<?php continue; ?>
 						<?php endif; ?>
-						<p class="fusion-patcher-error"><?php echo $message;  // WPCS: XSS ok. ?></p>
+						<p class="fusion-patcher-error"><?php echo $message; // WPCS: XSS ok. ?></p>
 					<?php endforeach; ?>
 				<?php endif; ?>
 				<?php if ( ! empty( $available_patches ) ) : // Only display the table if we have patches to apply. ?>
 					<table class="fusion-patcher-table">
 						<tbody>
 							<tr class="fusion-patcher-headings">
-								<th style="min-width:6em;"><?php esc_attr_e( 'Patch #', 'fusion-builder' ); ?></th>
+								<th style="min-width:6em;"><?php esc_attr_e( 'Patch #', 'Avada' ); ?></th>
 								<th>
 									<?php if ( ! empty( $bundles ) ) : ?>
-										<?php esc_attr_e( 'Product', 'fusion-builder' ); ?>
+										<?php esc_attr_e( 'Product', 'Avada' ); ?>
 									<?php else : ?>
-										<?php esc_attr_e( 'Issue Date', 'fusion-builder' ); ?>
+										<?php esc_attr_e( 'Issue Date', 'Avada' ); ?>
 									<?php endif; ?>
 								</th>
-								<th><?php esc_attr_e( 'Description', 'fusion-builder' ); ?></th>
-								<th><?php esc_attr_e( 'Status', 'fusion-builder' ); ?></th>
+								<th><?php esc_attr_e( 'Description', 'Avada' ); ?></th>
+								<th><?php esc_attr_e( 'Status', 'Avada' ); ?></th>
 								<th></th>
 							</tr>
 							</tr>
-							<?php foreach ( $available_patches as $key => $patch_id ) :
+							<?php foreach ( $available_patches as $key => $patch_id ) : ?>
+								<?php
 
 								// Do not allow applying the patch initially.
 								// We'll have to check if they can later.
@@ -398,22 +403,23 @@ class Fusion_Patcher_Admin_Screen {
 												<?php do_settings_sections( 'fusion_patcher_' . $patch_id ); ?>
 												<input type="hidden" name="fusion_patch_contents_<?php echo intval( $patch_id ); ?>" value="<?php echo esc_html( $this->format_patch( $patch_args ) ); ?>" />
 												<?php if ( $patch_applied ) : ?>
-													<?php submit_button( esc_attr__( 'Patch Applied', 'fusion-builder' ) ); ?>
+													<?php submit_button( esc_attr__( 'Patch Applied', 'Avada' ) ); ?>
 												<?php else : ?>
-													<?php submit_button( esc_attr__( 'Apply Patch', 'fusion-builder' ) ); ?>
+													<?php submit_button( esc_attr__( 'Apply Patch', 'Avada' ) ); ?>
 													<?php if ( $patch_failed ) : ?>
 														<?php $dismiss_url = 'admin.php?page=' . $this->patcher->get_args( 'context' ) . '-fusion-patcher&manually-applied-patch=' . $patch_id; ?>
 														<?php $dismiss_url = admin_url( $dismiss_url ); ?>
-														<a class="button" style="margin-top:10px;font-size:11px;color:#b71c1c;display:block;" href="<?php echo esc_url_raw( $dismiss_url ); ?>"><?php esc_attr_e( 'Dismiss Notices', 'fusion-builder' ); ?></a>
+														<a class="button" style="margin-top:10px;font-size:11px;color:#b71c1c;display:block;" href="<?php echo esc_url_raw( $dismiss_url ); ?>"><?php esc_attr_e( 'Dismiss Notices', 'Avada' ); ?></a>
 													<?php endif; ?>
 												<?php endif; ?>
 											</form>
 										<?php else : ?>
 											<span class="button disabled button-small">
 												<?php if ( isset( $available_patches[ $key - 1 ] ) ) : ?>
-													<?php printf( esc_html__( 'Please apply patch #%s first.', 'fusion-builder' ), intval( $available_patches[ $key - 1 ] ) ); ?>
+													<?php /* translators: The patch-ID. */ ?>
+													<?php printf( esc_attr__( 'Please apply patch #%s first.', 'Avada' ), intval( $available_patches[ $key - 1 ] ) ); ?>
 												<?php else : ?>
-													<?php esc_html_e( 'Patch cannot be currently aplied.', 'fusion-builder' ); ?>
+													<?php esc_attr_e( 'Patch cannot be currently aplied.', 'Avada' ); ?>
 												<?php endif; ?>
 											</span>
 										<?php endif; ?>

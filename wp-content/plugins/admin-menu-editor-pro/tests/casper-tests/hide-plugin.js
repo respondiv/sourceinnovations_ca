@@ -18,7 +18,7 @@ casper.waitForSelector('#ws_plugin_settings_form', function() {
 	casper.click('input[name="hide_plugin_from_others"]');
 	casper.click('#submit');
 });
-casper.waitForSelector('div.updated');
+ameTest.waitForSettingsSavedMessage();
 
 casper.thenOpen(ameTestConfig.adminUrl + '/plugins.php', function() {
 	casper.test.assertExists(

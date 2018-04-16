@@ -33,7 +33,7 @@ if ( ! class_exists( 'Avada_Nav_Walker_Megamenu' ) ) {
 		 * @param int    $depth  Depth of menu item. Used for padding.
 		 * @param array  $args   Not used.
 		 */
-		function start_lvl( &$output, $depth = 0, $args = array() ) {}
+		public function start_lvl( &$output, $depth = 0, $args = array() ) {}
 
 		/**
 		 * Ends the list of after the elements are added.
@@ -46,7 +46,7 @@ if ( ! class_exists( 'Avada_Nav_Walker_Megamenu' ) ) {
 		 * @param int    $depth  Depth of menu item. Used for padding.
 		 * @param array  $args   Not used.
 		 */
-		function end_lvl( &$output, $depth = 0, $args = array() ) {}
+		public function end_lvl( &$output, $depth = 0, $args = array() ) {}
 
 		/**
 		 * Start the element output.
@@ -60,7 +60,7 @@ if ( ! class_exists( 'Avada_Nav_Walker_Megamenu' ) ) {
 		 * @param array  $args   Not used.
 		 * @param int    $id     Not used.
 		 */
-		function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
+		public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
 			global $_wp_nav_menu_max_depth, $wp_registered_sidebars;
 			$_wp_nav_menu_max_depth = $depth > $_wp_nav_menu_max_depth ? $depth : $_wp_nav_menu_max_depth;
 
@@ -115,7 +115,7 @@ if ( ! class_exists( 'Avada_Nav_Walker_Megamenu' ) ) {
 			<li id="menu-item-<?php echo esc_attr( $item_id ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
 				<dl class="menu-item-bar">
 					<dt class="menu-item-handle">
-						<span class="item-title"><span class="menu-item-title"><?php echo esc_html( $title ); ?></span> <span class="is-submenu" <?php echo $submenu_text; // WPCS: XSS ok. ?>><?php esc_attr_e( 'sub item' , 'Avada' ); ?></span></span>
+						<span class="item-title"><span class="menu-item-title"><?php echo esc_html( $title ); ?></span> <span class="is-submenu" <?php echo $submenu_text; // WPCS: XSS ok. ?>><?php esc_attr_e( 'sub item', 'Avada' ); ?></span></span>
 						<span class="item-controls">
 							<span class="item-type"><?php echo esc_html( $item->type_label ); ?></span>
 							<span class="item-order hide-if-js">
@@ -209,20 +209,19 @@ if ( ! class_exists( 'Avada_Nav_Walker_Megamenu' ) ) {
 
 					<?php do_action( 'wp_nav_menu_item_custom_fields', $item_id, $item, $depth, $args ); ?>
 
-					<p class="field-move hide-if-no-js description description-wide">
-						<label>
-							<span><?php esc_attr_e( 'Move', 'Avada' ); ?></span>
-							<a href="#" class="menus-move menus-move-up" data-dir="up"><?php esc_attr_e( 'Up one', 'Avada' ); ?></a>
-							<a href="#" class="menus-move menus-move-down" data-dir="down"><?php esc_attr_e( 'Down one', 'Avada' ); ?></a>
-							<a href="#" class="menus-move menus-move-left" data-dir="left"></a>
-							<a href="#" class="menus-move menus-move-right" data-dir="right"></a>
-							<a href="#" class="menus-move menus-move-top" data-dir="top"><?php esc_attr_e( 'To the top', 'Avada' ); ?></a>
-						</label>
-					</p>
+					<fieldset class="field-move hide-if-no-js description description-wide">
+						<span class="field-move-visual-label" aria-hidden="true"><?php esc_attr_e( 'Move', 'Avada' ); ?></span>
+						<button type="button" class="button-link menus-move menus-move-up" data-dir="up"><?php esc_attr_e( 'Up one', 'Avada' ); ?></button>
+						<button type="button" class="button-link menus-move menus-move-down" data-dir="down"><?php esc_attr_e( 'Down one', 'Avada' ); ?></button>
+						<button type="button" class="button-link menus-move menus-move-left" data-dir="left"></button>
+						<button type="button" class="button-link menus-move menus-move-right" data-dir="right"></button>
+						<button type="button" class="button-link menus-move menus-move-top" data-dir="top"><?php esc_attr_e( 'To the top', 'Avada' ); ?></button>
+					</fieldset>
 
 					<div class="menu-item-actions description-wide submitbox">
 						<?php if ( 'custom' != $item->type && false !== $original_title ) : ?>
 							<p class="link-to-original">
+								<?php /* translators: Title (with link). */ ?>
 								<?php printf( esc_html__( 'Original: %s', 'Avada' ), '<a href="' . esc_attr( $item->url ) . '">' . esc_html( $original_title ) . '</a>' ); ?>
 							</p>
 						<?php endif; ?>

@@ -1,3 +1,4 @@
+/* global openShortcodeGenerator, FusionPageBuilderEvents, fusionAllElements, FusionPageBuilderApp, CodeMirror, fusionBuilderText, noUiSlider, wNumb, FusionPageBuilderViewManager, alert */
 var FusionPageBuilder = FusionPageBuilder || {};
 
 ( function( $ ) {
@@ -44,7 +45,6 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				    content = '',
 				    view,
 				    $contentTextarea,
-				    $contentTextareaContainer,
 				    $contentTextareaOption,
 				    $colorPicker,
 				    $uploadButton,
@@ -63,36 +63,24 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				    $choice,
 				    $rangeSlider,
 				    $i,
-				    $slider,
-				    $slide,
-				    $targetId,
-				    $rangeInput,
-				    $min,
-				    $max,
-				    $step,
-				    value,
-				    $decimals,
-				    $rangeDefault,
-				    $hiddenValue,
-				    $defaultValue,
 				    thisModel,
 				    $selectField,
 				    textareaID,
 				    allowGenerator = false,
 				    $dimensionField,
-				    $notFirst,
 				    codeBlockId,
 				    $codeBlock,
 				    codeElement,
 				    that = this,
-				    $defaultReset,
 				    $textField,
 				    $placeholderText,
 				    $theContent,
 				    fixSettingsLvl = false,
 				    parentAtts,
 				    $linkButton,
-				    $dateTimePicker;
+				    $dateTimePicker,
+				    $multipleImages,
+				    fetchIds = [];
 
 				thisModel = this.model;
 
@@ -122,6 +110,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				$codeBlock         = this.$el.find( '.fusion-builder-code-block' );
 				$linkButton        = this.$el.find( '.fusion-builder-link-button' );
 				$dateTimePicker    = this.$el.find( '.fusion-datetime' );
+				$multipleImages    = this.$el.find( '.fusion-multiple-image-container' );
 
 				if ( $textField.length ) {
 					$textField.on( 'focus', function( event ) {
@@ -136,7 +125,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				if ( $dateTimePicker.length ) {
-					jQuery( $dateTimePicker ).datetimepicker( {
+					jQuery( $dateTimePicker ).fusiondatetimepicker( {
 						format: 'yyyy-MM-dd hh:mm:ss'
 					} );
 				}
@@ -152,7 +141,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 								change: function( event, ui ) {
 									that.colorChange( ui.color.toString(), self, $defaultReset );
 								},
-								clear: function( event, ui ) {
+								clear: function( event ) {
 									that.colorClear( event, self );
 								}
 							} );
@@ -177,6 +166,41 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					} );
 				}
 
+				if ( $multipleImages.length ) {
+					$multipleImages.each( function() {
+						var $multipleImageContainer = jQuery( this ),
+						    ids;
+
+						$multipleImageContainer.html( '' );
+
+						if ( 'string' !== typeof $multipleImageContainer.parent().find( '#image_ids' ).val() ) {
+							return;
+						}
+
+						// Set the media dialog box state as 'gallery' if the element is gallery.
+						ids = $multipleImageContainer.parent().find( '#image_ids' ).val().split( ',' );
+
+						// Check which attachments exist.
+						jQuery.each( ids, function( index, id ) {
+							if ( '' !== id && 'NaN' !== id ) {
+
+								// Doesn't exist need to fetch.
+								if ( 'undefined' === typeof wp.media.attachment( id ).get( 'url' ) ) {
+									fetchIds.push( id );
+								}
+							}
+						});
+
+						// Fetch attachments if neccessary.
+						if ( 0 < fetchIds.length ) {
+							wp.media.query({ post__in: fetchIds, posts_per_page: fetchIds.length }).more().then( function( response ) { // jshint ignore:line
+								that.renderAttachments( ids, $multipleImageContainer );
+							});
+						} else {
+							that.renderAttachments( ids, $multipleImageContainer );
+						}
+					});
+				}
 				if ( $codeBlock.length ) {
 					$codeBlock.each( function() {
 						codeBlockId = $( this ).attr( 'id' );
@@ -199,7 +223,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				if ( $dimensionField.length ) {
 					$dimensionField.each( function() {
-						jQuery( this ).find( '.fusion-builder-dimension input' ).on( 'change paste keyup', function( e ) {
+						jQuery( this ).find( '.fusion-builder-dimension input' ).on( 'change paste keyup', function() {
 							jQuery( this ).parents( '.single-builder-dimension' ).find( 'input[type="hidden"]' ).val(
 								( ( jQuery( this ).parents( '.single-builder-dimension' ).find( 'div:nth-child(1) input' ).val().length ) ? jQuery( this ).parents( '.single-builder-dimension' ).find( 'div:nth-child(1) input' ).val() : '0px' ) + ' ' +
 								( ( jQuery( this ).parents( '.single-builder-dimension' ).find( 'div:nth-child(2) input' ).val().length ) ? jQuery( this ).parents( '.single-builder-dimension' ).find( 'div:nth-child(2) input' ).val() : '0px' ) + ' ' +
@@ -254,10 +278,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					$visibility = this.$el.find( '.fusion-form-checkbox-button-set.hide_on_mobile' );
 					if ( $visibility.length ) {
 						$choice = $visibility.find( '.button-set-value' ).val();
-						if ( 'no' == $choice || '' == $choice ) {
+						if ( 'no' === $choice || '' === $choice ) {
 							$visibility.find( 'a' ).addClass( 'ui-state-active' );
 						}
-						if ( 'yes' == $choice ) {
+						if ( 'yes' === $choice ) {
 							$visibility.find( 'a:not([data-value="small-visibility"])' ).addClass( 'ui-state-active' );
 						}
 					}
@@ -327,14 +351,17 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 					// On manual input change, update slider position
 					$rangeInput.on( 'keyup', function( values, handle ) {
+
+						// If slider already has value, do nothing.
+						if ( this.value === $rangeSlider[$slide].noUiSlider.get() ) {
+							return;
+						}
 						if ( $rangeDefault ) {
 							$rangeDefault.parent().removeClass( 'checked' );
 							$hiddenValue.val( values[handle] );
 						}
 
-						if ( this.value !== $rangeSlider[$slide].noUiSlider.get() ) {
-							$rangeSlider[$slide].noUiSlider.set( this.value );
-						}
+						$rangeSlider[$slide].noUiSlider.set( this.value );
 					});
 				}
 
@@ -434,7 +461,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 								// If it is a placeholder, add an on focus listener.
 								if ( jQuery( '#' + textareaID ).data( 'placeholder' ) ) {
-									window.tinyMCE.get( textareaID ).on( 'focus', function( e ) {
+									window.tinyMCE.get( textareaID ).on( 'focus', function() {
 										$theContent = window.tinyMCE.get( textareaID ).getContent();
 										$theContent = jQuery( '<div/>' ).html( $theContent ).text();
 										if ( $theContent === jQuery( '#' + textareaID ).data( 'placeholder' ) ) {
@@ -459,7 +486,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 								// If it is a placeholder, add an on focus listener.
 								if ( jQuery( '#' + textareaID ).data( 'placeholder' ) ) {
-									window.tinyMCE.get( textareaID ).on( 'focus', function( e ) {
+									window.tinyMCE.get( textareaID ).on( 'focus', function() {
 										$theContent = window.tinyMCE.get( textareaID ).getContent();
 										$theContent = jQuery( '<div/>' ).html( $theContent ).text();
 										if ( $theContent === jQuery( '#' + textareaID ).data( 'placeholder' ) ) {
@@ -477,7 +504,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				}
 
 				// Attachment upload alert.
-				this.$el.find( '.uploadattachment .fusion-builder-upload-button' ).on( 'click', function( e ) {
+				this.$el.find( '.uploadattachment .fusion-builder-upload-button' ).on( 'click', function() {
 					alert( fusionBuilderText.to_add_images );
 				});
 
@@ -528,10 +555,25 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					self.val( '' );
 					self.parent().parent().find( '.wp-color-result' ).css( 'background-color', defaultColor );
 				}
+			},
+
+			renderAttachments: function( ids, $multipleImageContainer ) {
+				var $imageHTML,
+				    attachment;
+
+				if ( 0 < ids.length ) {
+					jQuery.each( ids, function( index, id ) {
+						if ( '' !== id && 'NaN' !== id ) {
+							attachment  = wp.media.attachment( id );
+							$imageHTML = '<div class="fusion-multi-image" data-image-id="' + attachment.get( 'id' ) + '">';
+							$imageHTML += '<img src="' + attachment.get( 'url' ) + '"/>';
+							$imageHTML += '<span class="fusion-multi-image-remove dashicons dashicons-no-alt"></span>';
+							$imageHTML += '</div>';
+							$multipleImageContainer.append( $imageHTML );
+						}
+					});
+				}
 			}
-
 		} );
-
 	} );
-
 } )( jQuery );

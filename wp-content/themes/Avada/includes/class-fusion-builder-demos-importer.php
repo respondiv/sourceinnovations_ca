@@ -83,16 +83,7 @@ class Fusion_Builder_Demos_Importer {
 	 * @since 5.0.3
 	 * @var bool
 	 */
-	private $is_demo_data_zip_extractable = true;
-
-	/**
-	 * The demo name array..
-	 *
-	 * @access private
-	 * @since 5.0.3
-	 * @var string
-	 */
-	private $demos = array();
+	private $is_demo_data_zip_extractable = false;
 
 	/**
 	 * The class constructor.
@@ -105,10 +96,14 @@ class Fusion_Builder_Demos_Importer {
 		$this->demo_folder_path            = self::get_demo_folder_path();
 		$this->is_demo_folder_writeable    = self::is_demo_folder_writeable();
 		$this->is_demo_data_zip_downloaded = $this->import_demo_data_zip();
-		$this->demos                       = $this->get_demo_names_array();
 
-		$this->include_demo_files();
+		if ( $this->is_demo_data_zip_downloaded ) {
+			$this->is_demo_data_zip_extractable = $this->extract_demo_data_zip();
 
+			if ( $this->is_demo_data_zip_extractable ) {
+				$this->include_demo_files();
+			}
+		}
 	}
 
 	/**
@@ -307,75 +302,18 @@ class Fusion_Builder_Demos_Importer {
 	}
 
 	/**
-	 * Get demo names array..
-	 *
-	 * @access private
-	 * @since 5.0.3
-	 * @return array
-	 */
-	private function get_demo_names_array() {
-
-		$demos = array(
-		   'agency',
-		   'app',
-		   'architecture',
-		   'cafe',
-		   'charity',
-		   'church',
-		   'classic',
-		   'classic_shop',
-		   'construction',
-		   'creative',
-		   'daycare',
-		   'fashion',
-		   'forum',
-		   'gym',
-		   'health',
-		   'hosting',
-		   'hotel',
-		   'landing_product',
-		   'law',
-		   'lifestyle',
-		   'modern_shop',
-		   'music',
-		   'photography',
-		   'photography_light',
-		   'travel',
-		   'resume',
-		   'science',
-		   'technology',
-		   'veterinarian',
-		   'wedding',
-		);
-
-		return $demos;
-
-	}
-
-	/**
 	 * Include the demo data files.
 	 *
-	 * @access private
 	 * @since 5.0.3
-	 * @return bool
+	 * @access private
+	 * @return void
 	 */
 	private function include_demo_files() {
 
 		// Load Fusion Builder demos.
-		foreach ( $this->demos as $demo ) {
-			$demo_file = wp_normalize_path( $this->demo_folder_path['direct'] . $demo . '.php' );
-
-			if ( ! file_exists( $demo_file ) && $this->is_demo_data_zip_downloaded && $this->is_demo_data_zip_extractable ) {
-				$this->is_demo_data_zip_extractable = $this->extract_demo_data_zip();
-			}
-
-			if ( file_exists( $demo_file ) ) {
-				include $demo_file;
-			}
+		foreach ( glob( $this->demo_folder_path['direct'] . '*.php', GLOB_NOSORT ) as $demo_file ) {
+			include $demo_file;
 		}
-
-		return true;
-
 	}
 
 	/**

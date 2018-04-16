@@ -5,7 +5,7 @@
 /// <reference path="../../../js/lodash-3.10.d.ts" />
 /// <reference path="./dashboard-widget.ts" />
 /// <reference path="../../../modules/actor-selector/actor-selector.ts" />
-var AmeDashboardWidgetEditor = (function () {
+var AmeDashboardWidgetEditor = /** @class */ (function () {
     function AmeDashboardWidgetEditor(widgetSettings, selectedActor, isMultisite) {
         if (selectedActor === void 0) { selectedActor = null; }
         if (isMultisite === void 0) { isMultisite = false; }
@@ -46,6 +46,8 @@ var AmeDashboardWidgetEditor = (function () {
     AmeDashboardWidgetEditor.prototype.loadSettings = function (widgetSettings) {
         var _ = AmeDashboardWidgetEditor._;
         this.widgets.removeAll();
+        this.welcomePanel = new AmeWelcomeWidget(_.get(widgetSettings, 'welcomePanel', {}), this);
+        this.widgets.push(this.welcomePanel);
         for (var i = 0; i < widgetSettings.widgets.length; i++) {
             var properties = widgetSettings.widgets[i], widget = null;
             if (properties.hasOwnProperty('wrappedWidget')) {
@@ -74,12 +76,14 @@ var AmeDashboardWidgetEditor = (function () {
         }
         this.initialWidgetSettings = widgetSettings;
     };
+    // noinspection JSUnusedGlobalSymbols Used in Knockout templates.
     AmeDashboardWidgetEditor.prototype.removeWidget = function (widget, event) {
         var _this = this;
         jQuery(event.target).closest('.ame-dashboard-widget').slideUp(300, function () {
             _this.widgets.remove(widget);
         });
     };
+    // noinspection JSUnusedGlobalSymbols Used in Knockout templates.
     AmeDashboardWidgetEditor.prototype.addHtmlWidget = function () {
         this.newWidgetCounter++;
         var widget = new AmeCustomHtmlWidget({
@@ -90,6 +94,7 @@ var AmeDashboardWidgetEditor = (function () {
         widget.isOpen(true);
         this.widgets.unshift(widget);
     };
+    // noinspection JSUnusedGlobalSymbols Used in Knockout templates.
     AmeDashboardWidgetEditor.prototype.saveChanges = function () {
         var settings = this.getCurrentSettings();
         //Set the hidden form fields.
@@ -100,20 +105,28 @@ var AmeDashboardWidgetEditor = (function () {
     };
     AmeDashboardWidgetEditor.prototype.getCurrentSettings = function () {
         var collectionFormatName = 'Admin Menu Editor dashboard widgets';
-        var collectionFormatVersion = '1.0';
+        var collectionFormatVersion = '1.1';
+        var _ = AmeDashboardWidgetEditor._;
         var settings = {
             format: {
                 name: collectionFormatName,
                 version: collectionFormatVersion
             },
             widgets: [],
+            welcomePanel: {
+                grantAccess: _.pick(this.welcomePanel.grantAccess.getAll(), function (hasAccess, actorId) {
+                    //Remove "allow" settings for actors that can't actually see the panel.
+                    return AmeActors.hasCapByDefault(actorId, 'edit_theme_options') || !hasAccess;
+                })
+            },
             siteComponentHash: this.initialWidgetSettings.siteComponentHash
         };
-        AmeDashboardWidgetEditor._.forEach(this.widgets(), function (widget) {
+        _.forEach(_.without(this.widgets(), this.welcomePanel), function (widget) {
             settings.widgets.push(widget.toPropertyMap());
         });
         return settings;
     };
+    // noinspection JSUnusedGlobalSymbols Used in Knockout templates.
     AmeDashboardWidgetEditor.prototype.exportWidgets = function () {
         var _this = this;
         //Temporarily disable the export button to prevent accidental repeated clicks.
@@ -210,14 +223,15 @@ var AmeDashboardWidgetEditor = (function () {
             _this.importDialog.dialog('close');
         });
     };
+    // noinspection JSUnusedGlobalSymbols Used in Knockout templates.
     AmeDashboardWidgetEditor.prototype.openImportDialog = function () {
         this.importDialog.dialog('open');
     };
+    AmeDashboardWidgetEditor._ = wsAmeLodash;
+    AmeDashboardWidgetEditor.autoCleanupEnabled = true;
+    AmeDashboardWidgetEditor.customIdPrefix = 'ame-custom-html-widget-';
     return AmeDashboardWidgetEditor;
 }());
-AmeDashboardWidgetEditor._ = wsAmeLodash;
-AmeDashboardWidgetEditor.autoCleanupEnabled = true;
-AmeDashboardWidgetEditor.customIdPrefix = 'ame-custom-html-widget-';
 //A one-way binding for indeterminate checkbox states.
 ko.bindingHandlers['indeterminate'] = {
     update: function (element, valueAccessor) {

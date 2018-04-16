@@ -19,7 +19,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertDoesntExist(
 		'#menu-settings .wp-submenu li a[href="options-general.php"]',
 		'The "General" item is no longer in the "Settings" menu'

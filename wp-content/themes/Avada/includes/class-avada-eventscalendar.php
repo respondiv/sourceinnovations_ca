@@ -33,6 +33,8 @@ class Avada_EventsCalendar {
 		add_action( 'tribe_events_bar_after_template', array( $this, 'add_clearfix' ) );
 
 		add_filter( 'tribe_events_get_the_excerpt', array( $this, 'get_the_excerpt' ), 10, 2 );
+
+		add_action( 'tribe_events_pro_tribe_events_shortcode_prepare_photo', array( $this, 'add_packery_library_to_photo_view' ), 20 );
 	}
 
 	/**
@@ -132,5 +134,16 @@ class Avada_EventsCalendar {
 		}
 
 		return $excerpt;
+	}
+
+	/**
+	 * Add packery library to the Events Calendar Photo View shortcode.
+	 *
+	 * @since 5.3.1
+	 * @access public
+	 * @return void
+	 */
+	public function add_packery_library_to_photo_view() {
+		wp_enqueue_script( 'tribe-events-pro-isotope-packery', FUSION_LIBRARY_URL . '/assets/min/js/library/packery.js', array( 'tribe-events-pro-isotope' ), '', true );
 	}
 }

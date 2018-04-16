@@ -4,7 +4,7 @@
 Plugin Name: Fusion Builder
 Plugin URI: http://www.theme-fusion.com
 Description: ThemeFusion Page Builder Plugin
-Version: 1.2.2
+Version: 1.4.2
 Author: ThemeFusion
 Author URI: http://www.theme-fusion.com
 */
@@ -21,7 +21,7 @@ if ( ! defined( 'FUSION_BUILDER_DEV_MODE' ) ) {
 
 // Plugin version.
 if ( ! defined( 'FUSION_BUILDER_VERSION' ) ) {
-	define( 'FUSION_BUILDER_VERSION', '1.2.2' );
+	define( 'FUSION_BUILDER_VERSION', '1.4.2' );
 }
 // Plugin Folder Path.
 if ( ! defined( 'FUSION_BUILDER_PLUGIN_DIR' ) ) {
@@ -191,21 +191,16 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 		 * @since 1.0
 		 */
 		private function __construct() {
-			if ( true == FUSION_BUILDER_DEV_MODE ) {
-				$path = '';
-			} else {
-				$path = '/min';
-			}
-
+			$path = ( true == FUSION_BUILDER_DEV_MODE ) ? '' : '/min';
 			self::$js_folder_url = FUSION_BUILDER_PLUGIN_URL . 'assets/js' . $path;
 			self::$js_folder_path = FUSION_BUILDER_PLUGIN_DIR . 'assets/js' . $path;
 
-			// Multilingual handling.
 			$this->set_is_updating();
 			$this->includes();
 			$this->textdomain();
 			$this->register_scripts();
 			$this->init();
+
 			if ( is_admin() && ! class_exists( 'Avada' ) ) {
 				$this->registration = new Fusion_Product_Registration(
 					array(
@@ -263,8 +258,10 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 			// Content filter.
 			add_filter( 'the_content', array( $this, 'fix_builder_shortcodes' ) );
 			add_filter( 'the_content', array( $this, 'fusion_calculate_columns' ), 0 );
+			add_filter( 'the_content', array( $this, 'fusion_calculate_containers' ), 1 );
 			add_filter( 'widget_text', array( $this, 'fusion_calculate_columns' ), 1, 3 );
 			add_filter( 'widget_display_callback', array( $this, 'fusion_disable_wpautop_in_widgets' ), 10, 3 );
+			add_filter( 'no_texturize_shortcodes', array( $this, 'exempt_from_wptexturize' ) );
 
 			// Save Helper metaboxes.
 			add_action( 'save_post', array( $this, 'metabox_settings_save_details' ), 10, 2 );
@@ -301,7 +298,7 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 		 * @since 1.1.0
 		 * @param mixed $p Posts.
 		 */
-		function next_page_helper( $p ) {
+		private function next_page_helper( $p ) {
 
 			if ( false !== strpos( $p->post_content, '[fusion_builder_next_page]' ) ) {
 				$p->post_content = str_replace( '[fusion_builder_next_page]', '<!--nextpage-->', $p->post_content );
@@ -394,6 +391,9 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 			require_once FUSION_BUILDER_PLUGIN_DIR . 'inc/helpers.php';
 			if ( function_exists( 'fusion_builder_auto_activate_element' ) ) {
 				fusion_builder_auto_activate_element( 'fusion_gallery' );
+				if ( class_exists( 'Convert_Plug' ) ) {
+					fusion_builder_auto_activate_element( 'fusion_convert_plus' );
+				}
 			}
 
 			$fusion_cache = new Fusion_Cache();
@@ -650,6 +650,23 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 		}
 
 		/**
+		 * Count the containers of a page.
+		 *
+		 * @access public
+		 * @since 1.3
+		 * @param string $content The content.
+		 * @return string $content
+		 */
+		public function fusion_calculate_containers( $content ) {
+			global $global_container_count;
+
+			$global_container_count = substr_count( $content, '[fusion_builder_container' );
+
+			return $content;
+		}
+
+
+		/**
 		 * Count the columns and break up to rows.
 		 *
 		 * @access public
@@ -668,6 +685,8 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 				$content_id = $widget->id;
 				$is_in_widget = true;
 			}
+
+			$content = apply_filters( 'content_edit_pre', $content, $content, $content_id );
 
 			$needles = array(
 				array(
@@ -718,7 +737,7 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 					$element_position_change = 0;
 					$last_column_was_full = false;
 
-					while ( ( $row_last_pos = strpos( $row_content,  $needle['column_opening'], $row_last_pos + 1 ) ) !== false ) {
+					while ( ( $row_last_pos = strpos( $row_content, $needle['column_opening'], $row_last_pos + 1 ) ) !== false ) {
 						$element_positions[] = $row_last_pos;
 					}
 
@@ -864,6 +883,19 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 		}
 
 		/**
+		 * Fixes image src issue for URLs with dashes.
+		 *
+		 * @access public
+		 * @since  1.4
+		 * @param  Array $shortcodes    Array of shortcodes to exempt.
+		 * @return $shortcodes
+		 */
+		public function exempt_from_wptexturize( $shortcodes ) {
+			$shortcodes[] = 'fusion_imageframe';
+			return $shortcodes;
+		}
+
+		/**
 		 * Helper function that substracts values.
 		 * Added for compatibility with older PHP versions.
 		 *
@@ -898,15 +930,16 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 			if ( 'off' !== $fusion_settings->get( 'css_cache_method' ) ) {
 				return;
 			}
-			$shortcodes_css_filename = ( true == FUSION_BUILDER_DEV_MODE ) ? 'css/fusion-shortcodes.css' : 'css/fusion-shortcodes.min.css';
-			wp_enqueue_style( 'fusion-builder-shortcodes', FUSION_BUILDER_PLUGIN_URL . $shortcodes_css_filename, array(), FUSION_BUILDER_VERSION );
+
+			$min_version = ( true == FUSION_BUILDER_DEV_MODE ) ? '.min' : '';
+			wp_enqueue_style( 'fusion-builder-shortcodes', FUSION_BUILDER_PLUGIN_URL . 'css/fusion-shortcodes' . $min_version . '.css', array(), FUSION_BUILDER_VERSION );
 
 			if ( fusion_library()->get_option( 'use_animate_css' ) ) {
-				wp_enqueue_style( 'fusion-builder-animations', FUSION_BUILDER_PLUGIN_URL . 'animations.min.css', array(), FUSION_BUILDER_VERSION );
+				wp_enqueue_style( 'fusion-builder-animations', FUSION_BUILDER_PLUGIN_URL . 'assets/css/animations' . $min_version . '.css', array(), FUSION_BUILDER_VERSION );
 			}
 
 			if ( fusion_library()->get_option( 'status_lightbox' ) ) {
-				wp_enqueue_style( 'fusion-builder-ilightbox', FUSION_BUILDER_PLUGIN_URL . 'ilightbox.min.css', array(), FUSION_BUILDER_VERSION );
+				wp_enqueue_style( 'fusion-builder-ilightbox', FUSION_BUILDER_PLUGIN_URL . 'assets/css/ilightbox' . $min_version . '.css', array(), FUSION_BUILDER_VERSION );
 			}
 			// Fusion Builder frontend js.
 			// @codingStandardsIgnoreLine
@@ -914,7 +947,7 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 
 			// Font-awesome CSS.
 			if ( fusion_library()->get_option( 'status_fontawesome' ) ) {
-				wp_enqueue_style( 'fusion-font-awesome', FUSION_BUILDER_PLUGIN_URL . 'inc/lib/assets/fonts/fontawesome/font-awesome.css', array(), FUSION_BUILDER_VERSION );
+				wp_enqueue_style( 'fusion-font-awesome', FUSION_BUILDER_PLUGIN_URL . 'inc/lib/assets/fonts/fontawesome/font-awesome' . $min_version . '.css', array(), FUSION_BUILDER_VERSION );
 			}
 
 		}
@@ -945,20 +978,23 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 				// Stylesheet ID: fusion-builder-shortcodes. @codingStandardsIgnoreLine
 				$styles .= @file_get_contents( FUSION_BUILDER_PLUGIN_DIR . 'css/fusion-shortcodes.min.css' );
 
-				// Stylesheet ID: fusion-builder-animations. @codingStandardsIgnoreLine
+				// Stylesheet ID: fusion-builder-animations.
 				if ( fusion_library()->get_option( 'use_animate_css' ) ) {
-					$styles .= @file_get_contents( FUSION_BUILDER_PLUGIN_DIR . 'animations.min.css' );
+					// @codingStandardsIgnoreLine
+					$styles .= @file_get_contents( FUSION_BUILDER_PLUGIN_DIR . 'assets/css/animations.min.css' );
 				}
 
-				// Stylesheet ID: fusion-builder-ilightbox. @codingStandardsIgnoreLine
+				// Stylesheet ID: fusion-builder-ilightbox.
 				if ( fusion_library()->get_option( 'status_lightbox' ) ) {
-					$ilightbox_styles = @file_get_contents( FUSION_BUILDER_PLUGIN_DIR . 'ilightbox.min.css' );
+					// @codingStandardsIgnoreLine
+					$ilightbox_styles = @file_get_contents( FUSION_BUILDER_PLUGIN_DIR . 'assets/css/ilightbox.min.css' );
 					$ilightbox_url    = set_url_scheme( FUSION_BUILDER_PLUGIN_URL . 'assets/images/' );
-					$styles .= str_replace( 'url(assets/images/', 'url(' . $ilightbox_url, $ilightbox_styles );
+					$styles .= str_replace( 'url(../../assets/images/', 'url(' . $ilightbox_url, $ilightbox_styles );
 				}
 
-				// Stylesheet ID: fusion-font-awesome. @codingStandardsIgnoreLine
+				// Stylesheet ID: fusion-font-awesome.
 				if ( fusion_library()->get_option( 'status_fontawesome' ) ) {
+					// @codingStandardsIgnoreLine
 					$font_awesome_styles = @file_get_contents( FUSION_BUILDER_PLUGIN_DIR . 'inc/lib/assets/fonts/fontawesome/font-awesome.min.css' );
 					$font_awesome_url    = set_url_scheme( FUSION_BUILDER_PLUGIN_URL . 'inc/lib/assets/fonts/fontawesome/' );
 
@@ -1048,7 +1084,7 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 			// Load Fusion builder importer js.
 			// @codingStandardsIgnoreLine
 			if ( 'admin.php' == $pagenow && isset( $_GET['page'] ) && 'fusion-builder-settings' == $_GET['page'] ) {
-				wp_enqueue_script( 'fusion_builder_importer_js', FUSION_BUILDER_PLUGIN_URL . 'inc/importer/js/fusion-builer-importer.js', '', FUSION_BUILDER_VERSION, true );
+				wp_enqueue_script( 'fusion_builder_importer_js', FUSION_BUILDER_PLUGIN_URL . 'inc/importer/js/fusion-builder-importer.js', '', FUSION_BUILDER_VERSION, true );
 
 				// Localize Scripts.
 				wp_localize_script(
@@ -1086,19 +1122,19 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 				wp_enqueue_style( 'fusion-builder-codemirror-css', FUSION_BUILDER_PLUGIN_URL . 'assets/js/codemirror/codemirror.css', array(), FUSION_BUILDER_VERSION, 'all' );
 
 				// WP Editor.
-				wp_enqueue_script( 'fusion-builder-wp-editor-js', FUSION_BUILDER_PLUGIN_URL . 'js/wp-editor.js', array( 'jquery' ), FUSION_BUILDER_VERSION, true );
+				wp_enqueue_script( 'fusion-builder-wp-editor-js', FUSION_BUILDER_PLUGIN_URL . 'assets/js/wpeditor/wp-editor.js', array( 'jquery' ), FUSION_BUILDER_VERSION, true );
 
 				// ColorPicker Alpha Channel.
-				wp_enqueue_script( 'wp-color-picker-alpha', FUSION_BUILDER_PLUGIN_URL . 'js/wp-color-picker-alpha.js', array( 'wp-color-picker', 'jquery-color' ), FUSION_BUILDER_VERSION );
+				wp_enqueue_script( 'wp-color-picker-alpha', FUSION_BUILDER_PLUGIN_URL . 'assets/js/colorpickeralpha/wp-color-picker-alpha.js', array( 'wp-color-picker', 'jquery-color' ), FUSION_BUILDER_VERSION );
 
 				// Bootstrap date and time picker.
-				wp_enqueue_script( 'bootstrap-datetimepicker', FUSION_BUILDER_PLUGIN_URL . 'js/bootstrap-datetimepicker.min.js', array( 'jquery' ), FUSION_BUILDER_VERSION );
-				wp_enqueue_style( 'bootstrap-datetimepicker', FUSION_BUILDER_PLUGIN_URL . 'css/bootstrap-datetimepicker.css', array(), '5.0.0', 'all' );
+				wp_enqueue_script( 'bootstrap-datetimepicker', FUSION_BUILDER_PLUGIN_URL . 'assets/js/datetimepicker/bootstrap-datetimepicker.min.js', array( 'jquery' ), FUSION_BUILDER_VERSION );
+				wp_enqueue_style( 'bootstrap-datetimepicker', FUSION_BUILDER_PLUGIN_URL . 'assets/css/bootstrap-datetimepicker.css', array(), '5.0.0', 'all' );
 
 				// The noUi Slider.
-				wp_enqueue_style( 'avadaredux-nouislider-css', FUSION_BUILDER_PLUGIN_URL . 'css/nouislider.css', array(), '5.0.0', 'all' );
+				wp_enqueue_style( 'avadaredux-nouislider-css', FUSION_BUILDER_PLUGIN_URL . 'assets/css/nouislider.css', array(), '5.0.0', 'all' );
 
-				wp_enqueue_script( 'avadaredux-nouislider-js', FUSION_BUILDER_PLUGIN_URL . 'js/nouislider.min.js', array( 'jquery' ), '8.5.1', true );
+				wp_enqueue_script( 'avadaredux-nouislider-js', FUSION_BUILDER_PLUGIN_URL . 'assets/js/nouislider/nouislider.min.js', array( 'jquery' ), '8.5.1', true );
 
 				wp_enqueue_script( 'wnumb-js', FUSION_BUILDER_PLUGIN_URL . 'js/wNumb.js', array( 'jquery' ), '1.0.2', true );
 
@@ -1107,10 +1143,10 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 
 				// Icomoon font.
 				wp_enqueue_style( 'fusion-font-icomoon', FUSION_BUILDER_PLUGIN_URL . 'assets/fonts/icomoon.css', false, FUSION_BUILDER_VERSION, 'all' );
-				wp_enqueue_style( 'fusion-chosen-css', FUSION_BUILDER_PLUGIN_URL . 'tinymce/css/chosen.css', false, FUSION_BUILDER_VERSION, 'all' );
+				wp_enqueue_style( 'fusion-chosen-css', FUSION_BUILDER_PLUGIN_URL . 'assets/css/chosen.css', false, FUSION_BUILDER_VERSION, 'all' );
 
 				// Chosen js.
-				wp_enqueue_script( 'fusion_builder_chosen_js', FUSION_BUILDER_PLUGIN_URL . 'js/chosen.jquery.min.js', '', FUSION_BUILDER_VERSION, true );
+				wp_enqueue_script( 'fusion_builder_chosen_js', FUSION_BUILDER_PLUGIN_URL . 'assets/js/chosen/chosen.jquery.min.js', '', FUSION_BUILDER_VERSION, true );
 
 				// Developer mode is enabled.
 				if ( true == FUSION_BUILDER_DEV_MODE ) {
@@ -1145,6 +1181,8 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 					wp_enqueue_script( 'fusion_builder_view_row', FUSION_BUILDER_PLUGIN_URL . 'js/views/view-row.js', array( 'fusion_builder_app_util_js' ), FUSION_BUILDER_VERSION, true );
 
 					wp_enqueue_script( 'fusion_builder_view_row_nested', FUSION_BUILDER_PLUGIN_URL . 'js/views/view-row-nested.js', array( 'fusion_builder_app_util_js' ), FUSION_BUILDER_VERSION, true );
+
+					wp_enqueue_script( 'fusion_builder_view_column_nested_library', FUSION_BUILDER_PLUGIN_URL . 'js/views/view-nested-column-library.js', array( 'fusion_builder_app_util_js' ), FUSION_BUILDER_VERSION, true );
 
 					wp_enqueue_script( 'fusion_builder_view_column_nested', FUSION_BUILDER_PLUGIN_URL . 'js/views/view-column-nested.js', array( 'fusion_builder_app_util_js' ), FUSION_BUILDER_VERSION, true );
 
@@ -1790,7 +1828,7 @@ if ( ! class_exists( 'FusionBuilder' ) ) :
 			$value_length = strlen( $value );
 			$unit_length = strlen( $unit_to_strip );
 
-			if ( $value_length > $unit_length && 0 === substr_compare( $value, $unit_to_strip, $unit_length * (-1), $unit_length ) ) {
+			if ( $value_length > $unit_length && 0 === substr_compare( $value, $unit_to_strip, $unit_length * ( -1 ), $unit_length ) ) {
 				return substr( $value, 0, $value_length - $unit_length );
 			} else {
 				return $value;

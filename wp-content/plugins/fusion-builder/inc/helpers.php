@@ -4,7 +4,9 @@
  */
 
 // Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) { exit; }
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Fix shortcode content. Remove p and br tags.
@@ -283,7 +285,7 @@ function fusion_builder_shortcodes_tags( $taxonomy, $empty_choice = false, $empt
 		$post_tags[ $empty_choice_label ] = '';
 	}
 
-	$get_terms = get_terms( $taxonomy , array( 'hide_empty' => true ) );
+	$get_terms = get_terms( $taxonomy, array( 'hide_empty' => true ) );
 
 	if ( ! is_wp_error( $get_terms ) ) {
 
@@ -311,144 +313,146 @@ function fusion_builder_shortcodes_tags( $taxonomy, $empty_choice = false, $empt
  */
 function fusion_builder_column_layouts( $module = '' ) {
 
-	$layouts = apply_filters( 'fusion_builder_column_layouts', array(
-		array(
-			'layout'   => array( '' ),
-			'keywords' => esc_attr__( 'empty blank', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_1' ),
-			'keywords' => esc_attr__( 'full one 1', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_2' ),
-			'keywords' => esc_attr__( 'two half 2 1/2', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3','1_3','1_3' ),
-			'keywords' => esc_attr__( 'third thee 3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_4','1_4','1_4' ),
-			'keywords' => esc_attr__( 'four fourth 4 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_3','1_3' ),
-			'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3','2_3' ),
-			'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','3_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_4','1_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_4','1_4' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_4','1_2' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_2','1_4' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','4_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '4_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_5','2_5' ),
-			'keywords' => esc_attr__( 'three fith two fifth 3/5 2/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_5','3_5' ),
-			'keywords' => esc_attr__( 'two fifth three fifth 2/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','1_5','3_5' ),
-			'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','3_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_6','1_6','1_6' ),
-			'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','1_6','1_6','1_2' ),
-			'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','2_3','1_6' ),
-			'keywords' => esc_attr__( 'one two six sixth 2/3 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','1_5','1_5','1_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','1_6','1_6','1_6','1_6','1_6' ),
-			'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '5_6' ),
-			'keywords' => esc_attr__( 'five sixth 5/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '4_5' ),
-			'keywords' => esc_attr__( 'four fifth 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_4' ),
-			'keywords' => esc_attr__( 'three fourth 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_3' ),
-			'keywords' => esc_attr__( 'two third 2/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_5' ),
-			'keywords' => esc_attr__( 'three fifth 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2' ),
-			'keywords' => esc_attr__( 'one half two 1/2', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_5' ),
-			'keywords' => esc_attr__( 'two fifth 2/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3' ),
-			'keywords' => esc_attr__( 'one third three 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6' ),
-			'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
-		),
-	) );
+	$layouts = apply_filters(
+		'fusion_builder_column_layouts', array(
+			array(
+				'layout'   => array( '' ),
+				'keywords' => esc_attr__( 'empty blank', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_1' ),
+				'keywords' => esc_attr__( 'full one 1', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_2' ),
+				'keywords' => esc_attr__( 'two half 2 1/2', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3', '1_3', '1_3' ),
+				'keywords' => esc_attr__( 'third thee 3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_4', '1_4', '1_4' ),
+				'keywords' => esc_attr__( 'four fourth 4 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_3', '1_3' ),
+				'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3', '2_3' ),
+				'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '3_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_4', '1_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_4', '1_4' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_4', '1_2' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_2', '1_4' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '4_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '4_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_5', '2_5' ),
+				'keywords' => esc_attr__( 'three fith two fifth 3/5 2/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_5', '3_5' ),
+				'keywords' => esc_attr__( 'two fifth three fifth 2/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '1_5', '3_5' ),
+				'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '3_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_6', '1_6', '1_6' ),
+				'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '1_6', '1_6', '1_2' ),
+				'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '2_3', '1_6' ),
+				'keywords' => esc_attr__( 'one two six sixth 2/3 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '1_5', '1_5', '1_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '1_6', '1_6', '1_6', '1_6', '1_6' ),
+				'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '5_6' ),
+				'keywords' => esc_attr__( 'five sixth 5/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '4_5' ),
+				'keywords' => esc_attr__( 'four fifth 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_4' ),
+				'keywords' => esc_attr__( 'three fourth 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_3' ),
+				'keywords' => esc_attr__( 'two third 2/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_5' ),
+				'keywords' => esc_attr__( 'three fifth 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2' ),
+				'keywords' => esc_attr__( 'one half two 1/2', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_5' ),
+				'keywords' => esc_attr__( 'two fifth 2/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3' ),
+				'keywords' => esc_attr__( 'one third three 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6' ),
+				'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
+			),
+		)
+	);
 
 	// If being viewed on a section, remove empty from layout options.
 	if ( ! isset( $module ) || 'container' !== $module ) {
@@ -477,97 +481,99 @@ function fusion_builder_column_layouts( $module = '' ) {
  */
 function fusion_builder_inner_column_layouts() {
 
-	$layouts = apply_filters( 'fusion_builder_inner_column_layouts', array(
+	$layouts = apply_filters(
+		'fusion_builder_inner_column_layouts', array(
 
-		array(
-			'layout'   => array( '1_1' ),
-			'keywords' => esc_attr__( 'full one 1', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_2' ),
-			'keywords' => esc_attr__( 'two half 2 1/2', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3','1_3','1_3' ),
-			'keywords' => esc_attr__( 'third thee 3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_4','1_4','1_4' ),
-			'keywords' => esc_attr__( 'four fourth 4 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_3','1_3' ),
-			'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3','2_3' ),
-			'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','3_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_4','1_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_4','1_4' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_4','1_2' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_2','1_4' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','4_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '4_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_5','2_5' ),
-			'keywords' => esc_attr__( 'three fith two fifth 3/5 2/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_5','3_5' ),
-			'keywords' => esc_attr__( 'two fifth three fifth 2/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','1_5','3_5' ),
-			'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','3_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_6','1_6','1_6' ),
-			'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','1_6','1_6','1_2' ),
-			'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','2_3','1_6' ),
-			'keywords' => esc_attr__( 'one two six sixth 2/3 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','1_5','1_5','1_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','1_6','1_6','1_6','1_6','1_6' ),
-			'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
-		),
-	) );
+			array(
+				'layout'   => array( '1_1' ),
+				'keywords' => esc_attr__( 'full one 1', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_2' ),
+				'keywords' => esc_attr__( 'two half 2 1/2', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3', '1_3', '1_3' ),
+				'keywords' => esc_attr__( 'third thee 3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_4', '1_4', '1_4' ),
+				'keywords' => esc_attr__( 'four fourth 4 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_3', '1_3' ),
+				'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3', '2_3' ),
+				'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '3_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_4', '1_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_4', '1_4' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_4', '1_2' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_2', '1_4' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '4_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '4_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_5', '2_5' ),
+				'keywords' => esc_attr__( 'three fith two fifth 3/5 2/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_5', '3_5' ),
+				'keywords' => esc_attr__( 'two fifth three fifth 2/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '1_5', '3_5' ),
+				'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '3_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_6', '1_6', '1_6' ),
+				'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '1_6', '1_6', '1_2' ),
+				'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '2_3', '1_6' ),
+				'keywords' => esc_attr__( 'one two six sixth 2/3 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '1_5', '1_5', '1_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '1_6', '1_6', '1_6', '1_6', '1_6' ),
+				'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
+			),
+		)
+	);
 
 	$html = '<ul class="fusion-builder-column-layouts fusion-builder-all-modules">';
 	foreach ( $layouts as $layout ) {
@@ -591,96 +597,98 @@ function fusion_builder_inner_column_layouts() {
  */
 function fusion_builder_generator_column_layouts() {
 
-	$layouts = apply_filters( 'fusion_builder_generators_column_layouts', array(
-		array(
-			'layout'   => array( '1_1' ),
-			'keywords' => esc_attr__( 'full one 1', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_2' ),
-			'keywords' => esc_attr__( 'two half 2 1/2', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3','1_3','1_3' ),
-			'keywords' => esc_attr__( 'third thee 3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_4','1_4','1_4' ),
-			'keywords' => esc_attr__( 'four fourth 4 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_3','1_3' ),
-			'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_3','2_3' ),
-			'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','3_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_4','1_4' ),
-			'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_4','1_4' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_4','1_2' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_4','1_2','1_4' ),
-			'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','4_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '4_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '3_5','2_5' ),
-			'keywords' => esc_attr__( 'three fith two fifth 3/5 2/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '2_5','3_5' ),
-			'keywords' => esc_attr__( 'two fifth three fifth 2/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','1_5','3_5' ),
-			'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','3_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_2','1_6','1_6','1_6' ),
-			'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','1_6','1_6','1_2' ),
-			'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','2_3','1_6' ),
-			'keywords' => esc_attr__( 'one two six sixth 2/3 1/6', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_5','1_5','1_5','1_5','1_5' ),
-			'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
-		),
-		array(
-			'layout'   => array( '1_6','1_6','1_6','1_6','1_6','1_6' ),
-			'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
-		),
-	) );
+	$layouts = apply_filters(
+		'fusion_builder_generators_column_layouts', array(
+			array(
+				'layout'   => array( '1_1' ),
+				'keywords' => esc_attr__( 'full one 1', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_2' ),
+				'keywords' => esc_attr__( 'two half 2 1/2', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3', '1_3', '1_3' ),
+				'keywords' => esc_attr__( 'third thee 3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_4', '1_4', '1_4' ),
+				'keywords' => esc_attr__( 'four fourth 4 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_3', '1_3' ),
+				'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_3', '2_3' ),
+				'keywords' => esc_attr__( 'two third 2/3 1/3', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '3_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_4', '1_4' ),
+				'keywords' => esc_attr__( 'one four fourth 1/4 3/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_4', '1_4' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_4', '1_2' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_4', '1_2', '1_4' ),
+				'keywords' => esc_attr__( 'half one four fourth 1/2 1/4', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '4_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '4_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5 4/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '3_5', '2_5' ),
+				'keywords' => esc_attr__( 'three fith two fifth 3/5 2/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '2_5', '3_5' ),
+				'keywords' => esc_attr__( 'two fifth three fifth 2/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '1_5', '3_5' ),
+				'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '3_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth three 1/5 3/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_2', '1_6', '1_6', '1_6' ),
+				'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '1_6', '1_6', '1_2' ),
+				'keywords' => esc_attr__( 'one half six sixth 1/2 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '2_3', '1_6' ),
+				'keywords' => esc_attr__( 'one two six sixth 2/3 1/6', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_5', '1_5', '1_5', '1_5', '1_5' ),
+				'keywords' => esc_attr__( 'one five fifth 1/5', 'fusion-builder' ),
+			),
+			array(
+				'layout'   => array( '1_6', '1_6', '1_6', '1_6', '1_6', '1_6' ),
+				'keywords' => esc_attr__( 'one six sixth 1/6', 'fusion-builder' ),
+			),
+		)
+	);
 
 	$html = '<ul class="fusion-builder-column-layouts">';
 
@@ -764,10 +772,11 @@ function fusion_builder_custom_css() {
 	}
 
 	$saved_custom_css = get_post_meta( $post->ID, '_fusion_builder_custom_css', true );
-
-	if ( isset( $saved_custom_css ) && '' != $saved_custom_css ) : ?>
+	?>
+	<?php if ( isset( $saved_custom_css ) && '' != $saved_custom_css ) : ?>
 		<style type="text/css"><?php echo stripslashes_deep( $saved_custom_css ); // WPCS: XSS ok. ?></style>
-	<?php endif;
+	<?php endif; ?>
+	<?php
 
 }
 add_action( 'wp_head', 'fusion_builder_custom_css', 11 );
@@ -808,7 +817,7 @@ function fusion_builder_textdomain_strings() {
 		'columns'                                     => esc_attr__( 'Columns', 'fusion-builder' ),
 		'resize_column'                               => esc_attr__( 'Resize column', 'fusion-builder' ),
 		'resized_column'                              => esc_attr__( 'Resized Column to', 'fusion-builder' ),
-		'column_library'                             => esc_attr__( 'Column settings', 'fusion-builder' ),
+		'column_library'                              => esc_attr__( 'Column settings', 'fusion-builder' ),
 		'clone_column'                                => esc_attr__( 'Clone column', 'fusion-builder' ),
 		'save_column'                                 => esc_attr__( 'Save column', 'fusion-builder' ),
 		'delete_column'                               => esc_attr__( 'Delete column', 'fusion-builder' ),
@@ -831,6 +840,7 @@ function fusion_builder_textdomain_strings() {
 		'element_settings'                            => esc_attr__( 'Element Settings', 'fusion-builder' ),
 		'clone_element'                               => esc_attr__( 'Clone Element', 'fusion-builder' ),
 		'save_element'                                => esc_attr__( 'Save Element', 'fusion-builder' ),
+		'save_global'                                 => esc_attr__( 'Save As Global', 'fusion-builder' ),
 		'delete_element'                              => esc_attr__( 'Delete Element', 'fusion-builder' ),
 		'save_custom_element'                         => esc_attr__( 'Save Custom Element', 'fusion-builder' ),
 		'save_custom_element_info'                    => esc_attr__( 'Custom elements will be stored and managed on the Library tab', 'fusion-builder' ),
@@ -847,6 +857,11 @@ function fusion_builder_textdomain_strings() {
 		'please_enter_element_name'                   => esc_attr__( 'Please enter element name', 'fusion-builder' ),
 		'are_you_sure_you_want_to_delete_this_layout' => esc_attr__( 'Are you sure you want to delete this layout ?', 'fusion-builder' ),
 		'are_you_sure_you_want_to_delete_this'        => esc_attr__( 'Are you sure you want to delete this ?', 'fusion-builder' ),
+		'are_you_sure_you_want_to_delete_global'      => esc_attr__( 'This is a global item. Deleting this element will remove it from every page you have it on. Are you sure you want to remove it?', 'fusion-builder' ),
+		'global_element'                              => esc_attr__( 'Global element', 'fusion-builder' ),
+		'global_column'                               => esc_attr__( 'Global column', 'fusion-builder' ),
+		'global_container'                            => esc_attr__( 'Global container', 'fusion-builder' ),
+		'duplicate_element_name_error'                => esc_attr__( 'An element with this name already exists. Please enter different name.', 'fusion-builder' ),
 		'please_enter_template_name'                  => esc_attr__( 'Please enter template name', 'fusion-builder' ),
 		'save_page_layout'                            => esc_attr__( 'Save page layout', 'fusion-builder' ),
 		'upload'                                      => esc_attr__( 'Upload', 'fusion-builder' ),
@@ -881,6 +896,7 @@ function fusion_builder_textdomain_strings() {
 		'moved'                                       => esc_attr__( 'Moved', 'fusion-builder' ),
 		'edited'                                      => esc_attr__( 'Edited', 'fusion-builder' ),
 		'added_nested_columns'                        => esc_attr__( 'Added Nested Columns', 'fusion-builder' ),
+		'edited_nested_columns'                       => esc_attr__( 'Edited Nested Columns', 'fusion-builder' ),
 		'deleted_nested_columns'                      => esc_attr__( 'Deleted Nested Columns', 'fusion-builder' ),
 		'moved_nested_column'                         => esc_attr__( 'Moved Nested Column', 'fusion-builder' ),
 		'head_title'                                  => esc_attr__( 'Head Title', 'fusion-builder' ),
@@ -911,10 +927,9 @@ function fusion_builder_textdomain_strings() {
 		'empty_section'                               => esc_attr__( 'To Add Elements, You Must First Add a Column', 'fusion-builder' ),
 		'empty_section_with_bg'                       => esc_attr__( 'This is an empty container with a background image. To add elements, you must first add a column', 'fusion-builder' ),
 		'to_add_images'                               => esc_attr__( 'To add images to this post or page for attachments layout, navigate to "Upload Files" tab in media manager and upload new images.', 'fusion-builder' ),
-		'importing_single_page'                       => esc_attr__( 'WARNING:
-Importing a single demo page will remove all other page content, fusion page options and page template. Fusion Theme Options and demo images are not imported. Click OK to continue or cancel to stop.', 'fusion-builder' ),
+		'importing_single_page'                       => esc_attr__( 'WARNING: Importing a single demo page will remove all other page content, fusion page options and page template. Fusion Theme Options and demo images are not imported. Click OK to continue or cancel to stop.', 'fusion-builder' ),
 		'content_error_title'                         => esc_attr__( 'Content Error', 'fusion-builder' ),
-		'content_error_description'                   => sprintf( __( 'Your page content could not be converted. Most likely it was created with an earlier (pre 5.0) version of Avada. To update old content to Avada 5.0 or higher, you must go through <a href="%s" target="_blank">conversion</a>.', 'fusion-builder' ), 'https://theme-fusion.com/fb-doc/technical/converting-fusion-builder-pages/' ),
+		'content_error_description'                   => sprintf( __( 'Your page content could not be displayed as a Fusion Builder layout. Most likely that means, there is some invalid markup or shortcode in it. Please check the contents in the text editor. <a href="%s" target="_blank">See here for more information</a>.', 'fusion-builder' ), 'https://theme-fusion.com/fb-doc/technical/page-content-not-parsable-fusion-builder/' ),
 		'moved_container'                             => esc_attr__( 'Moved Container', 'fusion-builder' ),
 		'currency_before'                             => esc_attr__( 'Before', 'fusion-builder' ),
 		'currency_after'                              => esc_attr__( 'After', 'fusion-builder' ),
@@ -942,7 +957,8 @@ function fusion_builder_add_quicktags_button() {
 				QTags.addButton( 'fusion_shortcodes_text_mode', ' ','', '', 'f' );
 			}
 		</script>
-	<?php endif;
+	<?php
+	endif;
 }
 add_action( 'admin_print_footer_scripts', 'fusion_builder_add_quicktags_button' );
 
@@ -971,12 +987,10 @@ function fusion_builder_build_social_links( $social_networks = '', $filter, $def
 
 		// Add compatibility for different key names in shortcodes.
 		foreach ( $defaults as $key => $value ) {
-			// @codingStandardsIgnoreStart
-			$key = ( 'social_icon_boxed'        === $key ) ? 'icons_boxed' : $key;
-			$key = ( 'social_icon_colors'       === $key ) ? 'icon_colors' : $key;
-			$key = ( 'social_icon_boxed_colors' === $key ) ? 'box_colors'  : $key;
-			$key = ( 'social_icon_color_type'   === $key ) ? 'color_type'  : $key;
-			// @codingStandardsIgnoreEnd
+			$key = ( 'social_icon_boxed' === $key ) ? 'icons_boxed' : $key;
+			$key = ( 'social_icon_colors' === $key ) ? 'icon_colors' : $key;
+			$key = ( 'social_icon_boxed_colors' === $key ) ? 'box_colors' : $key;
+			$key = ( 'social_icon_color_type' === $key ) ? 'color_type' : $key;
 
 			$shortcode_defaults[ $key ] = $value;
 		}
@@ -989,8 +1003,14 @@ function fusion_builder_build_social_links( $social_networks = '', $filter, $def
 
 			$box_colors = Fusion_Data::fusion_social_icons( true, true );
 			// Backwards compatibility for old social network names.
-			$box_colors['googleplus'] = array( 'label' => 'Google+', 'color' => '#dc4e41' );
-			$box_colors['mail']       = array( 'label' => esc_html__( 'Email Address', 'fusion-builder' ), 'color' => '#000000' );
+			$box_colors['googleplus'] = array(
+				'label' => 'Google+',
+				'color' => '#dc4e41',
+			);
+			$box_colors['mail']       = array(
+				'label' => esc_html__( 'Email Address', 'fusion-builder' ),
+				'color' => '#000000',
+			);
 
 		} else {
 
@@ -1088,10 +1108,10 @@ function fusion_builder_build_social_links( $social_networks = '', $filter, $def
 
 					} else {
 						$icon_options = array(
-						'social_network' => $network,
-						'social_link'    => $link,
-						'icon_color'     => $i < count( $icon_colors ) ? $icon_colors[ $i ] : '',
-						'box_color'      => $i < count( $box_colors ) ? $box_colors[ $i ] : '',
+							'social_network' => $network,
+							'social_link'    => $link,
+							'icon_color'     => $i < count( $icon_colors ) ? $icon_colors[ $i ] : '',
+							'box_color'      => $i < count( $box_colors ) ? $box_colors[ $i ] : '',
 						);
 					}
 					$icons .= '<a ' . FusionBuilder::attributes( $filter, $icon_options ) . '></a>';
@@ -1259,11 +1279,9 @@ function fusion_builder_sort_social_networks( $social_networks_original ) {
 		foreach ( $icon_order as $key => $value ) {
 
 			// Backwards compatibility for old social network names.
-			// @codingStandardsIgnoreStart
 			$value = ( 'google' === $value ) ? 'googleplus' : $value;
-			$value = ( 'gplus'  === $value ) ? 'googleplus' : $value;
-			$value = ( 'email'  === $value ) ? 'mail'       : $value;
-			// @codingStandardsIgnoreEnd
+			$value = ( 'gplus' === $value ) ? 'googleplus' : $value;
+			$value = ( 'email' === $value ) ? 'mail' : $value;
 
 			// Check if social network from TO exists in shortcode.
 			if ( ! isset( $social_networks_original[ $value ] ) ) {
@@ -1307,7 +1325,10 @@ function fusion_builder_get_custom_social_networks() {
 	if ( is_array( $social_media_icons ) && isset( $social_media_icons['icon'] ) && is_array( $social_media_icons['icon'] ) ) {
 		foreach ( $social_media_icons['icon'] as $key => $icon ) {
 			if ( 'custom' == $icon && isset( $social_media_icons['url'][ $key ] ) && ! empty( $social_media_icons['url'][ $key ] ) ) {
-				$social_links_array[ $key ] = $social_media_icons['url'][ $key ];
+				$social_links_array[ $key ]  = array(
+					'url'   => $social_media_icons['url'][ $key ],
+					'title' => $social_media_icons['custom_title'][ $key ],
+				);
 			}
 		}
 	}
@@ -1327,7 +1348,7 @@ function fusion_builder_visibility_options( $type ) {
 		'small-visibility'  => esc_attr__( 'Small Screen', 'fusion-builder' ),
 		'medium-visibility' => esc_attr__( 'Medium Screen', 'fusion-builder' ),
 		'large-visibility'  => esc_attr__( 'Large Screen', 'fusion-builder' ),
-		);
+	);
 	if ( 'values' == $type ) {
 		$visibility_options = array_keys( $visibility_options );
 	}
@@ -1505,7 +1526,10 @@ function fusion_builder_add_notice_of_disabled_rich_editor() {
 	global $current_user;
 	$user_id = $current_user->ID;
 
-	$current_uri = $_SERVER['REQUEST_URI'];
+	$current_uri = '';
+	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+		$current_uri = $_SERVER['REQUEST_URI'];
+	}
 	$uri_parts = parse_url( $current_uri );
 	if ( ! isset( $uri_parts['query'] ) ) {
 		$uri_parts['query'] = '';
@@ -1575,274 +1599,879 @@ function fusion_builder_map_descriptions( $shortcode, $param ) {
 	$shortcode_option_map = apply_filters( 'fusion_builder_map_descriptions', array() );
 
 	// Alert.
-	$shortcode_option_map['box_shadow']['fusion_alert'] = array( 'theme-option' => 'alert_box_shadow', 'type' => 'select' );
-	$shortcode_option_map['border_size']['fusion_alert'] = array( 'theme-option' => 'alert_border_size', 'type' => 'range' );
+	$shortcode_option_map['box_shadow']['fusion_alert'] = array(
+		'theme-option' => 'alert_box_shadow',
+		'type' => 'select',
+	);
+	$shortcode_option_map['border_size']['fusion_alert'] = array(
+		'theme-option' => 'alert_border_size',
+		'type' => 'range',
+	);
+
+	// Blog.
+	$shortcode_option_map['grid_box_color']['fusion_blog'] = array(
+		'theme-option' => 'timeline_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['grid_element_color']['fusion_blog'] = array(
+		'theme-option' => 'timeline_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['grid_separator_style_type']['fusion_blog'] = array(
+		'theme-option' => 'grid_separator_style_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['grid_separator_color']['fusion_blog'] = array(
+		'theme-option' => 'grid_separator_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['blog_grid_padding']['fusion_blog'] = array(
+		'theme-option' => 'blog_grid_padding',
+		'subset' => array( 'top', 'left', 'bottom', 'right' ),
+	);
+	$shortcode_option_map['excerpt']['fusion_blog'] = array(
+		'theme-option' => 'blog_excerpt',
+		'type' => 'select',
+	);
+
 	// Button.
-	$shortcode_option_map['size']['fusion_button'] = array( 'theme-option' => 'button_size', 'type' => 'select' );
-	$shortcode_option_map['stretch']['fusion_button'] = array( 'theme-option' => 'button_span', 'type' => 'select' );
-	$shortcode_option_map['type']['fusion_button'] = array( 'theme-option' => 'button_type', 'type' => 'select' );
-	$shortcode_option_map['shape']['fusion_button'] = array( 'theme-option' => 'button_shape', 'type' => 'select' );
-	$shortcode_option_map['button_gradient_top_color']['fusion_button'] = array( 'theme-option' => 'button_gradient_top_color', 'reset' => true );
-	$shortcode_option_map['button_gradient_bottom_color']['fusion_button'] = array( 'theme-option' => 'button_gradient_bottom_color', 'reset' => true );
-	$shortcode_option_map['button_gradient_top_color_hover']['fusion_button'] = array( 'theme-option' => 'button_gradient_top_color_hover', 'reset' => true );
-	$shortcode_option_map['button_gradient_bottom_color_hover']['fusion_button'] = array( 'theme-option' => 'button_gradient_bottom_color_hover', 'reset' => true );
-	$shortcode_option_map['accent_color']['fusion_button'] = array( 'theme-option' => 'button_accent_color', 'reset' => true );
-	$shortcode_option_map['accent_hover_color']['fusion_button'] = array( 'theme-option' => 'button_accent_hover_color', 'reset' => true );
-	$shortcode_option_map['bevel_color']['fusion_button'] = array( 'theme-option' => 'button_bevel_color', 'reset' => true );
-	$shortcode_option_map['border_width']['fusion_button'] = array( 'theme-option' => 'button_border_width', 'type' => 'range' );
+	$shortcode_option_map['size']['fusion_button'] = array(
+		'theme-option' => 'button_size',
+		'type' => 'select',
+	);
+	$shortcode_option_map['stretch']['fusion_button'] = array(
+		'theme-option' => 'button_span',
+		'type' => 'select',
+	);
+	$shortcode_option_map['type']['fusion_button'] = array(
+		'theme-option' => 'button_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['shape']['fusion_button'] = array(
+		'theme-option' => 'button_shape',
+		'type' => 'select',
+	);
+	$shortcode_option_map['button_gradient_top_color']['fusion_button'] = array(
+		'theme-option' => 'button_gradient_top_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['button_gradient_bottom_color']['fusion_button'] = array(
+		'theme-option' => 'button_gradient_bottom_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['button_gradient_top_color_hover']['fusion_button'] = array(
+		'theme-option' => 'button_gradient_top_color_hover',
+		'reset' => true,
+	);
+	$shortcode_option_map['button_gradient_bottom_color_hover']['fusion_button'] = array(
+		'theme-option' => 'button_gradient_bottom_color_hover',
+		'reset' => true,
+	);
+	$shortcode_option_map['accent_color']['fusion_button'] = array(
+		'theme-option' => 'button_accent_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['accent_hover_color']['fusion_button'] = array(
+		'theme-option' => 'button_accent_hover_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['bevel_color']['fusion_button'] = array(
+		'theme-option' => 'button_bevel_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['border_width']['fusion_button'] = array(
+		'theme-option' => 'button_border_width',
+		'type' => 'range',
+	);
 
-	$shortcode_option_map['button_fullwidth']['fusion_login'] = array( 'theme-option' => 'button_span', 'type' => 'yesno' );
-	$shortcode_option_map['button_fullwidth']['fusion_register'] = array( 'theme-option' => 'button_span', 'type' => 'yesno' );
-	$shortcode_option_map['button_fullwidth']['fusion_lost_password'] = array( 'theme-option' => 'button_span', 'type' => 'yesno' );
+	$shortcode_option_map['button_fullwidth']['fusion_login'] = array(
+		'theme-option' => 'button_span',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['button_fullwidth']['fusion_register'] = array(
+		'theme-option' => 'button_span',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['button_fullwidth']['fusion_lost_password'] = array(
+		'theme-option' => 'button_span',
+		'type' => 'yesno',
+	);
 
-	$shortcode_option_map['button_size']['fusion_tagline_box'] = array( 'theme-option' => 'button_size', 'type' => 'select' );
-	$shortcode_option_map['button_type']['fusion_tagline_box'] = array( 'theme-option' => 'button_type', 'type' => 'select' );
-	$shortcode_option_map['button_shape']['fusion_tagline_box'] = array( 'theme-option' => 'button_shape', 'type' => 'select' );
+	$shortcode_option_map['button_size']['fusion_tagline_box'] = array(
+		'theme-option' => 'button_size',
+		'type' => 'select',
+	);
+	$shortcode_option_map['button_type']['fusion_tagline_box'] = array(
+		'theme-option' => 'button_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['button_shape']['fusion_tagline_box'] = array(
+		'theme-option' => 'button_shape',
+		'type' => 'select',
+	);
 
 	// Checklist.
-	$shortcode_option_map['iconcolor']['fusion_checklist'] = array( 'theme-option' => 'checklist_icons_color', 'reset' => true );
-	$shortcode_option_map['circle']['fusion_checklist'] = array( 'theme-option' => 'checklist_circle', 'type' => 'yesno' );
-	$shortcode_option_map['circlecolor']['fusion_checklist'] = array( 'theme-option' => 'checklist_circle_color', 'reset' => true );
+	$shortcode_option_map['iconcolor']['fusion_checklist'] = array(
+		'theme-option' => 'checklist_icons_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['circle']['fusion_checklist'] = array(
+		'theme-option' => 'checklist_circle',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['circlecolor']['fusion_checklist'] = array(
+		'theme-option' => 'checklist_circle_color',
+		'reset' => true,
+	);
 
 	// Columns.
-	$shortcode_option_map['dimension_margin']['fusion_builder_column'] = array( 'theme-option' => 'col_margin', 'subset' => array( 'top', 'bottom' ) );
-	$shortcode_option_map['dimension_margin']['fusion_builder_column_inner'] = array( 'theme-option' => 'col_margin', 'subset' => array( 'top', 'bottom' ) );
+	$shortcode_option_map['dimension_margin']['fusion_builder_column'] = array(
+		'theme-option' => 'col_margin',
+		'subset' => array( 'top', 'bottom' ),
+	);
+	$shortcode_option_map['dimension_margin']['fusion_builder_column_inner'] = array(
+		'theme-option' => 'col_margin',
+		'subset' => array( 'top', 'bottom' ),
+	);
 
 	// Container.
-	$shortcode_option_map['background_color']['fusion_builder_container'] = array( 'theme-option' => 'full_width_bg_color', 'reset' => true );
-	$shortcode_option_map['border_size']['fusion_builder_container'] = array( 'theme-option' => 'full_width_border_size', 'type' => 'range' );
-	$shortcode_option_map['border_color']['fusion_builder_container'] = array( 'theme-option' => 'full_width_border_color', 'reset' => true );
+	$shortcode_option_map['background_color']['fusion_builder_container'] = array(
+		'theme-option' => 'full_width_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['border_size']['fusion_builder_container'] = array(
+		'theme-option' => 'full_width_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['border_color']['fusion_builder_container'] = array(
+		'theme-option' => 'full_width_border_color',
+		'reset' => true,
+	);
 
 	// Content Box.
-	$shortcode_option_map['backgroundcolor']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_bg_color', 'reset' => true );
+	$shortcode_option_map['backgroundcolor']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_bg_color',
+		'reset' => true,
+	);
 	$shortcode_option_map['title_size']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_title_size' );
-	$shortcode_option_map['title_color']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_title_color', 'reset' => true );
-	$shortcode_option_map['body_color']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_body_color', 'reset' => true );
-	$shortcode_option_map['icon_size']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_size', 'reset' => true );
-	$shortcode_option_map['iconcolor']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_color', 'reset' => true );
-	$shortcode_option_map['icon_circle']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_circle', 'type' => 'select' );
+	$shortcode_option_map['title_color']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_title_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['body_color']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_body_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_size']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_size',
+		'reset' => true,
+	);
+	$shortcode_option_map['iconcolor']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_circle']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_circle',
+		'type' => 'select',
+	);
 	$shortcode_option_map['icon_circle_radius']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_circle_radius' );
-	$shortcode_option_map['circlecolor']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_bg_color', 'reset' => true );
-	$shortcode_option_map['circlebordercolor']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_bg_inner_border_color', 'reset' => true );
-	$shortcode_option_map['outercirclebordercolor']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_bg_outer_border_color', 'reset' => true );
-	$shortcode_option_map['circlebordersize']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_bg_inner_border_size', 'type' => 'range' );
-	$shortcode_option_map['outercirclebordersize']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_bg_outer_border_size' , 'type' => 'range' );
-	$shortcode_option_map['icon_hover_type']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_icon_hover_type', 'type' => 'select' );
-	$shortcode_option_map['hover_accent_color']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_hover_animation_accent_color', 'reset' => true );
-	$shortcode_option_map['link_type']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_link_type', 'type' => 'select' );
-	$shortcode_option_map['link_area']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_link_area', 'type' => 'select' );
-	$shortcode_option_map['link_target']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_link_target', 'type' => 'select' );
-	$shortcode_option_map['margin_top']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_margin', 'subset' => 'top' );
-	$shortcode_option_map['margin_bottom']['fusion_content_boxes'] = array( 'theme-option' => 'content_box_margin', 'subset' => 'bottom' );
+	$shortcode_option_map['circlecolor']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['circlebordercolor']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_bg_inner_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['outercirclebordercolor']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_bg_outer_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['circlebordersize']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_bg_inner_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['outercirclebordersize']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_bg_outer_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['icon_hover_type']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_icon_hover_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['hover_accent_color']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_hover_animation_accent_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['link_type']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_link_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['link_area']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_link_area',
+		'type' => 'select',
+	);
+	$shortcode_option_map['link_target']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_link_target',
+		'type' => 'select',
+	);
+	$shortcode_option_map['margin_top']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_margin',
+		'subset' => 'top',
+	);
+	$shortcode_option_map['margin_bottom']['fusion_content_boxes'] = array(
+		'theme-option' => 'content_box_margin',
+		'subset' => 'bottom',
+	);
 
-	$shortcode_option_map['backgroundcolor']['fusion_content_box'] = array( 'theme-option' => 'content_box_bg_color', 'type' => 'child', 'reset' => true );
-	$shortcode_option_map['iconcolor']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_color', 'type' => 'child', 'reset' => true );
-	$shortcode_option_map['icon_circle_radius']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_circle_radius', 'type' => 'child' );
-	$shortcode_option_map['circlecolor']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_bg_color', 'type' => 'child', 'reset' => true );
-	$shortcode_option_map['circlebordercolor']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_bg_inner_border_color', 'type' => 'child', 'reset' => true );
-	$shortcode_option_map['outercirclebordercolor']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_bg_outer_border_color', 'type' => 'child', 'reset' => true );
-	$shortcode_option_map['circlebordersize']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_bg_inner_border_size', 'type' => 'child', 'reset' => true );
-	$shortcode_option_map['outercirclebordersize']['fusion_content_box'] = array( 'theme-option' => 'content_box_icon_bg_outer_border_size', 'type' => 'child', 'reset' => true );
+	$shortcode_option_map['backgroundcolor']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_bg_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['iconcolor']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_circle_radius']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_circle_radius',
+		'type' => 'child',
+	);
+	$shortcode_option_map['circlecolor']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_bg_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['circlebordercolor']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_bg_inner_border_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['outercirclebordercolor']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_bg_outer_border_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['circlebordersize']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_bg_inner_border_size',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['outercirclebordersize']['fusion_content_box'] = array(
+		'theme-option' => 'content_box_icon_bg_outer_border_size',
+		'type' => 'child',
+		'reset' => true,
+	);
 
 	// Countdown.
-	$shortcode_option_map['timezone']['fusion_countdown'] = array( 'theme-option' => 'countdown_timezone', 'type' => 'select' );
-	$shortcode_option_map['show_weeks']['fusion_countdown'] = array( 'theme-option' => 'countdown_show_weeks', 'type' => 'yesno' );
-	$shortcode_option_map['background_color']['fusion_countdown'] = array( 'theme-option' => 'countdown_background_color', 'reset' => true );
-	$shortcode_option_map['background_image']['fusion_countdown'] = array( 'theme-option' => 'countdown_background_image', 'subset' => 'thumbnail' );
+	$shortcode_option_map['timezone']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_timezone',
+		'type' => 'select',
+	);
+	$shortcode_option_map['show_weeks']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_show_weeks',
+		'type' => 'select',
+	);
+	$shortcode_option_map['background_color']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_background_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['background_image']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_background_image',
+		'subset' => 'thumbnail',
+	);
 	$shortcode_option_map['background_repeat']['fusion_countdown'] = array( 'theme-option' => 'countdown_background_repeat' );
 	$shortcode_option_map['background_position']['fusion_countdown'] = array( 'theme-option' => 'countdown_background_position' );
-	$shortcode_option_map['counter_box_color']['fusion_countdown'] = array( 'theme-option' => 'countdown_counter_box_color', 'reset' => true );
-	$shortcode_option_map['counter_text_color']['fusion_countdown'] = array( 'theme-option' => 'countdown_counter_text_color', 'reset' => true );
-	$shortcode_option_map['heading_text_color']['fusion_countdown'] = array( 'theme-option' => 'countdown_heading_text_color', 'reset' => true );
-	$shortcode_option_map['subheading_text_color']['fusion_countdown'] = array( 'theme-option' => 'countdown_subheading_text_color', 'reset' => true );
-	$shortcode_option_map['link_text_color']['fusion_countdown'] = array( 'theme-option' => 'countdown_link_text_color', 'reset' => true );
-	$shortcode_option_map['link_target']['fusion_countdown'] = array( 'theme-option' => 'countdown_link_target',  'type' => 'select' );
+	$shortcode_option_map['counter_box_color']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_counter_box_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['counter_text_color']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_counter_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['heading_text_color']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_heading_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['subheading_text_color']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_subheading_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['link_text_color']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_link_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['link_target']['fusion_countdown'] = array(
+		'theme-option' => 'countdown_link_target',
+		'type' => 'select',
+	);
 
 	// Counter box.
-	$shortcode_option_map['color']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_color', 'reset' => true );
+	$shortcode_option_map['color']['fusion_counters_box'] = array(
+		'theme-option' => 'counter_box_color',
+		'reset' => true,
+	);
 	$shortcode_option_map['title_size']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_title_size' );
 	$shortcode_option_map['icon_size']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_icon_size' );
-	$shortcode_option_map['body_color']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_body_color', 'reset' => true );
+	$shortcode_option_map['body_color']['fusion_counters_box'] = array(
+		'theme-option' => 'counter_box_body_color',
+		'reset' => true,
+	);
 	$shortcode_option_map['body_size']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_body_size' );
-	$shortcode_option_map['border_color']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_border_color', 'reset' => true );
-	$shortcode_option_map['icon_top']['fusion_counters_box'] = array( 'theme-option' => 'counter_box_icon_top', 'type' => 'yesno' );
+	$shortcode_option_map['border_color']['fusion_counters_box'] = array(
+		'theme-option' => 'counter_box_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_top']['fusion_counters_box'] = array(
+		'theme-option' => 'counter_box_icon_top',
+		'type' => 'yesno',
+	);
 
 	// Counter Circle.
-	$shortcode_option_map['filledcolor']['fusion_counter_circle'] = array( 'theme-option' => 'counter_filled_color', 'reset' => true );
-	$shortcode_option_map['unfilledcolor']['fusion_counter_circle'] = array( 'theme-option' => 'counter_unfilled_color', 'reset' => true );
+	$shortcode_option_map['filledcolor']['fusion_counter_circle'] = array(
+		'theme-option' => 'counter_filled_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['unfilledcolor']['fusion_counter_circle'] = array(
+		'theme-option' => 'counter_unfilled_color',
+		'reset' => true,
+	);
 
 	// Dropcap.
-	$shortcode_option_map['color']['fusion_dropcap'] = array( 'theme-option' => 'dropcap_color', 'shortcode' => 'fusion_dropcap', 'reset' => true );
+	$shortcode_option_map['color']['fusion_dropcap'] = array(
+		'theme-option' => 'dropcap_color',
+		'shortcode' => 'fusion_dropcap',
+		'reset' => true,
+	);
 
 	// Flipboxes.
-	$shortcode_option_map['background_color_front']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_front_bg', 'reset' => true );
-	$shortcode_option_map['title_front_color']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_front_heading', 'reset' => true );
-	$shortcode_option_map['text_front_color']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_front_text', 'reset' => true );
-	$shortcode_option_map['background_color_back']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_back_bg', 'reset' => true );
-	$shortcode_option_map['title_back_color']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_back_heading', 'reset' => true );
-	$shortcode_option_map['text_back_color']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_back_text', 'reset' => true );
-	$shortcode_option_map['border_size']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_border_size', 'type' => 'range' );
+	$shortcode_option_map['icon_color']['fusion_flip_boxes'] = array(
+		'theme-option' => 'icon_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['circle_color']['fusion_flip_boxes'] = array(
+		'theme-option' => 'icon_circle_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['circle_border_color']['fusion_flip_boxes'] = array(
+		'theme-option' => 'icon_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['background_color_front']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_front_bg',
+		'reset' => true,
+	);
+	$shortcode_option_map['title_front_color']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_front_heading',
+		'reset' => true,
+	);
+	$shortcode_option_map['text_front_color']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_front_text',
+		'reset' => true,
+	);
+	$shortcode_option_map['background_color_back']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_back_bg',
+		'reset' => true,
+	);
+	$shortcode_option_map['title_back_color']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_back_heading',
+		'reset' => true,
+	);
+	$shortcode_option_map['text_back_color']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_back_text',
+		'reset' => true,
+	);
+	$shortcode_option_map['border_size']['fusion_flip_box'] = array(
+		'theme-option' => 'flip_boxes_border_size',
+		'type' => 'range',
+	);
 	$shortcode_option_map['border_color']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_border_color' );
 	$shortcode_option_map['border_radius']['fusion_flip_box'] = array( 'theme-option' => 'flip_boxes_border_radius' );
+	$shortcode_option_map['circle_color']['fusion_flip_box'] = array(
+		'theme-option' => 'icon_circle_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['circle_border_color']['fusion_flip_box'] = array(
+		'theme-option' => 'icon_border_color',
+		'type' => 'child',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_color']['fusion_flip_box'] = array(
+		'theme-option' => 'icon_color',
+		'type' => 'child',
+		'reset' => true,
+	);
 
 	// Icon Element.
-	$shortcode_option_map['circlecolor']['fusion_fontawesome'] = array( 'theme-option' => 'icon_circle_color', 'reset' => true );
-	$shortcode_option_map['circlebordercolor']['fusion_fontawesome'] = array( 'theme-option' => 'icon_border_color', 'reset' => true );
-	$shortcode_option_map['iconcolor']['fusion_fontawesome'] = array( 'theme-option' => 'icon_color', 'reset' => true );
+	$shortcode_option_map['circlecolor']['fusion_fontawesome'] = array(
+		'theme-option' => 'icon_circle_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['circlebordercolor']['fusion_fontawesome'] = array(
+		'theme-option' => 'icon_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['iconcolor']['fusion_fontawesome'] = array(
+		'theme-option' => 'icon_color',
+		'reset' => true,
+	);
 
 	// Image Frame.
-	$shortcode_option_map['bordercolor']['fusion_imageframe'] = array( 'theme-option' => 'imgframe_border_color', 'reset' => true );
-	$shortcode_option_map['bordersize']['fusion_imageframe'] = array( 'theme-option' => 'imageframe_border_size', 'type' => 'range' );
+	$shortcode_option_map['bordercolor']['fusion_imageframe'] = array(
+		'theme-option' => 'imgframe_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['bordersize']['fusion_imageframe'] = array(
+		'theme-option' => 'imageframe_border_size',
+		'type' => 'range',
+	);
 	$shortcode_option_map['borderradius']['fusion_imageframe'] = array( 'theme-option' => 'imageframe_border_radius' );
-	$shortcode_option_map['stylecolor']['fusion_imageframe'] = array( 'theme-option' => 'imgframe_style_color', 'reset' => true );
+	$shortcode_option_map['stylecolor']['fusion_imageframe'] = array(
+		'theme-option' => 'imgframe_style_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['lightbox']['fusion_imageframe'] = array(
+		'theme-option' => 'status_lightbox',
+		'type' => 'yesno',
+	);
 
 	// Modal.
-	$shortcode_option_map['background']['fusion_modal'] = array( 'theme-option' => 'modal_bg_color', 'reset' => true );
-	$shortcode_option_map['border_color']['fusion_modal'] = array( 'theme-option' => 'modal_border_color', 'reset' => true );
+	$shortcode_option_map['background']['fusion_modal'] = array(
+		'theme-option' => 'modal_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['border_color']['fusion_modal'] = array(
+		'theme-option' => 'modal_border_color',
+		'reset' => true,
+	);
 
 	// Person.
-	$shortcode_option_map['background_color']['fusion_person'] = array( 'theme-option' => 'person_background_color', 'reset' => true );
-	$shortcode_option_map['pic_bordercolor']['fusion_person'] = array( 'theme-option' => 'person_border_color', 'reset' => true );
-	$shortcode_option_map['pic_bordersize']['fusion_person'] = array( 'theme-option' => 'person_border_size', 'type' => 'range' );
+	$shortcode_option_map['background_color']['fusion_person'] = array(
+		'theme-option' => 'person_background_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['pic_bordercolor']['fusion_person'] = array(
+		'theme-option' => 'person_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['pic_bordersize']['fusion_person'] = array(
+		'theme-option' => 'person_border_size',
+		'type' => 'range',
+	);
 	$shortcode_option_map['pic_borderradius']['fusion_person'] = array( 'theme-option' => 'person_border_radius' );
-	$shortcode_option_map['pic_style_color']['fusion_person'] = array( 'theme-option' => 'person_style_color', 'reset' => true );
-	$shortcode_option_map['content_alignment']['fusion_person'] = array( 'theme-option' => 'person_alignment', 'type' => 'select' );
-	$shortcode_option_map['icon_position']['fusion_person'] = array( 'theme-option' => 'person_icon_position', 'type' => 'select' );
+	$shortcode_option_map['pic_style_color']['fusion_person'] = array(
+		'theme-option' => 'person_style_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['content_alignment']['fusion_person'] = array(
+		'theme-option' => 'person_alignment',
+		'type' => 'select',
+	);
+	$shortcode_option_map['icon_position']['fusion_person'] = array(
+		'theme-option' => 'person_icon_position',
+		'type' => 'select',
+	);
 
 	// Popover.
-	$shortcode_option_map['title_bg_color']['fusion_popover'] = array( 'theme-option' => 'popover_heading_bg_color', 'reset' => true );
-	$shortcode_option_map['content_bg_color']['fusion_popover'] = array( 'theme-option' => 'popover_content_bg_color', 'reset' => true );
-	$shortcode_option_map['bordercolor']['fusion_popover'] = array( 'theme-option' => 'popover_border_color', 'reset' => true );
-	$shortcode_option_map['textcolor']['fusion_popover'] = array( 'theme-option' => 'popover_text_color', 'reset' => true );
-	$shortcode_option_map['placement']['fusion_popover'] = array( 'theme-option' => 'popover_placement', 'type' => 'select' );
-
-	// Portfolio.
-	$shortcode_option_map['portfolio_layout_padding']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_layout_padding', 'subset' => array( 'top', 'right', 'bottom', 'left' ) );
-	$shortcode_option_map['picture_size']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_featured_image_size', 'type' => 'select' );
-	$shortcode_option_map['text_layout']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_text_layout', 'type' => 'select' );
-	$shortcode_option_map['portfolio_text_alignment']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_text_alignment', 'type' => 'select' );
-	$shortcode_option_map['column_spacing']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_column_spacing', 'type' => 'range' );
-	$shortcode_option_map['number_posts']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_items', 'type' => 'range' );
-	$shortcode_option_map['pagination_type']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_pagination_type', 'type' => 'select' );
-	$shortcode_option_map['content_length']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_content_length', 'type' => 'select' );
-	$shortcode_option_map['excerpt_length']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_excerpt_length', 'type' => 'range' );
-	$shortcode_option_map['portfolio_title_display']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_title_display', 'type' => 'select' );
-	$shortcode_option_map['strip_html']['fusion_portfolio'] = array( 'theme-option' => 'portfolio_strip_html_excerpt', 'type' => 'yesno' );
+	$shortcode_option_map['title_bg_color']['fusion_popover'] = array(
+		'theme-option' => 'popover_heading_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['content_bg_color']['fusion_popover'] = array(
+		'theme-option' => 'popover_content_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['bordercolor']['fusion_popover'] = array(
+		'theme-option' => 'popover_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['textcolor']['fusion_popover'] = array(
+		'theme-option' => 'popover_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['placement']['fusion_popover'] = array(
+		'theme-option' => 'popover_placement',
+		'type' => 'select',
+	);
 
 	// Pricing table.
-	$shortcode_option_map['backgroundcolor']['fusion_pricing_table'] = array( 'theme-option' => 'pricing_bg_color', 'reset' => true );
-	$shortcode_option_map['bordercolor']['fusion_pricing_table'] = array( 'theme-option' => 'pricing_border_color', 'reset' => true );
-	$shortcode_option_map['dividercolor']['fusion_pricing_table'] = array( 'theme-option' => 'pricing_divider_color', 'reset' => true );
+	$shortcode_option_map['backgroundcolor']['fusion_pricing_table'] = array(
+		'theme-option' => 'pricing_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['background_color_hover']['fusion_pricing_table'] = array(
+		'theme-option' => 'pricing_background_color_hover',
+		'reset' => true,
+	);
+	$shortcode_option_map['bordercolor']['fusion_pricing_table'] = array(
+		'theme-option' => 'pricing_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['dividercolor']['fusion_pricing_table'] = array(
+		'theme-option' => 'pricing_divider_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['heading_color_style_1']['fusion_pricing_table'] = array(
+		'theme-option' => 'full_boxed_pricing_box_heading_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['heading_color_style_2']['fusion_pricing_table'] = array(
+		'theme-option' => 'sep_pricing_box_heading_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['pricing_color']['fusion_pricing_table'] = array(
+		'theme-option' => 'pricing_box_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['body_text_color']['fusion_pricing_table'] = array(
+		'theme-option' => 'body_typography',
+		'reset' => true,
+		'subset' => 'color',
+	);
 
 	// Progress bar.
 	$shortcode_option_map['height']['fusion_progress'] = array( 'theme-option' => 'progressbar_height' );
-	$shortcode_option_map['text_position']['fusion_progress'] = array( 'theme-option' => 'progressbar_text_position', 'type' => 'select' );
-	$shortcode_option_map['filledcolor']['fusion_progress'] = array( 'theme-option' => 'progressbar_filled_color', 'reset' => true );
-	$shortcode_option_map['filledbordercolor']['fusion_progress'] = array( 'theme-option' => 'progressbar_filled_border_color', 'reset' => true );
-	$shortcode_option_map['filledbordersize']['fusion_progress'] = array( 'theme-option' => 'progressbar_filled_border_size', 'type' => 'range' );
-	$shortcode_option_map['unfilledcolor']['fusion_progress'] = array( 'theme-option' => 'progressbar_unfilled_color', 'reset' => true );
-	$shortcode_option_map['textcolor']['fusion_progress'] = array( 'theme-option' => 'progressbar_text_color', 'reset' => true );
+	$shortcode_option_map['text_position']['fusion_progress'] = array(
+		'theme-option' => 'progressbar_text_position',
+		'type' => 'select',
+	);
+	$shortcode_option_map['filledcolor']['fusion_progress'] = array(
+		'theme-option' => 'progressbar_filled_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['filledbordercolor']['fusion_progress'] = array(
+		'theme-option' => 'progressbar_filled_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['filledbordersize']['fusion_progress'] = array(
+		'theme-option' => 'progressbar_filled_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['unfilledcolor']['fusion_progress'] = array(
+		'theme-option' => 'progressbar_unfilled_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['textcolor']['fusion_progress'] = array(
+		'theme-option' => 'progressbar_text_color',
+		'reset' => true,
+	);
 
 	// Section Separator.
-	$shortcode_option_map['backgroundcolor']['fusion_section_separator'] = array( 'theme-option' => 'section_sep_bg', 'reset' => true );
-	$shortcode_option_map['bordersize']['fusion_section_separator'] = array( 'theme-option' => 'section_sep_border_size', 'type' => 'range' );
-	$shortcode_option_map['bordercolor']['fusion_section_separator'] = array( 'theme-option' => 'section_sep_border_color', 'reset' => true );
-	$shortcode_option_map['icon_color']['fusion_section_separator'] = array( 'theme-option' => 'icon_color', 'reset' => true );
+	$shortcode_option_map['backgroundcolor']['fusion_section_separator'] = array(
+		'theme-option' => 'section_sep_bg',
+		'reset' => true,
+	);
+	$shortcode_option_map['bordersize']['fusion_section_separator'] = array(
+		'theme-option' => 'section_sep_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['bordercolor']['fusion_section_separator'] = array(
+		'theme-option' => 'section_sep_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_color']['fusion_section_separator'] = array(
+		'theme-option' => 'icon_color',
+		'reset' => true,
+	);
 
 	// Separator.
-	$shortcode_option_map['border_size']['fusion_separator'] = array( 'theme-option' => 'separator_border_size', 'type' => 'range' );
-	$shortcode_option_map['icon_circle']['fusion_separator'] = array( 'theme-option' => 'separator_circle', 'type' => 'yesno' );
-	$shortcode_option_map['sep_color']['fusion_separator'] = array( 'theme-option' => 'sep_color', 'reset' => true );
+	$shortcode_option_map['border_size']['fusion_separator'] = array(
+		'theme-option' => 'separator_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['icon_circle']['fusion_separator'] = array(
+		'theme-option' => 'separator_circle',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['icon_circle_color']['fusion_separator'] = array(
+		'theme-option' => 'separator_circle_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['sep_color']['fusion_separator'] = array(
+		'theme-option' => 'sep_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['style_type']['fusion_separator'] = array(
+		'theme-option' => 'separator_style_type',
+		'type' => 'select',
+	);
 
 	// Social Icons.
-	$shortcode_option_map['color_type']['fusion_social_links'] = array( 'theme-option' => 'social_links_color_type', 'type' => 'select' );
+	$shortcode_option_map['color_type']['fusion_social_links'] = array(
+		'theme-option' => 'social_links_color_type',
+		'type' => 'select',
+	);
 	$shortcode_option_map['icon_colors']['fusion_social_links'] = array( 'theme-option' => 'social_links_icon_color' );
-	$shortcode_option_map['icons_boxed']['fusion_social_links'] = array( 'theme-option' => 'social_links_boxed', 'type' => 'yesno' );
+	$shortcode_option_map['icons_boxed']['fusion_social_links'] = array(
+		'theme-option' => 'social_links_boxed',
+		'type' => 'yesno',
+	);
 	$shortcode_option_map['box_colors']['fusion_social_links'] = array( 'theme-option' => 'social_links_box_color' );
 	$shortcode_option_map['icons_boxed_radius']['fusion_social_links'] = array( 'theme-option' => 'social_links_boxed_radius' );
-	$shortcode_option_map['tooltip_placement']['fusion_social_links'] = array( 'theme-option' => 'social_links_tooltip_placement', 'type' => 'select' );
+	$shortcode_option_map['tooltip_placement']['fusion_social_links'] = array(
+		'theme-option' => 'social_links_tooltip_placement',
+		'type' => 'select',
+	);
 
 	// Social Icons for Person.
 	$shortcode_option_map['social_icon_font_size']['fusion_person'] = array( 'theme-option' => 'social_links_font_size' );
 	$shortcode_option_map['social_icon_padding']['fusion_person'] = array( 'theme-option' => 'social_links_boxed_padding' );
-	$shortcode_option_map['social_icon_color_type']['fusion_person'] = array( 'theme-option' => 'social_links_color_type', 'type' => 'select' );
+	$shortcode_option_map['social_icon_color_type']['fusion_person'] = array(
+		'theme-option' => 'social_links_color_type',
+		'type' => 'select',
+	);
 	$shortcode_option_map['social_icon_colors']['fusion_person'] = array( 'theme-option' => 'social_links_icon_color' );
-	$shortcode_option_map['social_icon_boxed']['fusion_person'] = array( 'theme-option' => 'social_links_boxed', 'type' => 'yesno' );
+	$shortcode_option_map['social_icon_boxed']['fusion_person'] = array(
+		'theme-option' => 'social_links_boxed',
+		'type' => 'yesno',
+	);
 	$shortcode_option_map['social_icon_boxed_colors']['fusion_person'] = array( 'theme-option' => 'social_links_box_color' );
 	$shortcode_option_map['social_icon_boxed_radius']['fusion_person'] = array( 'theme-option' => 'social_links_boxed_radius' );
-	$shortcode_option_map['social_icon_tooltip']['fusion_person'] = array( 'theme-option' => 'social_links_tooltip_placement', 'type' => 'select' );
+	$shortcode_option_map['social_icon_tooltip']['fusion_person'] = array(
+		'theme-option' => 'social_links_tooltip_placement',
+		'type' => 'select',
+	);
 
 	// Sharing Box.
-	$shortcode_option_map['title']['fusion_sharing'] = array( 'theme-option' => 'sharing_social_tagline' );
-	$shortcode_option_map['backgroundcolor']['fusion_sharing'] = array( 'theme-option' => 'social_bg_color', 'reset' => true );
-	$shortcode_option_map['icons_boxed']['fusion_sharing'] = array( 'theme-option' => 'social_links_boxed', 'type' => 'yesno' );
+	$shortcode_option_map['backgroundcolor']['fusion_sharing'] = array(
+		'theme-option' => 'social_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['icons_boxed']['fusion_sharing'] = array(
+		'theme-option' => 'social_links_boxed',
+		'type' => 'yesno',
+	);
 	$shortcode_option_map['icons_boxed_radius']['fusion_sharing'] = array( 'theme-option' => 'social_links_boxed_radius' );
-	$shortcode_option_map['tagline_color']['fusion_sharing'] = array( 'theme-option' => 'sharing_box_tagline_text_color', 'reset' => true );
-	$shortcode_option_map['tooltip_placement']['fusion_sharing'] = array( 'theme-option' => 'sharing_social_links_tooltip_placement', 'type' => 'select' );
-	$shortcode_option_map['color_type']['fusion_sharing'] = array( 'theme-option' => 'social_links_color_type', 'type' => 'select' );
+	$shortcode_option_map['tagline_color']['fusion_sharing'] = array(
+		'theme-option' => 'sharing_box_tagline_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['tooltip_placement']['fusion_sharing'] = array(
+		'theme-option' => 'sharing_social_links_tooltip_placement',
+		'type' => 'select',
+	);
+	$shortcode_option_map['color_type']['fusion_sharing'] = array(
+		'theme-option' => 'social_links_color_type',
+		'type' => 'select',
+	);
 	$shortcode_option_map['icon_colors']['fusion_sharing'] = array( 'theme-option' => 'social_links_icon_color' );
 	$shortcode_option_map['box_colors']['fusion_sharing'] = array( 'theme-option' => 'social_links_box_color' );
 
 	// Tabs.
-	$shortcode_option_map['backgroundcolor']['fusion_tabs'] = array( 'theme-option' => 'tabs_bg_color', 'shortcode' => 'fusion_tabs', 'reset' => true );
-	$shortcode_option_map['inactivecolor']['fusion_tabs'] = array( 'theme-option' => 'tabs_inactive_color', 'shortcode' => 'fusion_tabs', 'reset' => true );
-	$shortcode_option_map['bordercolor']['fusion_tabs'] = array( 'theme-option' => 'tabs_border_color', 'shortcode' => 'fusion_tabs', 'reset' => true );
+	$shortcode_option_map['backgroundcolor']['fusion_tabs'] = array(
+		'theme-option' => 'tabs_bg_color',
+		'shortcode' => 'fusion_tabs',
+		'reset' => true,
+	);
+	$shortcode_option_map['inactivecolor']['fusion_tabs'] = array(
+		'theme-option' => 'tabs_inactive_color',
+		'shortcode' => 'fusion_tabs',
+		'reset' => true,
+	);
+	$shortcode_option_map['bordercolor']['fusion_tabs'] = array(
+		'theme-option' => 'tabs_border_color',
+		'shortcode' => 'fusion_tabs',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_position']['fusion_tabs'] = array(
+		'theme-option' => 'tabs_icon_position',
+		'shortcode' => 'fusion_tabs',
+		'type' => 'select',
+	);
+	$shortcode_option_map['icon_size']['fusion_tabs'] = array(
+		'theme-option' => 'tabs_icon_size',
+		'shortcode' => 'fusion_tabs',
+		'type' => 'range',
+	);
 
 	// Tagline.
-	$shortcode_option_map['backgroundcolor']['fusion_tagline_box'] = array( 'theme-option' => 'tagline_bg', 'reset' => true );
-	$shortcode_option_map['bordercolor']['fusion_tagline_box'] = array( 'theme-option' => 'tagline_border_color', 'reset' => true );
-	$shortcode_option_map['margin_top']['fusion_tagline_box'] = array( 'theme-option' => 'tagline_margin', 'subset' => 'top' );
-	$shortcode_option_map['margin_bottom']['fusion_tagline_box'] = array( 'theme-option' => 'tagline_margin', 'subset' => 'bottom' );
+	$shortcode_option_map['backgroundcolor']['fusion_tagline_box'] = array(
+		'theme-option' => 'tagline_bg',
+		'reset' => true,
+	);
+	$shortcode_option_map['bordercolor']['fusion_tagline_box'] = array(
+		'theme-option' => 'tagline_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['margin_top']['fusion_tagline_box'] = array(
+		'theme-option' => 'tagline_margin',
+		'subset' => 'top',
+	);
+	$shortcode_option_map['margin_bottom']['fusion_tagline_box'] = array(
+		'theme-option' => 'tagline_margin',
+		'subset' => 'bottom',
+	);
 
 	// Testimonials.
-	$shortcode_option_map['backgroundcolor']['fusion_testimonials'] = array( 'theme-option' => 'testimonial_bg_color', 'reset' => true );
-	$shortcode_option_map['textcolor']['fusion_testimonials'] = array( 'theme-option' => 'testimonial_text_color', 'reset' => true );
-	$shortcode_option_map['random']['fusion_testimonials'] = array( 'theme-option' => 'testimonials_random', 'type' => 'yesno' );
+	$shortcode_option_map['backgroundcolor']['fusion_testimonials'] = array(
+		'theme-option' => 'testimonial_bg_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['textcolor']['fusion_testimonials'] = array(
+		'theme-option' => 'testimonial_text_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['random']['fusion_testimonials'] = array(
+		'theme-option' => 'testimonials_random',
+		'type' => 'yesno',
+	);
 
 	// Title.
-	$shortcode_option_map['style_type']['fusion_title'] = array( 'theme-option' => 'title_style_type', 'type' => 'select' );
-	$shortcode_option_map['sep_color']['fusion_title'] = array( 'theme-option' => 'title_border_color', 'reset' => true );
-	$shortcode_option_map['dimensions']['fusion_title'] = array( 'theme-option' => 'title_margin', 'subset' => array( 'top', 'bottom' ) );
+	$shortcode_option_map['style_type']['fusion_title'] = array(
+		'theme-option' => 'title_style_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['sep_color']['fusion_title'] = array(
+		'theme-option' => 'title_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['dimensions']['fusion_title'] = array(
+		'theme-option' => 'title_margin',
+		'subset' => array( 'top', 'bottom' ),
+	);
 
 	// Toggles.
-	$shortcode_option_map['type']['fusion_accordion'] = array( 'theme-option' => 'accordion_type', 'type' => 'select' );
-	$shortcode_option_map['divider_line']['fusion_accordion'] = array( 'theme-option' => 'accordion_divider_line', 'type' => 'yesno' );
-	$shortcode_option_map['boxed_mode']['fusion_accordion'] = array( 'theme-option' => 'accordion_boxed_mode', 'type' => 'yesno' );
-	$shortcode_option_map['border_size']['fusion_accordion'] = array( 'theme-option' => 'accordion_border_size', 'type' => 'range' );
-	$shortcode_option_map['border_color']['fusion_accordion'] = array( 'theme-option' => 'accordian_border_color', 'reset' => true );
-	$shortcode_option_map['background_color']['fusion_accordion'] = array( 'theme-option' => 'accordian_background_color', 'reset' => true );
-	$shortcode_option_map['hover_color']['fusion_accordion'] = array( 'theme-option' => 'accordian_hover_color', 'reset' => true );
+	$shortcode_option_map['type']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_type',
+		'type' => 'select',
+	);
+	$shortcode_option_map['divider_line']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_divider_line',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['boxed_mode']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_boxed_mode',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['border_size']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_border_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['border_color']['fusion_accordion'] = array(
+		'theme-option' => 'accordian_border_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['background_color']['fusion_accordion'] = array(
+		'theme-option' => 'accordian_background_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['hover_color']['fusion_accordion'] = array(
+		'theme-option' => 'accordian_hover_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['icon_size']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_icon_size',
+		'type' => 'range',
+	);
+	$shortcode_option_map['icon_boxed_mode']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_icon_boxed',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['icon_alignment']['fusion_accordion'] = array(
+		'theme-option' => 'accordion_icon_align',
+		'type' => 'select',
+	);
+	$shortcode_option_map['icon_color']['fusion_accordion'] = array(
+		'theme-option' => 'accordian_icon_color',
+		'reset' => true,
+	);
 
 	// User Login Element.
-	$shortcode_option_map['text_align']['fusion_login'] = array( 'theme-option' => 'user_login_text_align', 'type' => 'select' );
-	$shortcode_option_map['form_background_color']['fusion_login'] = array( 'theme-option' => 'user_login_form_background_color', 'reset' => true );
-	$shortcode_option_map['text_align']['fusion_register'] = array( 'theme-option' => 'user_login_text_align', 'type' => 'select' );
-	$shortcode_option_map['form_background_color']['fusion_register'] = array( 'theme-option' => 'user_login_form_background_color', 'reset' => true );
-	$shortcode_option_map['text_align']['fusion_lost_password'] = array( 'theme-option' => 'user_login_text_align', 'type' => 'select' );
-	$shortcode_option_map['form_background_color']['fusion_lost_password'] = array( 'theme-option' => 'user_login_form_background_color', 'reset' => true );
+	$shortcode_option_map['text_align']['fusion_login'] = array(
+		'theme-option' => 'user_login_text_align',
+		'type' => 'select',
+	);
+	$shortcode_option_map['form_background_color']['fusion_login'] = array(
+		'theme-option' => 'user_login_form_background_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['text_align']['fusion_register'] = array(
+		'theme-option' => 'user_login_text_align',
+		'type' => 'select',
+	);
+	$shortcode_option_map['form_background_color']['fusion_register'] = array(
+		'theme-option' => 'user_login_form_background_color',
+		'reset' => true,
+	);
+	$shortcode_option_map['text_align']['fusion_lost_password'] = array(
+		'theme-option' => 'user_login_text_align',
+		'type' => 'select',
+	);
+	$shortcode_option_map['form_background_color']['fusion_lost_password'] = array(
+		'theme-option' => 'user_login_form_background_color',
+		'reset' => true,
+	);
 	$shortcode_option_map['link_color']['fusion_login'] = array( 'theme-option' => 'link_color' );
 	$shortcode_option_map['link_color']['fusion_register'] = array( 'theme-option' => 'link_color' );
 	$shortcode_option_map['link_color']['fusion_lost_password'] = array( 'theme-option' => 'link_color' );
 
-	// FAQs.
-	$shortcode_option_map['featured_image']['fusion_faq'] = array( 'theme-option' => 'faq_featured_image', 'type' => 'yesno' );
-	$shortcode_option_map['filters']['fusion_faq'] = array( 'theme-option' => 'faq_filters', 'type' => 'select' );
-
 	// Widget Area Element.
-	$shortcode_option_map['title_color']['fusion_widget_area'] = array( 'theme-option' => 'widget_area_title_color', 'reset' => true );
+	$shortcode_option_map['title_color']['fusion_widget_area'] = array(
+		'theme-option' => 'widget_area_title_color',
+		'reset' => true,
+	);
 	$shortcode_option_map['title_size']['fusion_widget_area'] = array( 'theme-option' => 'widget_area_title_size' );
 
 	// Gallery.
-	$shortcode_option_map['picture_size']['fusion_gallery'] = array( 'theme-option' => 'gallery_picture_size', 'reset' => true, 'type' => 'select' );
-	$shortcode_option_map['layout']['fusion_gallery'] = array( 'theme-option' => 'gallery_layout', 'reset' => true, 'type' => 'select' );
-	$shortcode_option_map['columns']['fusion_gallery'] = array( 'theme-option' => 'gallery_columns', 'reset' => true );
-	$shortcode_option_map['column_spacing']['fusion_gallery'] = array( 'theme-option' => 'gallery_column_spacing', 'reset' => true );
-	$shortcode_option_map['lightbox_content']['fusion_gallery'] = array( 'theme-option' => 'gallery_lightbox_content', 'reset' => true, 'type' => 'select' );
-	$shortcode_option_map['lightbox']['fusion_gallery'] = array( 'theme-option' => 'status_lightbox', 'type' => 'yesno' );
-	$shortcode_option_map['hover_type']['fusion_gallery'] = array( 'theme-option' => 'gallery_hover_type', 'reset' => true, 'type' => 'select' );
+	$shortcode_option_map['picture_size']['fusion_gallery'] = array(
+		'theme-option' => 'gallery_picture_size',
+		'reset' => true,
+		'type' => 'select',
+	);
+	$shortcode_option_map['layout']['fusion_gallery'] = array(
+		'theme-option' => 'gallery_layout',
+		'reset' => true,
+		'type' => 'select',
+	);
+	$shortcode_option_map['columns']['fusion_gallery'] = array(
+		'theme-option' => 'gallery_columns',
+		'reset' => true,
+	);
+	$shortcode_option_map['column_spacing']['fusion_gallery'] = array(
+		'theme-option' => 'gallery_column_spacing',
+		'reset' => true,
+	);
+	$shortcode_option_map['lightbox_content']['fusion_gallery'] = array(
+		'theme-option' => 'gallery_lightbox_content',
+		'reset' => true,
+		'type' => 'select',
+	);
+	$shortcode_option_map['lightbox']['fusion_gallery'] = array(
+		'theme-option' => 'status_lightbox',
+		'type' => 'yesno',
+	);
+	$shortcode_option_map['hover_type']['fusion_gallery'] = array(
+		'theme-option' => 'gallery_hover_type',
+		'reset' => true,
+		'type' => 'select',
+	);
+
+	// Image Carousel.
+	$shortcode_option_map['lightbox']['fusion_images'] = array(
+		'theme-option' => 'status_lightbox',
+		'type' => 'yesno',
+	);
+
+	// Slide.
+	$shortcode_option_map['lightbox']['fusion_slide'] = array(
+		'theme-option' => 'status_lightbox',
+		'type' => 'yesno',
+	);
+
+	// Post Slider.
+	$shortcode_option_map['lightbox']['fusion_postslider'] = array(
+		'theme-option' => 'status_lightbox',
+		'type' => 'yesno',
+	);
 
 	if ( 'animation_offset' === $param ) {
-		return array( 'theme-option' => 'animation_offset', 'type' => 'select' );
+		return array(
+			'theme-option' => 'animation_offset',
+			'type' => 'select',
+		);
 	}
 
 	if ( isset( $shortcode_option_map[ $param ][ $shortcode ] ) ) {
@@ -1869,43 +2498,21 @@ function fusion_builder_element_dependencies( $dependencies, $shortcode, $option
 
 	$shortcode_option_map = array();
 
-	// Portfolio.
-	$shortcode_option_map['portfolio_layout_padding']['fusion_portfolio'][] = array(
+	// Blog.
+	$blog_is_excerpt = array(
 		'check' => array(
-			'element-option' => 'portfolio_text_layout',
-			'value' => 'unboxed',
-			'operator' => '==',
+			'element-option' => 'blog_excerpt',
+			'value' => 'yes',
+			'operator' => '!=',
 		),
 		'output' => array(
-			'element' => 'text_layout',
-			'value' => 'default',
+			'element' => 'excerpt',
+			'value' => '',
 			'operator' => '!=',
 		),
 	);
-	$shortcode_option_map['excerpt_length']['fusion_portfolio'][] = array(
-		'check' => array(
-			'element-option' => 'portfolio_content_length',
-			'value' => 'Full Content',
-			'operator' => '==',
-		),
-		'output' => array(
-			'element' => 'content_length',
-			'value' => 'default',
-			'operator' => '!=',
-		),
-	);
-	$shortcode_option_map['strip_html']['fusion_portfolio'][] = array(
-		'check' => array(
-			'element-option' => 'portfolio_content_length',
-			'value' => 'Full Content',
-			'operator' => '==',
-		),
-		'output' => array(
-			'element' => 'content_length',
-			'value' => 'default',
-			'operator' => '!=',
-		),
-	);
+	$shortcode_option_map['excerpt_length']['fusion_blog'][] = $blog_is_excerpt;
+	$shortcode_option_map['strip_html']['fusion_blog'][]  = $blog_is_excerpt;
 
 	// Progress.
 	$shortcode_option_map['filledbordercolor']['fusion_progress'][] = array(
@@ -2345,7 +2952,8 @@ if ( ! function_exists( 'fusion_builder_render_rich_snippets_for_pages' ) ) {
 		}
 
 		ob_start();
-		if ( $fusion_settings->get( 'disable_date_rich_snippet_pages' ) ) : ?>
+		if ( $fusion_settings->get( 'disable_date_rich_snippet_pages' ) ) :
+		?>
 
 			<?php if ( $title_tag && $fusion_settings->get( 'disable_rich_snippet_title' ) ) : ?>
 				<span class="entry-title" style="display: none;">
@@ -2367,7 +2975,8 @@ if ( ! function_exists( 'fusion_builder_render_rich_snippets_for_pages' ) ) {
 				</span>
 			<?php endif; ?>
 
-		<?php endif;
+		<?php
+		endif;
 		return ob_get_clean();
 	}
 }
@@ -2407,7 +3016,7 @@ if ( ! function_exists( 'fusion_builder_get_post_content_excerpt' ) ) {
 	 *
 	 * @param  string  $limit      Maximum number of words or chars to be displayed in excerpt.
 	 * @param  boolean $strip_html Set to TRUE to strip HTML tags from excerpt.
-	 * @return string 				The custom excerpt.
+	 * @return string               The custom excerpt.
 	 **/
 	function fusion_builder_get_post_content_excerpt( $limit = 285, $strip_html ) {
 
@@ -2601,6 +3210,8 @@ if ( ! function_exists( 'fusion_builder_render_post_metadata' ) ) {
 					$html .= '<div class="fusion-meta-info"><div class="fusion-meta-info-wrapper">' . $metadata . '</div></div>';
 				} elseif ( in_array( $layout, array( 'alternate', 'grid_timeline' ), true ) ) {
 					$html .= '<p class="fusion-single-line-meta">' . $metadata . '</p>';
+				} elseif ( 'recent_posts' === $layout ) {
+					$html .= $metadata;
 				} else {
 					$html .= '<div class="fusion-alignleft">' . $metadata . '</div>';
 				}
@@ -2714,14 +3325,82 @@ if ( ! function_exists( 'fusion_auto_calculate_accent_color' ) ) {
 	function fusion_auto_calculate_accent_color( $color ) {
 		$color_obj = Fusion_Color::new_color( $color );
 
-		if ( 0 < $color_obj->lightness ) { // Not black.
-			if ( 50 < $color_obj->lightness ) {
-				return $color_obj->getNew( 'lightness', $color_obj->lightness / 2 )->toCSS( 'rgba' );
+		// Not black.
+		if ( 0 < $color_obj->lightness ) {
+			if ( 25 > $color_obj->lightness ) {
+
+				// Colors with very little lightness.
+				return $color_obj->getNew( 'lightness', $color_obj->lightness * 4 )->toCSS( 'rgba' );
 			} else if ( 50 > $color_obj->lightness ) {
 				return $color_obj->getNew( 'lightness', $color_obj->lightness * 2 )->toCSS( 'rgba' );
+			} else if ( 50 <= $color_obj->lightness ) {
+				return $color_obj->getNew( 'lightness', $color_obj->lightness / 2 )->toCSS( 'rgba' );
 			}
 		} else {
+			// // Black.
 			return $color_obj->getNew( 'lightness', 70 )->toCSS( 'rgba' );
 		}
 	}
 }
+
+/**
+ * Get plugin info from plugins with plugin name.
+ *
+ * @since 1.3
+ * @param string $plugin_name Plugin name to search for.
+ * @param array  $plugins     Plugins array containing all plugins data.
+ * @return array
+ */
+function fusion_get_plugin_info( $plugin_name, $plugins ) {
+	foreach ( $plugins as $plugin_file => $plugin_info ) {
+		if ( $plugin_info['Name'] == $plugin_name ) {
+			$plugin_info['plugin_file'] = $plugin_file;
+			$plugin_info['is_active'] = is_plugin_active( $plugin_file );
+			return $plugin_info;
+		}
+	}
+	return null;
+}
+
+/**
+ * Wrap video embeds in WP core with our shortcode wrapper class.
+ *
+ * @since 1.3
+ * @param string $html HTML generated with video embeds.
+ * @return string
+ */
+function fusion_wrap_embed_with_div( $html ) {
+	$wrapper = '<div ' . FusionBuilder::attributes( 'video-shortcode' ) . '>';
+	$wrapper .= $html;
+	$wrapper .= '</div>';
+
+	return $wrapper;
+}
+
+add_filter( 'embed_oembed_html', 'fusion_wrap_embed_with_div', 10 );
+
+// Add jetpack compatibility.
+if ( apply_filters( 'is_jetpack_site', false ) ) {
+	add_filter( 'video_embed_html', 'fusion_wrap_embed_with_div', 10 );
+}
+
+/**
+ * Remove post type from the link selector.
+ *
+ * @since 1.0
+ * @param array $query Default query for link selector.
+ * @return array $query
+ */
+function fusion_builder_wp_link_query_args( $query ) {
+
+	// Get array key for the post type 'fusion_template'.
+	$post_type_key = array_search( 'fusion_template', $query['post_type'] );
+
+	// Remove the post type from query.
+	unset( $query['post_type'][ $post_type_key ] );
+
+	// Return updated query.
+	return $query;
+}
+
+add_filter( 'wp_link_query_args', 'fusion_builder_wp_link_query_args' );

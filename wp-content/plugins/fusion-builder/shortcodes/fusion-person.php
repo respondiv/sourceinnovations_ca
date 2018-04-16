@@ -38,6 +38,7 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 			public function __construct() {
 				parent::__construct();
 				add_filter( 'fusion_attr_person-shortcode', array( $this, 'attr' ) );
+				add_filter( 'fusion_attr_person-shortcode-image-wrapper', array( $this, 'image_wrapper_attr' ) );
 				add_filter( 'fusion_attr_person-shortcode-image-container', array( $this, 'image_container_attr' ) );
 				add_filter( 'fusion_attr_person-shortcode-href', array( $this, 'href_attr' ) );
 				add_filter( 'fusion_attr_person-shortcode-img', array( $this, 'img_attr' ) );
@@ -176,7 +177,12 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 					$picture = '<img ' . FusionBuilder::attributes( 'person-shortcode-img' ) . ' />';
 
 					if ( class_exists( 'Avada' ) && property_exists( Avada(), 'images' ) ) {
-						Avada()->images->set_grid_image_meta( array( 'layout' => 'large', 'columns' => '1' ) );
+						Avada()->images->set_grid_image_meta(
+							array(
+								'layout' => 'large',
+								'columns' => '1',
+							)
+						);
 					}
 
 					if ( function_exists( 'wp_make_content_images_responsive' ) ) {
@@ -229,7 +235,7 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 					$inner_content .= $social_icons_content_bottom;
 					$inner_content .= '</div>';
 
-				}
+				} // End if().
 
 				return '<div ' . FusionBuilder::attributes( 'person-shortcode' ) . '>' . $picture . $inner_content . '</div>';
 			}
@@ -243,9 +249,11 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 			 */
 			public function attr() {
 
-				$attr = fusion_builder_visibility_atts( $this->args['hide_on_mobile'], array(
-					'class' => 'fusion-person person fusion-person-' . $this->args['content_alignment'] . ' fusion-person-icon-' . $this->args['icon_position'],
-				) );
+				$attr = fusion_builder_visibility_atts(
+					$this->args['hide_on_mobile'], array(
+						'class' => 'fusion-person person fusion-person-' . $this->args['content_alignment'] . ' fusion-person-icon-' . $this->args['icon_position'],
+					)
+				);
 
 				if ( $this->args['class'] ) {
 					$attr['class'] .= ' ' . $this->args['class'];
@@ -272,19 +280,46 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 					'class' => 'person-image-container',
 				);
 
-				if ( $this->args['hover_type'] ) {
+				if ( $this->args['hover_type'] && 'liftup' !== $this->args['hover_type'] ) {
 					$attr['class'] .= ' hover-type-' . $this->args['hover_type'];
 				}
 
-				if ( 'glow' == $this->args['pic_style'] ) {
+				if ( 'glow' === $this->args['pic_style'] ) {
 					$attr['class'] .= ' glow';
 				} elseif ( 'dropshadow' == $this->args['pic_style'] ) {
 					$attr['class'] .= ' dropshadow';
-				} elseif ( 'bottomshadow' == $this->args['pic_style'] ) {
+				} elseif ( 'bottomshadow' === $this->args['pic_style'] && ( 'zoomin' !== $this->args['hover_type'] || 'zoomout' !== $this->args['hover_type'] ) ) {
 					$attr['class'] .= ' element-bottomshadow';
 				}
 
 				$attr['style'] = $this->args['styles'];
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the image-wrapper attributes array.
+			 *
+			 * @access public
+			 * @since 1.3.1
+			 * @return array
+			 */
+			public function image_wrapper_attr() {
+
+				$attr = array(
+					'class' => 'person-shortcode-image-wrapper',
+					'style' => '',
+				);
+
+				if ( $this->args['hover_type'] && 'liftup' === $this->args['hover_type'] ) {
+					$attr['class'] .= ' hover-type-' . $this->args['hover_type'];
+				}
+
+				if ( 'bottomshadow' == $this->args['pic_style'] && ( 'zoomin' === $this->args['hover_type'] || 'zoomout' === $this->args['hover_type'] ) ) {
+					$attr['class'] .= ' element-bottomshadow';
+					$attr['style'] .= ' display:inline-block; z-index:1';
+				}
 
 				return $attr;
 
@@ -593,11 +628,11 @@ if ( fusion_is_element_enabled( 'fusion_person' ) ) {
 				Fusion_Dynamic_JS::enqueue_script( 'fusion-tooltip' );
 			}
 		}
-	}
+	} // End if().
 
 	new FusionSC_Person();
 
-}
+} // End if().
 
 /**
  * Map shortcode to Fusion Builder
@@ -647,7 +682,7 @@ function fusion_element_person() {
 				'value'       => '',
 			),
 			array(
-				'type'        => 'textfield',
+				'type'        => 'link_selector',
 				'heading'     => esc_attr__( 'Picture Link URL', 'fusion-builder' ),
 				'description' => esc_attr__( 'Add the URL the picture will link to, ex: http://example.com.', 'fusion-builder' ),
 				'param_name'  => 'pic_link',
@@ -1120,7 +1155,7 @@ function fusion_element_person() {
 		foreach ( $custom_social_networks as $key => $custom_network ) {
 			$person_options['params'][] = array(
 				'type'        => 'textfield',
-				'heading'     => sprintf( esc_attr__( 'Custom %s Link', 'fusion-builder' ), $key + 1 ),
+				'heading'     => sprintf( esc_attr__( '%s Link', 'fusion-builder' ), $custom_network['title'] ),
 				'description' => esc_attr__( 'Insert your custom social link.', 'fusion-builder' ),
 				'param_name'  => 'custom_' . $key,
 				'value'       => '',

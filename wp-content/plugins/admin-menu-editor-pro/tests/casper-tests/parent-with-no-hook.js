@@ -14,7 +14,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertSelectorHasText(
 		'#menu-settings .wp-submenu li:last-child a',
 		'NH Submenu #1',

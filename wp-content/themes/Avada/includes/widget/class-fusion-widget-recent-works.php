@@ -24,7 +24,7 @@ class Fusion_Widget_Recent_Works extends WP_Widget {
 	 *
 	 * @access public
 	 */
-	function __construct() {
+	public function __construct() {
 
 		$widget_ops = array(
 			'classname'   => 'recent_works',
@@ -46,7 +46,7 @@ class Fusion_Widget_Recent_Works extends WP_Widget {
 	 *                        'before_widget', and 'after_widget'.
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 
 		extract( $args );
 
@@ -72,7 +72,8 @@ class Fusion_Widget_Recent_Works extends WP_Widget {
 			?>
 
 			<?php if ( $portfolio->have_posts() ) : ?>
-				<?php while ( $portfolio->have_posts() ) : $portfolio->the_post(); ?>
+				<?php while ( $portfolio->have_posts() ) : ?>
+					<?php $portfolio->the_post(); ?>
 					<?php if ( has_post_thumbnail() ) : ?>
 						<?php $url_check        = get_post_meta( get_the_ID(), 'pyre_link_icon_url', true ); ?>
 						<?php $new_permalink    = ( ! empty( $url_check ) ) ? $url_check : get_permalink(); ?>
@@ -80,7 +81,7 @@ class Fusion_Widget_Recent_Works extends WP_Widget {
 						<?php $link_target      = ( 'yes' === $link_icon_target ) ? '_blank' : '_self'; ?>
 						<?php $rel              = ( 'yes' === $link_icon_target ) ? 'noopener noreferrer' : ''; ?>
 
-						<a href="<?php echo esc_url_raw( $new_permalink ); ?>" target="<?php echo esc_attr( $link_target ); ?>" rel="<?php echo esc_attr( $rel ); ?>" title="<?php the_title(); ?>">
+						<a href="<?php echo esc_url_raw( $new_permalink ); ?>" target="<?php echo esc_attr( $link_target ); ?>" rel="<?php echo esc_attr( $rel ); ?>" title="<?php the_title_attribute(); ?>">
 							<?php the_post_thumbnail( 'recent-works-thumbnail' ); ?>
 						</a>
 					<?php endif; ?>
@@ -107,7 +108,7 @@ class Fusion_Widget_Recent_Works extends WP_Widget {
 	 * @param array $old_instance Old settings for this instance.
 	 * @return array Settings to save or bool false to cancel saving.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 
 		$instance = $old_instance;
 
@@ -124,7 +125,7 @@ class Fusion_Widget_Recent_Works extends WP_Widget {
 	 * @access public
 	 * @param array $instance Current settings.
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 
 		$defaults = array(
 			'title'  => __( 'Recent Works', 'Avada' ),

@@ -168,7 +168,6 @@ class Settings_Callbacks {
 			jQuery(document).ready(function($) {
 				function check_<?php echo $id; ?>_custom() {
 					var custom = $('#<?php echo $id; ?>').val();
-					console.log(custom);
 					if (custom == 'custom') {
 						$( '.<?php echo $id; ?>_custom').show();
 					} else {
@@ -290,7 +289,7 @@ class Settings_Callbacks {
 		extract( $this->normalize_settings_args( $args ) );
 
 		if( !empty($current) ) {
-			$attachment = wp_get_attachment_image_src( $current, 'thumbnail', false );
+			$attachment = wp_get_attachment_image_src( $current, 'full', false );
 			
 			$attachment_src = $attachment[0];
 			$attachment_width = $attachment[1];

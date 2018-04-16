@@ -128,6 +128,10 @@ class Avada_Upgrade {
 			'516' => array( '5.1.6', false ),
 			'520' => array( '5.2.0', false ),
 			'521' => array( '5.2.1', false ),
+			'530' => array( '5.3.0', false ),
+			'540' => array( '5.4.0', false ),
+			'541' => array( '5.4.1', false ),
+			'542' => array( '5.4.2', false ),
 		);
 
 		$upgraded = false;
@@ -138,10 +142,14 @@ class Avada_Upgrade {
 			if ( $this->database_theme_version && version_compare( $this->database_theme_version, $version[0], '<' ) ) {
 				$upgraded = true;
 				// Instantiate the class if migration is needed.
-				new $classname();
+				if ( class_exists( $classname ) ) {
+					new $classname();
+				}
 			} elseif ( true === $version[1] ) {
 				// Instantiate the class if force-instantiation is set to true.
-				new $classname( true );
+				if ( class_exists( $classname ) ) {
+					new $classname( true );
+				}
 			}
 		}
 
@@ -204,6 +212,14 @@ class Avada_Upgrade {
 	 */
 	public function fresh_installation() {
 		update_option( 'avada_version', $this->current_theme_version );
+		$this->clear_update_theme_transient();
+	}
+
+	/**
+	 * Clear update_themes transient after update. Fix for #5048.
+	 */
+	public function clear_update_theme_transient() {
+		delete_site_transient( 'update_themes' );
 	}
 
 	/**
@@ -250,6 +266,8 @@ class Avada_Upgrade {
 		if ( version_compare( $this->current_theme_version, $this->database_theme_version, '>' ) ) {
 			// Update the stored theme versions.
 			update_option( 'avada_version', $this->current_theme_version );
+			$this->clear_update_theme_transient();
+
 			if ( $this->previous_theme_versions ) {
 				if ( is_array( $this->previous_theme_versions ) ) {
 					$versions_array   = $this->previous_theme_versions;

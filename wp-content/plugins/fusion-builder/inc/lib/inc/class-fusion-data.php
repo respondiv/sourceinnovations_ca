@@ -140,7 +140,7 @@ class Fusion_Data {
 				'color' => '#cd201f',
 			),
 			'email'      => array(
-				'label' => esc_html__( 'Email Address', 'fusion-builder' ),
+				'label' => esc_attr__( 'Email Address', 'Avada' ),
 				'color' => '#000000',
 			),
 		);
@@ -148,7 +148,7 @@ class Fusion_Data {
 		// Add a "custom" entry.
 		if ( $custom ) {
 			$networks['custom'] = array(
-				'label' => esc_attr__( 'Custom', 'fusion-builder' ),
+				'label' => esc_attr__( 'Custom', 'Avada' ),
 				'color' => '',
 			);
 		}
@@ -998,15 +998,15 @@ class Fusion_Data {
 	public static function font_weights() {
 
 		$font_weights = array(
-			'100' => esc_attr__( 'Thin (100)', 'fusion-builder' ),
-			'200' => esc_attr__( 'Extra Light (200)', 'fusion-builder' ),
-			'300' => esc_attr__( 'Light (300)', 'fusion-builder' ),
-			'400' => esc_attr__( 'Normal (400)', 'fusion-builder' ),
-			'500' => esc_attr__( 'Medium (500)', 'fusion-builder' ),
-			'600' => esc_attr__( 'Semi Bold (600)', 'fusion-builder' ),
-			'700' => esc_attr__( 'Bold (700)', 'fusion-builder' ),
-			'800' => esc_attr__( 'Bolder (800)', 'fusion-builder' ),
-			'900' => esc_attr__( 'Extra Bold (900)', 'fusion-builder' ),
+			'100' => esc_attr__( 'Thin (100)', 'Avada' ),
+			'200' => esc_attr__( 'Extra Light (200)', 'Avada' ),
+			'300' => esc_attr__( 'Light (300)', 'Avada' ),
+			'400' => esc_attr__( 'Normal (400)', 'Avada' ),
+			'500' => esc_attr__( 'Medium (500)', 'Avada' ),
+			'600' => esc_attr__( 'Semi Bold (600)', 'Avada' ),
+			'700' => esc_attr__( 'Bold (700)', 'Avada' ),
+			'800' => esc_attr__( 'Bolder (800)', 'Avada' ),
+			'900' => esc_attr__( 'Extra Bold (900)', 'Avada' ),
 		);
 
 		return $font_weights;
@@ -1051,7 +1051,7 @@ class Fusion_Data {
 	 * @return array
 	 */
 	public static function color_theme( $context ) {
-		$options = get_option( Avada::get_option_name(), array() );
+		$options = get_option( Fusion_Settings::get_option_name(), array() );
 
 		$light = array();
 		$light['header_bg_color'] = '#ffffff';
@@ -1088,7 +1088,7 @@ class Fusion_Data {
 		$light['body_typography']['color'] = '#747474';
 		$light['link_color'] = '#333333';
 		$light['menu_h45_bg_color'] = '#FFFFFF';
-		$light['menu_first_color'] = '#333333';
+		$light['nav_typography']['color'] = '#333333';
 		$light['menu_sub_bg_color'] = '#f2efef';
 		$light['menu_sub_color'] = '#333333';
 		$light['menu_bg_hover_color'] = '#f8f8f8';
@@ -1159,6 +1159,9 @@ class Fusion_Data {
 		$light['mobile_menu_background_color'] = '#f9f9f9';
 		$light['mobile_menu_border_color'] = '#dadada';
 		$light['mobile_menu_hover_color'] = '#f6f6f6';
+		$light['mobile_menu_typography'] = isset( $options['mobile_menu_typography'] ) ? $options['mobile_menu_typography'] : array();
+		$light['mobile_menu_typography']['color'] = '#333333';
+		$light['mobile_menu_font_hover_color'] = '#333333';
 		$light['social_links_icon_color'] = '#bebdbd';
 		$light['social_links_box_color'] = '#e8e8e8';
 		$light['sharing_social_links_icon_color'] = '#bebdbd';
@@ -1207,7 +1210,7 @@ class Fusion_Data {
 		$dark['body_typography']['color'] = '#aaa9a9';
 		$dark['link_color'] = '#ffffff';
 		$dark['menu_h45_bg_color'] = '#29292A';
-		$dark['menu_first_color'] = '#ffffff';
+		$dark['nav_typography']['color'] = '#ffffff';
 		$dark['menu_sub_bg_color'] = '#3e3e3e';
 		$dark['menu_sub_color'] = '#d6d6d6';
 		$dark['menu_bg_hover_color'] = '#383838';
@@ -1278,6 +1281,9 @@ class Fusion_Data {
 		$dark['mobile_menu_background_color'] = '#3e3e3e';
 		$dark['mobile_menu_border_color'] = '#212122';
 		$dark['mobile_menu_hover_color'] = '#383737';
+		$dark['mobile_menu_typography'] = isset( $options['mobile_menu_typography'] ) ? $options['mobile_menu_typography'] : array();
+		$dark['mobile_menu_typography']['color'] = '#ffffff';
+		$dark['mobile_menu_font_hover_color'] = '#ffffff';
 		$dark['social_links_icon_color'] = '#3e3e3e';
 		$dark['social_links_box_color'] = '#383838';
 		$dark['sharing_social_links_icon_color'] = '#919191';

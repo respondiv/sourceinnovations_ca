@@ -292,7 +292,11 @@ var ameTest = {
 		casper.then(function() {
 			casper.click('#ws_save_menu');
 		});
-		casper.waitForSelector('#message.updated', function() {
+		this.waitForSettingsSavedMessage(callback);
+	},
+
+	waitForSettingsSavedMessage: function(callback) {
+		casper.waitForSelector('#setting-error-settings_updated,#message.updated', function() {
 			if (callback) {
 				callback();
 			}

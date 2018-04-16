@@ -36,7 +36,7 @@ casper.then(function() {
 });
 
 //Wait for the "settings saved" message.
-casper.waitForSelector('#message.updated');
+ameTest.waitForSettingsSavedMessage();
 
 casper.thenOpen(ameTestConfig.adminUrl + '/post-new.php', function() {
 	casper.test.assertTitleMatch(

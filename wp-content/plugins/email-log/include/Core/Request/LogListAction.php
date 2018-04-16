@@ -1,6 +1,7 @@
 <?php namespace EmailLog\Core\Request;
 
 use EmailLog\Core\Loadie;
+use EmailLog\Core\UI\Page\LogListPage;
 
 /**
  * Actions performed in Log List.
@@ -19,6 +20,7 @@ class LogListAction implements Loadie {
 
 		add_action( 'el-log-list-delete', array( $this, 'delete_logs' ) );
 		add_action( 'el-log-list-delete-all', array( $this, 'delete_all_logs' ) );
+		add_action( 'el-log-list-manage-user-roles-changed', array( $this, 'update_capabilities_for_user_roles' ), 10, 2 );
 	}
 
 	/**
@@ -27,81 +29,75 @@ class LogListAction implements Loadie {
 	 * @since 1.6
 	 */
 	public function view_log_message() {
-		/**
-		 * Filters the User capability to View Email Log content.
-		 *
-		 * Refer User Capabilities at
-		 * @link https://codex.wordpress.org/Roles_and_Capabilities#Capabilities
-		 *
-		 * @since 2.0.0
-		 *
-		 * @param string $user_capability User capability to view Log content.
-		 */
-		$view_email_log_capability = apply_filters( 'el_view_email_log_capability', 'manage_options' );
-
-		if ( current_user_can( $view_email_log_capability ) ) {
-			$id = absint( $_GET['log_id'] );
-
-			if ( $id > 0 ) {
-				$log_items = $this->get_table_manager()->fetch_log_items_by_id( array( $id ) );
-				if ( count( $log_items ) > 0 ) {
-					$log_item = $log_items[0];
-
-					ob_start();
-					?>
-					<table style="width: 100%;">
-						<tr style="background: #eee;">
-							<td style="padding: 5px;"><?php _e( 'Sent at', 'email-log' ); ?>:</td>
-							<td style="padding: 5px;"><?php echo $log_item['sent_date'] ?></td>
-						</tr>
-						<tr style="background: #eee;">
-							<td style="padding: 5px;"><?php _e( 'To', 'email-log' ); ?>:</td>
-							<td style="padding: 5px;"><?php echo $log_item['to_email'] ?></td>
-						</tr>
-						<tr style="background: #eee;">
-							<td style="padding: 5px;"><?php _e( 'Subject', 'email-log' ); ?>:</td>
-							<td style="padding: 5px;"><?php echo $log_item['subject'] ?></td>
-						</tr>
-
-						<?php
-					   /**
-						* After the headers are displayed in the View Message thickbox.
-					    * This action can be used to add additional headers.
-						*
-						* @since 2.0.0
-						*
-						* @param array $log_item Log item that is getting rendered.
-						*/
-						do_action( 'el_view_log_after_headers', $log_item );
-						?>
-
-					</table>
-
-					<div id="tabs">
-						<ul>
-							<li><a href="#tabs-1"><?php _e( 'HTML', 'email-log' ); ?></a></li>
-							<li><a href="#tabs-2"><?php _e( 'Text', 'email-log' ); ?></a></li>
-						</ul>
-						<div id="tabs-1">
-							<?php echo $log_item['message']; ?>
-						</div>
-						<div id="tabs-2">
-							<textarea class="tabs-text-textarea"><?php echo esc_textarea( $log_item['message'] ); ?></textarea>
-						</div>
-					</div>
-
-					<div id="view-message-footer">
-						<a href="#" id="thickbox-footer-close"><?php _e( 'Close', 'email-log' ); ?></a>
-					</div>
-
-					<?php
-					$output = ob_get_clean();
-					echo $output;
-				}
-			}
+		if ( ! current_user_can( LogListPage::CAPABILITY ) ) {
+			wp_die();
 		}
 
-		die(); // this is required to return a proper result.
+		$id = absint( $_GET['log_id'] );
+
+		if ( $id <= 0 ) {
+			wp_die();
+		}
+
+		$log_items = $this->get_table_manager()->fetch_log_items_by_id( array( $id ) );
+		if ( count( $log_items ) > 0 ) {
+			$log_item = $log_items[0];
+
+			ob_start();
+			?>
+			<table style="width: 100%;">
+				<tr style="background: #eee;">
+					<td style="padding: 5px;"><?php _e( 'Sent at', 'email-log' ); ?>:</td>
+					<td style="padding: 5px;"><?php echo esc_html( $log_item['sent_date'] ); ?></td>
+				</tr>
+				<tr style="background: #eee;">
+					<td style="padding: 5px;"><?php _e( 'To', 'email-log' ); ?>:</td>
+					<td style="padding: 5px;"><?php echo esc_html( $log_item['to_email'] ); ?></td>
+				</tr>
+				<tr style="background: #eee;">
+					<td style="padding: 5px;"><?php _e( 'Subject', 'email-log' ); ?>:</td>
+					<td style="padding: 5px;"><?php echo esc_html( $log_item['subject'] ); ?></td>
+				</tr>
+
+				<?php
+				/**
+				 * After the headers are displayed in the View Message thickbox.
+				 * This action can be used to add additional headers.
+				 *
+				 * @since 2.0.0
+				 *
+				 * @param array $log_item Log item that is getting rendered.
+				 */
+				do_action( 'el_view_log_after_headers', $log_item );
+				?>
+
+			</table>
+
+			<div id="tabs">
+				<ul>
+					<li><a href="#tabs-text"><?php _e( 'Raw Email Content', 'email-log' ); ?></a></li>
+					<li><a href="#tabs-preview"><?php _e( 'Preview Content as HTML', 'email-log' ); ?></a></li>
+				</ul>
+
+				<div id="tabs-text">
+					<textarea class="tabs-text-textarea"><?php echo esc_textarea( $log_item['message'] ); ?></textarea>
+				</div>
+
+				<div id="tabs-preview">
+					<?php echo wp_kses_post( $log_item['message'] ); ?>
+				</div>
+			</div>
+
+			<div id="view-message-footer">
+				<a href="#" class="button action" id="thickbox-footer-close"><?php _e( 'Close', 'email-log' ); ?></a>
+			</div>
+
+			<?php
+			$output = ob_get_clean();
+			echo $output;
+		}
+
+		wp_die(); // this is required to return a proper result.
 	}
 
 	/**
@@ -116,7 +112,7 @@ class LogListAction implements Loadie {
 			$ids = array( $ids );
 		}
 
-		$ids = array_map( 'absint', $ids );
+		$ids     = array_map( 'absint', $ids );
 		$id_list = implode( ',', $ids );
 
 		$logs_deleted = $this->get_table_manager()->delete_logs( $id_list );
@@ -132,9 +128,37 @@ class LogListAction implements Loadie {
 	}
 
 	/**
+	 * Update user role capabilities when the allowed user role list is changed.
+	 *
+	 * The capability will be removed from old user roles and added to new user roles.
+	 *
+	 * @since 2.1.0
+	 *
+	 * @param array $old_roles Old user roles.
+	 * @param array $new_roles New user roles.
+	 */
+	public function update_capabilities_for_user_roles( $old_roles, $new_roles ) {
+		foreach ( $old_roles as $old_role ) {
+			$role = get_role( $old_role );
+
+			if ( ! is_null( $role ) ) {
+				$role->remove_cap( LogListPage::CAPABILITY );
+			}
+		}
+
+		foreach ( $new_roles as $new_role ) {
+			$role = get_role( $new_role );
+
+			if ( ! is_null( $role ) ) {
+				$role->add_cap( LogListPage::CAPABILITY );
+			}
+		}
+	}
+
+	/**
 	 * Render Logs deleted notice.
 	 *
-	 * @param int|False $logs_deleted Number of entries deleted, False otherwise.
+	 * @param false|int $logs_deleted Number of entries deleted, False otherwise.
 	 */
 	protected function render_log_deleted_notice( $logs_deleted ) {
 		$message = __( 'There was some problem in deleting the email logs', 'email-log' );

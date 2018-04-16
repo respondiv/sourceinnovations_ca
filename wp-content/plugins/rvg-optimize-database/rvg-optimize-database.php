@@ -1,7 +1,7 @@
 <?php
 /**
  * @package Optimize Database after Deleting Revisions
- * @version 4.4
+ * @version 4.5.2
  */
 /*
 Plugin Name: Optimize Database after Deleting Revisions
@@ -10,7 +10,7 @@ Description: Optimizes the Wordpress Database after Cleaning it out
 Author: CAGE Web Design | Rolf van Gelder, Eindhoven, The Netherlands
 Author URI: http://cagewebdev.com
 Network: True
-Version: 4.4
+Version: 4.5.2
 */
 
 /********************************************************************************************
@@ -24,8 +24,8 @@ $odb_class = new OptimizeDatabase();
 
 class OptimizeDatabase {
 	// VERSION
-	var $odb_version           = '4.4';
-	var $odb_release_date      = '08/22/2017';
+	var $odb_version           = '4.5.2';
+	var $odb_release_date      = '03/21/2018';
 
 	// PLUGIN OPTIONS
 	var $odb_rvg_options       = array();
@@ -47,6 +47,12 @@ class OptimizeDatabase {
 	
 	// LOCALIZATION
 	var $odb_txt_domain        = 'rvg-optimize-database';
+
+	// CURRENT SITE DATE (yyyymmddHHiiss) AND UNIX TIMESTAMP, BASED ON TIMEZONE OF THE SITE
+	// v4.4.3
+	var $odb_current_date;
+	var $odb_timestamp;
+	var $odb_last_run_seconds;
 	
 	// PLUGIN
 	var $odb_plugin_url;
@@ -169,6 +175,8 @@ class OptimizeDatabase {
 			$this->odb_rvg_options['adminmenu']        = 'N';
 		if(!isset($this->odb_rvg_options['clear_pingbacks']))
 			$this->odb_rvg_options['clear_pingbacks']  = 'N';
+		if(!isset($this->odb_rvg_options['clear_oembed']))
+			$this->odb_rvg_options['clear_oembed']  = 'N';			
 		if(!isset($this->odb_rvg_options['clear_spam']))			
 			$this->odb_rvg_options['clear_spam']       = 'N';
 		if(!isset($this->odb_rvg_options['clear_tags']))
@@ -184,6 +192,9 @@ class OptimizeDatabase {
 			
 		if(!isset($this->odb_rvg_options['last_run']))
 			$this->odb_rvg_options['last_run']         = '';
+		// v4.5.1
+		if(!isset($this->odb_rvg_options['last_run_seconds']))
+			$this->odb_rvg_options['last_run_seconds'] = '';			
 		if(!isset($this->odb_rvg_options['logging_on']))
 			$this->odb_rvg_options['logging_on']       = 'N';
 		if(!isset($this->odb_rvg_options['nr_of_revisions']))
@@ -252,6 +263,12 @@ class OptimizeDatabase {
 			$this->odb_rvg_options['clear_pingbacks'] = $this->odb_multisite_obj->odb_ms_get_option('rvg_clear_pingbacks');
 			$this->odb_multisite_obj->odb_ms_delete_option('rvg_clear_pingbacks');
 		}
+		
+		$setting = $this->odb_multisite_obj->odb_ms_get_option('rvg_clear_oembed');
+		if($setting) {
+			$this->odb_rvg_options['rvg_clear_oembed'] = $this->odb_multisite_obj->odb_ms_get_option('rvg_clear_oembed');
+			$this->odb_multisite_obj->odb_ms_delete_option('rvg_clear_oembed');
+		}		
 		
 		$setting = $this->odb_multisite_obj->odb_ms_get_option('rvg_clear_spam');
 		if($setting) {
@@ -350,10 +367,14 @@ class OptimizeDatabase {
 				// v4.1: PLUGIN ONLY CAN BE USED ON THE MAIN SITE (NOT ON THE SUB SITES)
 				add_action('admin_menu', array(&$this, 'odb_admin_tools'));
 				add_action('admin_menu', array(&$this, 'odb_admin_settings'));
+				// ADD 'SETTINGS' LINK TO THE MAIN PLUGIN PAGE
+				add_filter('plugin_action_links_'.plugin_basename(__FILE__), array(&$this, 'odb_settings_link'));				
 			} // if ($blog_id == 1)
 		} else {
 			add_action('admin_menu', array(&$this, 'odb_admin_tools'));
 			add_action('admin_menu', array(&$this, 'odb_admin_settings'));
+			// ADD 'SETTINGS' LINK TO THE MAIN PLUGIN PAGE
+			add_filter('plugin_action_links_'.plugin_basename(__FILE__), array(&$this, 'odb_settings_link'));				
 		} // if (is_multisite())
 		
 		// ICON MODE: ADD ICON TO ADMIN MENU
@@ -361,10 +382,7 @@ class OptimizeDatabase {
 			add_action('admin_menu', array(&$this, 'odb_admin_icon'));
 			add_action('admin_menu', array(&$this, 'odb_register_options'));
 		}
-		
-		// ADD 'SETTINGS' LINK TO THE MAIN PLUGIN PAGE
-		add_filter('plugin_action_links_'.plugin_basename(__FILE__), array(&$this, 'odb_settings_link'));
-		
+
 		// ADD THE '1 CLICK OPTIMIZE DATABASE' ITEM TO THE ADMIN BAR (IF ACTIVATED)
 		if($this->odb_rvg_options['adminbar'] == 'Y')
 			add_action('wp_before_admin_bar_render', array(&$this, 'odb_admin_bar'));
@@ -554,7 +572,7 @@ class OptimizeDatabase {
 				echo "<div class='updated odb-bold'><p>".
 					__('Optimize Database after Deleting Revisions LOG FILE HAS BEEN DELETED', $this->odb_txt_domain);
 				echo "</p></div>";			
-			}
+			} // if($action == "delete_log")
 		} // if(isset($_REQUEST['action']))
 		
 		if(!$scheduler) {
@@ -578,8 +596,7 @@ class OptimizeDatabase {
 			$this->odb_displayer_obj->display_start_buttons($action);
 			 
 			 // REGISTER THE LAST RUN
-			$this->odb_rvg_options['last_run'] = Date('M j, Y @ H:i');
-			$this->odb_multisite_obj->odb_ms_update_option('odb_rvg_options', $this->odb_rvg_options);
+			$this->odb_rvg_options['last_run'] = current_time('M j, Y @ H:i', 0);
 			// DELETE REDUNDANT DATA
 			$this->odb_cleaner_obj->odb_run_cleaner($scheduler);
 			// OPTIMIZE DATABASE TABLES
@@ -588,6 +605,10 @@ class OptimizeDatabase {
 			$this->odb_cleaner_obj->odb_savings($scheduler);
 			// SHOW 'DONE' PARAGRAPH
 			if(!$scheduler) $this->odb_cleaner_obj->odb_done();
+			
+			$this->odb_rvg_options['last_run_seconds'] = $this->odb_last_run_seconds;
+			
+			$this->odb_multisite_obj->odb_ms_update_option('odb_rvg_options', $this->odb_rvg_options);
 		}  // if($action != 'run')
 		// v4.1.10: DONE: HIDE RUNNING INDICATOR
 		echo "<script>jQuery('#odb-running').hide();</script>";

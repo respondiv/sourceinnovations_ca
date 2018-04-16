@@ -99,7 +99,7 @@ class Main {
 				file_put_contents ( $pdf_path, $pdf_data );
 				$attachments[] = $pdf_path;
 
-				do_action( 'wpo_wcpdf_email_attachment', $pdf_path, $document_type );
+				do_action( 'wpo_wcpdf_email_attachment', $pdf_path, $document_type, $document );
 			} catch (Exception $e) {
 				error_log($e->getMessage());
 				continue;
@@ -161,11 +161,11 @@ class Main {
 		}
 
 		// Generate the output
-		$document_type = $_GET['document_type'];
+		$document_type = sanitize_text_field( $_GET['document_type'] );
 
-		$order_ids = (array) explode('x',$_GET['order_ids']);
+		$order_ids = (array) array_map( 'absint', explode( 'x', $_GET['order_ids'] ) );
 		// Process oldest first: reverse $order_ids array
-		$order_ids = array_reverse($order_ids);
+		$order_ids = array_reverse( $order_ids );
 
 		// set default is allowed
 		$allowed = true;
@@ -300,7 +300,7 @@ class Main {
 
 			// copy font files
 			if ( $subfolder == 'fonts' ) {
-				$this->copy_fonts( $path );
+				$this->copy_fonts( $path, false );
 			}
 
 			// create .htaccess file and empty index.php to protect in case an open webfolder is used!
@@ -313,27 +313,68 @@ class Main {
 	/**
 	 * Copy DOMPDF fonts to wordpress tmp folder
 	 */
-	public function copy_fonts ( $path ) {
+	public function copy_fonts ( $path, $merge_with_local = true ) {
 		$path = trailingslashit( $path );
 		$dompdf_font_dir = WPO_WCPDF()->plugin_path() . "/vendor/dompdf/dompdf/lib/fonts/";
+
+		// get local font dir from filtered options
+		$dompdf_options = apply_filters( 'wpo_wcpdf_dompdf_options', array(
+			'defaultFont'				=> 'dejavu sans',
+			'tempDir'					=> $this->get_tmp_path('dompdf'),
+			'logOutputFile'				=> $this->get_tmp_path('dompdf') . "/log.htm",
+			'fontDir'					=> $this->get_tmp_path('fonts'),
+			'fontCache'					=> $this->get_tmp_path('fonts'),
+			'isRemoteEnabled'			=> true,
+			'isFontSubsettingEnabled'	=> true,
+			'isHtml5ParserEnabled'		=> true,
+		) );
+		$fontDir = $dompdf_options['fontDir'];
+
+		// merge font family cache with local/custom if present
+		$font_cache_files = array(
+			'cache'			=> 'dompdf_font_family_cache.php',
+			'cache_dist'	=> 'dompdf_font_family_cache.dist.php',
+		);
+		foreach ( $font_cache_files as $font_cache_name => $font_cache_filename ) {
+			$plugin_fonts = @require $dompdf_font_dir . $font_cache_filename;
+			if ( $merge_with_local && is_readable( $path . $font_cache_filename ) ) {
+				$local_fonts = @require $path . $font_cache_filename;
+				if (is_array($local_fonts) && is_array($plugin_fonts)) {
+					// merge local & plugin fonts, plugin fonts overwrite (update) local fonts
+					// while custom local fonts are retained
+					$local_fonts = array_merge($local_fonts, $plugin_fonts);
+					// create readable array with $fontDir in place of the actual folder for portability
+					$fonts_export = var_export($local_fonts,true);
+					$fonts_export = str_replace('\'' . $fontDir , '$fontDir . \'', $fonts_export);
+					$cacheData = sprintf("<?php return %s;%s?>", $fonts_export, PHP_EOL );
+					// write file with merged cache data
+					file_put_contents($path . $font_cache_filename, $cacheData);
+				} else { // empty local file
+					copy( $dompdf_font_dir . $font_cache_filename, $path . $font_cache_filename );
+				}
+			} else {
+				// we couldn't read the local font cache file so we're simply copying over plugin cache file
+				copy( $dompdf_font_dir . $font_cache_filename, $path . $font_cache_filename );
+			}
+		}
 
 		// first try the easy way with glob!
 		if ( function_exists('glob') ) {
 			$files = glob($dompdf_font_dir."*.*");
 			foreach($files as $file){
-				if(!is_dir($file) && is_readable($file)) {
-					$dest = $path . basename($file);
+				$filename = basename($file);
+				if( !is_dir($file) && is_readable($file) && !in_array($filename, $font_cache_files)) {
+					$dest = $path . $filename;
 					copy($file, $dest);
 				}
 			}
 		} else {
 			// fallback method using font cache file (glob is disabled on some servers with disable_functions)
-			$font_cache_file = $dompdf_font_dir . "dompdf_font_family_cache.php";
-			$font_cache_dist_file = $dompdf_font_dir . "dompdf_font_family_cache.dist.php";
-			$fonts = @require_once( $font_cache_file );
-			$extensions = array( '.ttf', '.ufm', '.ufm.php', '.afm' );
+			$extensions = array( '.ttf', '.ufm', '.ufm.php', '.afm', '.afm.php' );
+			$fontDir = untrailingslashit($dompdf_font_dir);
+			$plugin_fonts = @require $dompdf_font_dir . $font_cache_files['cache'];
 
-			foreach ($fonts as $font_family => $filenames) {
+			foreach ($plugin_fonts as $font_family => $filenames) {
 				foreach ($filenames as $filename) {
 					foreach ($extensions as $extension) {
 						$file = $filename.$extension;
@@ -344,10 +385,6 @@ class Main {
 					}
 				}
 			}
-
-			// copy cache files separately
-			copy($font_cache_file, $path.basename($font_cache_file));
-			copy($font_cache_dist_file, $path.basename($font_cache_dist_file));
 		}
 	}
 
@@ -374,7 +411,7 @@ class Main {
 	 * Adds spans around placeholders to be able to make replacement (page count) and css (page number)
 	 */
 	public function format_page_number_placeholders ( $html, $document ) {
-		$html = str_replace('{{PAGE_COUNT}}', '<span class="pagecount">{{PAGE_COUNT}}</span>', $html);
+		$html = str_replace('{{PAGE_COUNT}}', '<span class="pagecount">^C^</span>', $html);
 		$html = str_replace('{{PAGE_NUM}}', '<span class="pagenum"></span>', $html );
 		return $html;
 	}
@@ -383,7 +420,7 @@ class Main {
 	 * Replace {{PAGE_COUNT}} placeholder with total page count
 	 */
 	public function page_number_replacements ( $dompdf, $html ) {
-		$placeholder = '{{PAGE_COUNT}}';
+		$placeholder = '^C^';
 		// create placeholder version with ASCII 0 spaces (dompdf 0.8)
 		$placeholder_0 = '';
 		$placeholder_chars = str_split($placeholder);
@@ -409,7 +446,7 @@ class Main {
 	 * Use currency symbol font (when enabled in options)
 	 */
 	public function use_currency_font ( $document_type, $document ) {
-		add_filter( 'woocommerce_currency_symbol', array( $this, 'wrap_currency_symbol' ), 10, 2);
+		add_filter( 'woocommerce_currency_symbol', array( $this, 'wrap_currency_symbol' ), 10001, 2);
 		add_action( 'wpo_wcpdf_custom_styles', array($this, 'currency_symbol_font_styles' ) );
 	}
 
@@ -435,7 +472,7 @@ class Main {
 
 		$delete_timestamp = time() - ( DAY_IN_SECONDS * 7 );
 
-		$tmp_path = WPO_WCPDF()->main->get_tmp_path('attachments');
+		$tmp_path = $this->get_tmp_path('attachments');
 
 		if ( $files = glob( $tmp_path.'*.pdf' ) ) { // get all pdf files
 			foreach( $files as $file ) {

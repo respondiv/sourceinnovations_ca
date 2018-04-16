@@ -79,7 +79,7 @@
 		<div class="inside">
 			<ul>
 				<li>Hidden users don't show up
-					on the <a href="<?php echo esc_attr(admin_url('users.php')); ?>">Users &rightarrow; All Users</a>
+					on the <a href="<?php echo esc_attr(self_admin_url('users.php')); ?>">Users &rightarrow; All Users</a>
 					page.
 				</li>
 				<li>They can't be edited or deleted by normal users.</li>

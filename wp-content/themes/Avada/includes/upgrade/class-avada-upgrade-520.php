@@ -142,16 +142,16 @@ class Avada_Upgrade_520 extends Avada_Upgrade_Abstract {
 		}
 
 		$options_to_migrate = array(
-			'portfolio_archive_featured_image_size'     => 'portfolio_featured_image_size',
-			'portfolio_archive_column_spacing'          => 'portfolio_column_spacing',
-			'portfolio_archive_items'                   => 'portfolio_items',
-			'portfolio_excerpt_length'                  => 'excerpt_length_portfolio',
-			'portfolio_archive_excerpt_length'          => 'excerpt_length_portfolio',
-			'portfolio_archive_strip_html_excerpt'      => 'portfolio_strip_html_excerpt',
-			'portfolio_archive_title_display'           => 'portfolio_title_display',
-			'portfolio_archive_text_alignment'          => 'portfolio_text_alignment',
-			'portfolio_archive_layout_padding'          => 'portfolio_layout_padding',
-			'portfolio_load_more_posts_button_bg_color' => 'portfolio_load_more_posts_button_bg_color',
+			'portfolio_archive_featured_image_size'             => 'portfolio_featured_image_size',
+			'portfolio_archive_column_spacing'                  => 'portfolio_column_spacing',
+			'portfolio_archive_items'                           => 'portfolio_items',
+			'portfolio_excerpt_length'                          => 'excerpt_length_portfolio',
+			'portfolio_archive_excerpt_length'                  => 'excerpt_length_portfolio',
+			'portfolio_archive_strip_html_excerpt'              => 'portfolio_strip_html_excerpt',
+			'portfolio_archive_title_display'                   => 'portfolio_title_display',
+			'portfolio_archive_text_alignment'                  => 'portfolio_text_alignment',
+			'portfolio_archive_layout_padding'                  => 'portfolio_layout_padding',
+			'portfolio_archive_load_more_posts_button_bg_color' => 'portfolio_load_more_posts_button_bg_color',
 		);
 
 		foreach ( $options_to_migrate as $new => $old ) {

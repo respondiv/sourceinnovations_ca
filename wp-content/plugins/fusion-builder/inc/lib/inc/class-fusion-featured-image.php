@@ -47,9 +47,9 @@ class Fusion_Featured_Image {
 		$this->defaults = array(
 			'id'           => 'featured-image-2',
 			'post_type'    => 'page',
-			'name'         => esc_attr__( 'Featured Image 2', 'fusion-builder' ),
-			'label_set'    => esc_attr__( 'Set featured image 2', 'fusion-builder' ),
-			'label_remove' => esc_attr__( 'Remove featured image 2', 'fusion-builder' ),
+			'name'         => esc_attr__( 'Featured Image 2', 'Avada' ),
+			'label_set'    => esc_attr__( 'Set featured image 2', 'Avada' ),
+			'label_remove' => esc_attr__( 'Remove featured image 2', 'Avada' ),
 		);
 
 		$this->args                  = wp_parse_args( $args, $this->defaults );
@@ -103,7 +103,7 @@ class Fusion_Featured_Image {
 	public function add_meta_box_info() {
 		add_meta_box(
 			'fusion_featured_images_info',
-			__( 'Featured images Info', 'fusion-builder' ),
+			__( 'Featured images Info', 'Avada' ),
 			array( $this, 'meta_box_info_content' ),
 			$this->args['post_type'],
 			'side',
@@ -133,12 +133,14 @@ class Fusion_Featured_Image {
 		$remove_image_css  = $preview_image_css;
 
 		if ( $image_id ) {
-			$preview_image = wp_get_attachment_image( $image_id, array( 266, 266 ), false, array(
-				'class' => 'fusion-preview-image',
-			) );
+			$preview_image = wp_get_attachment_image(
+				$image_id, array( 266, 266 ), false, array(
+					'class' => 'fusion-preview-image',
+				)
+			);
 			$remove_image_css = '';
 		} else {
-			$preview_image = '<img class="fusion-preview-image" src="">';
+			$preview_image = '<img class="fusion-preview-image" src="" style="display:none;">';
 			$preview_image_css = '';
 		}
 
@@ -172,7 +174,7 @@ class Fusion_Featured_Image {
 	 */
 	public function meta_box_info_content() {
 		/* translators: The "Fusion Theme Options" link. */
-		echo sprintf( esc_attr__( 'To control the amount of featured image boxes, visit %s.', 'fusion-builder' ), '<a href="' . esc_url_raw( admin_url( 'themes.php?page=avada_options#posts_slideshow_number' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_attr__( 'Fusion Theme Options', 'fusion-builder' ) . '</a>' );
+		echo sprintf( esc_attr__( 'To control the amount of featured image boxes, visit %s.', 'Avada' ), '<a href="' . esc_url_raw( admin_url( 'themes.php?page=avada_options#posts_slideshow_number' ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_attr__( 'Fusion Theme Options', 'Avada' ) . '</a>' );
 	}
 
 	/**
@@ -219,7 +221,7 @@ class Fusion_Featured_Image {
 			$post_id = get_the_ID();
 		}
 
-		return get_post_meta( $post_id, 'kd_' . $image_id . '_' . $post_type . '_id', true );
+		return apply_filters( 'wpml_object_id', get_post_meta( $post_id, 'kd_' . $image_id . '_' . $post_type . '_id', true ), 'attachment', true );
 	}
 }
 

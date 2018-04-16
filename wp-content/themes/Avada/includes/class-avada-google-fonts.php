@@ -139,6 +139,7 @@ if ( ! class_exists( 'Avada_Google_Fonts' ) ) {
 			$fields  = array(
 				'footer_headings_typography',
 				'nav_typography',
+				'mobile_menu_typography',
 				'button_typography',
 				'body_typography',
 				'h1_typography',
@@ -179,10 +180,13 @@ if ( ! class_exists( 'Avada_Google_Fonts' ) ) {
 				$value['variant'] = '400';
 			}
 
-			// Add "i" to font-weight to make italics properly load.
+			// Make italics properly load.
 			if ( is_numeric( $value['variant'] ) ) {
 				if ( isset( $value['font-style'] ) && 'italic' === $value['font-style'] ) {
-					$value['variant'] .= 'i';
+					$value['variant'] .= 'italic';
+				}
+				if ( '400italic' === $value['variant'] ) {
+					$value['variant'] = 'italic';
 				}
 			}
 
@@ -206,6 +210,21 @@ if ( ! class_exists( 'Avada_Google_Fonts' ) ) {
 			if ( ! in_array( $value['variant'], $this->fonts[ $value['font-family'] ], true ) ) {
 				$this->fonts[ $value['font-family'] ][] = $value['variant'];
 			}
+
+			// Tweak for 400.
+			if ( 400 === $value['variant'] || '400' === $value['variant'] ) {
+				$this->fonts[ $value['font-family'] ][] = 'regular';
+			}
+
+			// Make italic, regular and bold available for body_typography.
+			if ( 'body_typography' === $field ) {
+				$this->fonts[ $value['font-family'] ][] = 'regular';
+				$this->fonts[ $value['font-family'] ][] = 'italic';
+				$this->fonts[ $value['font-family'] ][] = '700';
+				$this->fonts[ $value['font-family'] ][] = '700italic';
+			}
+			// Make sure there are no duplicate entries.
+			$this->fonts[ $value['font-family'] ] = array_unique( $this->fonts[ $value['font-family'] ] );
 
 		}
 
@@ -238,6 +257,9 @@ if ( ! class_exists( 'Avada_Google_Fonts' ) ) {
 				if ( isset( $this->google_fonts[ $font ]['variants'] ) ) {
 					$font_variants = $this->google_fonts[ $font ]['variants'];
 				}
+
+				// Only use valid variants.
+				$this->fonts[ $font ] = array_intersect( $variants, $font_variants );
 
 				// Check if the selected subsets exist, even in one of the selected fonts.
 				// If they don't, then they have to be removed otherwise the link will fail.
@@ -281,10 +303,12 @@ if ( ! class_exists( 'Avada_Google_Fonts' ) ) {
 				$this->subsets = array_unique( $this->subsets );
 			}
 
-			$this->link = add_query_arg( array(
-				'family' => str_replace( '%2B', '+', urlencode( implode( '|', $link_fonts ) ) ),
-				'subset' => urlencode( implode( ',', $this->subsets ) ),
-			), 'https://fonts.googleapis.com/css' );
+			$this->link = add_query_arg(
+				array(
+					'family' => str_replace( '%2B', '+', urlencode( implode( '|', $link_fonts ) ) ),
+					'subset' => urlencode( implode( ',', $this->subsets ) ),
+				), 'https://fonts.googleapis.com/css'
+			);
 
 		}
 

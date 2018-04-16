@@ -103,44 +103,6 @@ class Fusion_Builder_Filters {
 	public function set_builder_dependencies( $dependencies, $shortcode, $option ) {
 		$shortcode_option_map = array();
 
-		// Portfolio.
-		$shortcode_option_map['portfolio_layout_padding']['fusion_portfolio'][] = array(
-			'check' => array(
-				'theme-option' => 'portfolio_text_layout',
-				'value' => 'unboxed',
-				'operator' => '==',
-			),
-			'output' => array(
-				'element' => 'boxed_text',
-				'value' => 'default',
-				'operator' => '!=',
-			),
-		);
-		$shortcode_option_map['excerpt_length']['fusion_portfolio'][] = array(
-			'check' => array(
-				'theme-option' => 'portfolio_content_length',
-				'value' => 'Full Content',
-				'operator' => '==',
-			),
-			'output' => array(
-				'element' => 'content_length',
-				'value' => 'default',
-				'operator' => '!=',
-			),
-		);
-		$shortcode_option_map['strip_html']['fusion_portfolio'][] = array(
-			'check' => array(
-				'theme-option' => 'portfolio_content_length',
-				'value' => 'Full Content',
-				'operator' => '==',
-			),
-			'output' => array(
-				'element' => 'content_length',
-				'value' => 'default',
-				'operator' => '!=',
-			),
-		);
-
 		// Sharing box.
 		$shortcode_option_map['icons_boxed_radius']['fusion_sharing'][] = array(
 			'check' => array(
@@ -198,14 +160,16 @@ class Fusion_Builder_Filters {
 	 * @param  string $title The message to output.
 	 * @return string
 	 */
-	function add_builder_import_title( $title ) {
+	public function add_builder_import_title( $title ) {
 		// Check registration.
 		if ( ! Avada()->registration->is_registered() ) {
-			return sprintf( esc_attr__( 'Your product must be registered to receive Avada demo pages. Go to the %s tab to complete registration.', 'Avada' ), '<a href="' . admin_url( 'admin.php?page=avada' ) . '">' . esc_attr__( 'Product Registration', 'Avada' ) . '</a>' );
+			/* translators: "Product Registration" link. */
+			return sprintf( esc_attr__( 'Your product must be registered to receive Avada demo pages. Go to the %s tab to complete registration.', 'Avada' ), '<a href="' . admin_url( 'admin.php?page=avada-registration' ) . '">' . esc_attr__( 'Product Registration', 'Avada' ) . '</a>' );
 		}
 
 		// Check we can download the demos.
 		if ( false === Fusion_Builder_Demos_Importer::is_demo_folder_writeable() && 2 > Fusion_Builder_Demos_Importer::get_number_of_demo_files() ) {
+			/* translators: system path wrapped in <code> tags. */
 			return sprintf( esc_attr__( 'It looks like the %s folder in your WordPress installation is not writable. Please make sure to change the file/folder permissions to allow downloading the Avada demo pages through the Fusion Builder Library before using them.', 'Avada' ), '<code>wp-content/uploads/fusion-builder-avada-pages</code>' );
 		}
 		// Return the title.
@@ -221,7 +185,7 @@ class Fusion_Builder_Filters {
 	 * @param  string $message The message to output.
 	 * @return string
 	 */
-	function add_builder_import_message( $message ) {
+	public function add_builder_import_message( $message ) {
 		// Check registration.
 		if ( ! Avada()->registration->is_registered() ) {
 			return esc_attr__( 'Once you register your Avada theme purchase, you will be able to select any Avada demo, view each page it contains and import any of them individually.', 'Avada' );

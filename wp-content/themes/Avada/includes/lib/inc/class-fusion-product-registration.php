@@ -147,8 +147,9 @@ class Fusion_Product_Registration {
 	private function add_bundled_product( $bundled ) {
 
 		$bundled = (array) $bundled;
-		foreach ( $bundled as $product ) {
-			$product = sanitize_key( $product );
+		foreach ( $bundled as $product_slug => $product_name ) {
+			$product = sanitize_key( $product_name );
+
 			if ( ! isset( self::$bundled[ $product ] ) ) {
 				self::$bundled[ $product ] = $this->args['name'];
 			}
@@ -156,7 +157,20 @@ class Fusion_Product_Registration {
 	}
 
 	/**
-	 * Initialize the variables..
+	 * Gets bundled products array.
+	 *
+	 * @access public
+	 * @since 1.0.0
+	 * @return array
+	 */
+	public function get_bundled() {
+
+		return self::$bundled;
+
+	}
+
+	/**
+	 * Initialize the variables.
 	 *
 	 * @access private
 	 * @since 1.0.0
@@ -452,7 +466,9 @@ class Fusion_Product_Registration {
 						<?php if ( ! $this->get_token() ) : ?>
 							<?php $show_form = false; ?>
 							<p style="width:100%;max-width:100%;">
-								<?php printf(
+								<?php
+								printf(
+									/* translators: The product name and whether it's a theme or plugin. */
 									esc_attr__( 'The %1$s %2$s is bundled in %3$s and no registration is required for it. Updates will be provided from %3$s. If however you have purchased %1$s separately and wish to enter a registration token for it in order to receive %2$s updates regardless of %3$s, please check this checkbox.', 'Avada' ),
 									esc_attr( $this->args['name'] ),
 									esc_attr( $this->args['type'] ),
@@ -501,6 +517,7 @@ class Fusion_Product_Registration {
 						<?php if ( 36 === strlen( $token ) && 4 === substr_count( $token, '-' ) ) : ?>
 							<?php esc_attr_e( 'Registration could not be completed because the value entered above is a purchase code. A token key is needed to register. Please read the directions below to find out how to create a token key to complete registration.', 'Avada' ); ?>
 						<?php else : ?>
+							<?php /* translators: The product name for the license. */ ?>
 							<?php printf( esc_attr__( 'Invalid token, or corresponding Envato account does not have %s purchased.', 'Avada' ), esc_attr( $this->args['name'] ) ); ?>
 						<?php endif; ?>
 					</p>
@@ -528,7 +545,7 @@ class Fusion_Product_Registration {
 						<h3><?php esc_attr_e( 'Instructions For Generating A Token', 'Avada' ); ?></h3>
 						<ol>
 							<?php // @codingStandardsIgnoreStart ?>
-							<li><?php printf( __( 'Click on this <a href="%1$s" target="_blank">Generate A Personal Token</a> link. <strong>IMPORTANT:</strong> You must be logged into the same Themeforest account that purchased %2$s. If you are logged in already, look in the top menu bar to ensure it is the right account. If you are not logged in, you will be directed to login then directed back to the Create A Token Page.', 'Avada' ), 'https://build.envato.com/create-token/?purchase:download=t&purchase:verify=t&purchase:list=t', $this->args['name'] ); ?></li>
+							<li><?php printf( __( 'Click on this <a href="%1$s" target="_blank">Generate A Personal Token</a> link. <strong>IMPORTANT:</strong> You must be logged into the same Themeforest account that purchased %2$s. If you are logged in already, look in the top menu bar to ensure it is the right account. If you are not logged in, you will be directed to login then directed back to the Create A Token Page.', 'Avada' ), 'https://build.envato.com/create-token/?user:username=t&purchase:download=t&purchase:verify=t&purchase:list=t', $this->args['name'] ); ?></li>
 							<li><?php _e( 'Enter a name for your token, then check the boxes for <strong>View Your Envato Account Username, Download Your Purchased Items, List Purchases You\'ve Made</strong> and <strong>Verify Purchases You\'ve Made</strong> from the permissions needed section. Check the box to agree to the terms and conditions, then click the <strong>Create Token button</strong>', 'Avada' ); ?></li>
 							<li><?php _e( 'A new page will load with a token number in a box. Copy the token number then come back to this registration page and paste it into the field below and click the <strong>Submit</strong> button.', 'Avada' ); ?></li>
 							<li><?php printf( __( 'You will see a green check mark for success, or a failure message if something went wrong. If it failed, please make sure you followed the steps above correctly. You can also view our <a %s>documentation post</a> for various fallback methods.', 'Avada' ), 'href="https://theme-fusion.com/avada-doc/getting-started/how-to-register-your-purchase/" target="_blank"' ); ?></li>
@@ -624,19 +641,6 @@ class Fusion_Product_Registration {
 		}
 		</style>
 		<?php
-	}
-
-	/**
-	 * Gets bundled products array.
-	 *
-	 * @access public
-	 * @since 1.0.0
-	 * @return array
-	 */
-	public function get_bundled() {
-
-		return self::$bundled;
-
 	}
 }
 

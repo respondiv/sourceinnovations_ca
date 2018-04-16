@@ -4,7 +4,7 @@ Donate link: http://raiserweb.com
 Tags: woocommerce, email test, woocommerce email test
 Requires at least: 3.0.1
 Tested up to: 4.7
-Stable tag: 1.9
+Stable tag: 1.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,5 +122,7 @@ Simply install this free plugin, and click on the 'Go Premium' tab to purchase a
 = 1.9 =
 * Removed plugin update checker
 
+= 1.10 =
+* Added woocommerce_mail_content filter support
 
 == Upgrade Notice ==

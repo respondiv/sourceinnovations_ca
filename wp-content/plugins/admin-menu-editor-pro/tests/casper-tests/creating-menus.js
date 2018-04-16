@@ -36,8 +36,12 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
-	casper.test.assertSelectorHasText('#message', 'Settings saved.', 'Menu saved successfully');
+ameTest.waitForSettingsSavedMessage(function() {
+	casper.test.assertSelectorHasText(
+		'#message,#setting-error-settings_updated',
+		'Settings saved.',
+		'Menu saved successfully'
+	);
 	var expectedUrl = ameTestConfig.adminUrl + '/index.php?new_custom_menu=me';
 	casper.test.assertSelectorHasText(
 		'#adminmenu a[href="' + expectedUrl + '"]',
@@ -103,8 +107,8 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
-	casper.test.assertSelectorHasText('#message', 'Settings saved.', 'Menu saved successfully');
+ameTest.waitForSettingsSavedMessage(function() {
+	casper.test.assertSelectorHasText('#message,#setting-error-settings_updated', 'Settings saved.', 'Menu saved successfully');
 
 	//Verify that all the menus we just added actually exist.
 	casper.test.assertSelectorHasText(

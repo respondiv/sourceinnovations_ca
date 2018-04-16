@@ -31,19 +31,17 @@ function woocommerce_cross_sell_display( $posts_per_page = 3, $columns = 3, $ord
 		'columns'        => $columns,
 	);
 
-	if ( version_compare( WC_VERSION, '3.0', '>=' ) ) {
-		// Get visble cross sells then sort them at random.
-		$cross_sells = array_filter( array_map( 'wc_get_product', WC()->cart->get_cross_sells() ), 'wc_products_array_filter_visible' );
+	// Get visble cross sells then sort them at random.
+	$cross_sells = array_filter( array_map( 'wc_get_product', WC()->cart->get_cross_sells() ), 'wc_products_array_filter_visible' );
 
-		// Handle orderby and limit results.
-		$orderby        = apply_filters( 'woocommerce_cross_sells_orderby', $orderby );
-		$cross_sells    = wc_products_array_orderby( $cross_sells, $orderby, $order );
-		$posts_per_page = apply_filters( 'woocommerce_cross_sells_total', $posts_per_page );
-		$cross_sells    = $posts_per_page > 0 ? array_slice( $cross_sells, 0, $posts_per_page ) : $cross_sells;
+	// Handle orderby and limit results.
+	$orderby        = apply_filters( 'woocommerce_cross_sells_orderby', $orderby );
+	$cross_sells    = wc_products_array_orderby( $cross_sells, $orderby, $order );
+	$posts_per_page = apply_filters( 'woocommerce_cross_sells_total', $posts_per_page );
+	$cross_sells    = $posts_per_page > 0 ? array_slice( $cross_sells, 0, $posts_per_page ) : $cross_sells;
 
-		$attributes['cross_sells'] = $cross_sells;
-		$woocommerce_loop['columns'] = $columns;
-	}
+	$attributes['cross_sells'] = $cross_sells;
+	$woocommerce_loop['columns'] = $columns;
 
 	wc_get_template( 'cart/cross-sells.php', $attributes );
 }
@@ -65,14 +63,18 @@ function woocommerce_shipping_calculator() {
  * @return void
  */
 function woocommerce_breadcrumb( $args = array() ) {
-	$args = wp_parse_args( $args, apply_filters( 'woocommerce_breadcrumb_defaults', array(
-		'delimiter'   => '&nbsp;&#47;&nbsp;',
-		'wrap_before' => '<nav class="woocommerce-breadcrumb">',
-		'wrap_after'  => '</nav>',
-		'before'      => '',
-		'after'       => '',
-		'home'        => _x( 'Home', 'breadcrumb', 'woocommerce' ),
-	) ) );
+	$args = wp_parse_args(
+		$args, apply_filters(
+			'woocommerce_breadcrumb_defaults', array(
+				'delimiter'   => '&nbsp;&#47;&nbsp;',
+				'wrap_before' => '<nav class="woocommerce-breadcrumb">',
+				'wrap_after'  => '</nav>',
+				'before'      => '',
+				'after'       => '',
+				'home'        => _x( 'Home', 'breadcrumb', 'woocommerce' ),
+			)
+		)
+	);
 
 	$breadcrumbs = new WC_Breadcrumb();
 

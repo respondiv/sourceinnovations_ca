@@ -90,7 +90,7 @@ function wetp_run_email_script(){
 	}
 
 	// echo the email content for browser
-	echo $new_email->style_inline( $new_email->get_content() );
+	echo apply_filters( 'woocommerce_mail_content', $new_email->style_inline( $new_email->get_content() ) );	
 
 }
 

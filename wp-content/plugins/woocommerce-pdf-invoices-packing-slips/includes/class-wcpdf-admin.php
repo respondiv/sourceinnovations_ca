@@ -12,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( !class_exists( '\\WPO\\WC\\PDF_Invoices\\Admin' ) ) :
 
 class Admin {
-	
 	function __construct()	{
 		add_action( 'woocommerce_admin_order_actions_end', array( $this, 'add_listing_actions' ) );
 		add_filter( 'manage_edit-shop_order_columns', array( $this, 'add_invoice_number_column' ), 999 );
@@ -23,6 +22,89 @@ class Admin {
 
 		add_action( 'save_post', array( $this,'save_invoice_number_date' ) );
 
+		// manually send emails
+		// WooCommerce core processes order actions at priority 50
+		add_action( 'woocommerce_process_shop_order_meta', array( $this, 'send_emails' ), 60, 2 );
+
+		add_action( 'admin_notices', array( $this, 'review_plugin_notice' ) );
+
+		add_action( 'init', array( $this, 'setup_wizard') );
+		// add_action( 'wpo_wcpdf_after_pdf', array( $this,'update_pdf_counter' ), 10, 2 );
+
+		add_filter( 'manage_edit-shop_order_sortable_columns', array( $this, 'invoice_number_column_sortable' ) );
+		add_filter( 'pre_get_posts', array( $this, 'sort_by_invoice_number' ) );
+	}
+
+	// display review admin notice after 100 pdf downloads
+	public function review_plugin_notice() {
+		if ( $this->is_order_page() === false && !( isset( $_GET['page'] ) && $_GET['page'] == 'wpo_wcpdf_options_page' ) ) {
+			return;
+		}
+		
+		if ( get_option( 'wpo_wcpdf_review_notice_dismissed' ) !== false ) {
+			return;
+		} else {
+			if ( isset( $_GET['wpo_wcpdf_dismis_review'] ) ) {
+				update_option( 'wpo_wcpdf_review_notice_dismissed', true );
+				return;
+			}
+
+			// keep track of how many days this notice is show so we can remove it after 7 days
+			$notice_shown_on = get_option( 'wpo_wcpdf_review_notice_shown', array() );
+			$today = date('Y-m-d');
+			if ( !in_array($today, $notice_shown_on) ) {
+				$notice_shown_on[] = $today;
+				update_option( 'wpo_wcpdf_review_notice_shown', $notice_shown_on );
+			}
+			// count number of days review is shown, dismiss forever if shown more than 7
+			if (count($notice_shown_on) > 7) {
+				update_option( 'wpo_wcpdf_review_notice_dismissed', true );
+				return;
+			}
+
+			// get invoice count to determine whether notice should be shown
+			$invoice_count = $this->get_invoice_count();
+			if ( $invoice_count > 100 ) {
+				$rounded_count = (int) substr( (string) $invoice_count, 0, 1 ) * pow( 10, strlen( (string) $invoice_count ) - 1);
+				?>
+				<div class="notice notice-info is-dismissible wpo-wcpdf-review-notice">
+					<h3><?php printf( __( 'Wow, you have created more than %d invoices with our plugin!', 'woocommerce-pdf-invoices-packing-slips' ), $rounded_count ); ?></h3>
+					<p><?php _e( 'It would mean a lot to us if you would quickly give our plugin a 5-star rating. Help us spread the word and boost our motivation!', 'woocommerce-pdf-invoices-packing-slips' ); ?></p>
+					<ul>
+						<li><a href="https://wordpress.org/support/plugin/woocommerce-pdf-invoices-packing-slips/reviews/?rate=5#new-post" class="button"><?php _e( 'Yes you deserve it!', 'woocommerce-pdf-invoices-packing-slips' ); ?></span></a></li>
+						<li><a href="<?php echo esc_url( add_query_arg( 'wpo_wcpdf_dismis_review', true ) ); ?>" class="wpo-wcpdf-dismiss"><?php _e( 'Hide this message', 'woocommerce-pdf-invoices-packing-slips' ); ?> / <?php _e( 'Already did!', 'woocommerce-pdf-invoices-packing-slips' ); ?></a></li>
+						<li><a href="mailto:support@wpovernight.com?Subject=Here%20is%20how%20I%20think%20you%20can%20do%20better"><?php _e( 'Actually, I have a complaint...', 'woocommerce-pdf-invoices-packing-slips' ); ?></a></li>
+					</ul>
+				</div>
+				<!-- Hide extensions ad if this is shown -->
+				<style>.wcpdf-extensions-ad { display: none; }</style>
+				<?php
+			}
+		}
+	}
+
+	public function setup_wizard() {
+		// Setup/welcome
+		if ( ! empty( $_GET['page'] ) ) {
+			switch ( $_GET['page'] ) {
+				case 'wpo-wcpdf-setup' :
+					include_once( WPO_WCPDF()->plugin_path() . '/includes/class-wcpdf-setup-wizard.php' );
+				break;
+			}
+		}
+	}
+
+	public function get_invoice_count() {
+		global $wpdb;
+		$invoice_count = $wpdb->get_var( $wpdb->prepare( "SELECT count(*)  FROM {$wpdb->postmeta} WHERE meta_key = %s", '_wcpdf_invoice_number' ) );
+		return (int) $invoice_count;
+	}
+
+	public function update_pdf_counter( $document_type, $document ) {
+		if ( in_array( $document_type, array('invoice','packing-slip') ) ) {
+			$pdf_count = (int) get_option( 'wpo_wcpdf_count_'.$document_type, 0 );
+			update_option( 'wpo_wcpdf_count_'.$document_type, $pdf_count + 1 );
+		}
 	}
 
 	/**
@@ -101,11 +183,23 @@ class Admin {
 	 * Add the meta box on the single order page
 	 */
 	public function add_meta_boxes() {
+		// resend order emails
+		if ( defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '3.2', '>=' ) ) {
+			add_meta_box(
+				'wpo_wcpdf_send_emails',
+				__( 'Send order email', 'woocommerce-pdf-invoices-packing-slips' ),
+				array( $this, 'send_order_email_meta_box' ),
+				'shop_order',
+				'side',
+				'high'
+			);
+		}
+
 		// create PDF buttons
 		add_meta_box(
 			'wpo_wcpdf-box',
 			__( 'Create PDF', 'woocommerce-pdf-invoices-packing-slips' ),
-			array( $this, 'sidebar_box_content' ),
+			array( $this, 'pdf_actions_meta_box' ),
 			'shop_order',
 			'side',
 			'default'
@@ -123,9 +217,44 @@ class Admin {
 	}
 
 	/**
+	 * Resend order emails
+	 */
+	public function send_order_email_meta_box( $post ) {
+		?>
+		<ul class="wpo_wcpdf_send_emails submitbox">
+			<li class="wide" id="actions">
+				<select name="wpo_wcpdf_send_emails">
+					<option value=""></option>
+					<?php
+					$mailer           = WC()->mailer();
+					$available_emails = apply_filters( 'woocommerce_resend_order_emails_available', array( 'new_order', 'cancelled_order', 'customer_processing_order', 'customer_completed_order', 'customer_invoice' ) );
+					$mails            = $mailer->get_emails();
+					if ( ! empty( $mails ) && ! empty( $available_emails ) ) { ?>
+						<?php
+						foreach ( $mails as $mail ) {
+							if ( in_array( $mail->id, $available_emails ) && 'no' !== $mail->enabled ) {
+								echo '<option value="send_email_' . esc_attr( $mail->id ) . '">' . esc_html( $mail->title ) . '</option>';
+							}
+						} ?>
+						<?php
+					}
+					?>
+				</select>
+				<input type="submit" class="button save_order button-primary" name="save" value="<?php esc_attr_e( 'Save order & send email', 'woocommerce-pdf-invoices-packing-slips' ); ?>" />
+				<?php
+				$title = __( 'Send email', 'woocommerce-pdf-invoices-packing-slips' );
+				$url = wp_nonce_url( add_query_arg('wpo_wcpdf_action','resend_email'), 'generate_wpo_wcpdf' );
+				// printf('<a href="%s" class="button wpo_wcpdf_send_email"><span>%s</span></a>')
+				?>
+			</li>
+		</ul>
+		<?php
+	}
+
+	/**
 	 * Create the meta box content on the single order page
 	 */
-	public function sidebar_box_content( $post ) {
+	public function pdf_actions_meta_box( $post ) {
 		global $post_id;
 
 		$meta_box_actions = array();
@@ -164,7 +293,7 @@ class Admin {
 			$invoice_date = $invoice->get_date();
 			?>
 			<div class="wcpdf-data-fields">
-				<h4><?php _e( 'Invoice', 'woocommerce-pdf-invoices-packing-slips' ) ?><?php if ($invoice->exists()) : ?><span id="" class="wpo-wcpdf-edit-date-number dashicons dashicons-edit"></span><?php endif; ?></h4>
+				<h4><?php echo $invoice->get_title(); ?><?php if ($invoice->exists()) : ?><span id="" class="wpo-wcpdf-edit-date-number dashicons dashicons-edit"></span><?php endif; ?></h4>
 
 				<!-- Read only -->
 				<div class="read-only">
@@ -187,7 +316,7 @@ class Admin {
 						</p>
 					</div>
 					<?php else : ?>
-					<span id="set-invoice-date-number" class="button"><?php _e( 'Set invoice number & date', 'woocommerce-pdf-invoices-packing-slips' ) ?></span>
+					<span class="wpo-wcpdf-set-date-number button"><?php _e( 'Set invoice number & date', 'woocommerce-pdf-invoices-packing-slips' ) ?></span>
 					<?php endif; ?>
 				</div>
 
@@ -196,15 +325,15 @@ class Admin {
 					<p class="form-field _wcpdf_invoice_number_field ">
 						<label for="_wcpdf_invoice_number"><?php _e( 'Invoice Number (unformatted!)', 'woocommerce-pdf-invoices-packing-slips' ); ?>:</label>
 						<?php if ( $invoice->exists() && !empty($invoice_number) ) : ?>
-						<input type="text" class="short" style="" name="_wcpdf_invoice_number" id="_wcpdf_invoice_number" value="<?php echo $invoice_number->get_plain(); ?>">
+						<input type="text" class="short" style="" name="_wcpdf_invoice_number" id="_wcpdf_invoice_number" value="<?php echo $invoice_number->get_plain(); ?>" disabled="disabled">
 						<?php else : ?>
-						<input type="text" class="short" style="" name="_wcpdf_invoice_number" id="_wcpdf_invoice_number" value="" disabled="disabled" >
+						<input type="text" class="short" style="" name="_wcpdf_invoice_number" id="_wcpdf_invoice_number" value="" disabled="disabled">
 						<?php endif; ?>
 					</p>
 					<p class="form-field form-field-wide">
 						<label for="wcpdf_invoice_date"><?php _e( 'Invoice Date:', 'woocommerce-pdf-invoices-packing-slips' ); ?></label>
 						<?php if ( $invoice->exists() && !empty($invoice_date) ) : ?>
-						<input type="text" class="date-picker-field" name="wcpdf_invoice_date" id="wcpdf_invoice_date" maxlength="10" value="<?php echo $invoice_date->date_i18n( 'Y-m-d' ); ?>" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" />@<input type="number" class="hour" placeholder="<?php _e( 'h', 'woocommerce' ) ?>" name="wcpdf_invoice_date_hour" id="wcpdf_invoice_date_hour" min="0" max="23" size="2" value="<?php echo $invoice_date->date_i18n( 'H' ) ?>" pattern="([01]?[0-9]{1}|2[0-3]{1})" />:<input type="number" class="minute" placeholder="<?php _e( 'm', 'woocommerce' ) ?>" name="wcpdf_invoice_date_minute" id="wcpdf_invoice_date_minute" min="0" max="59" size="2" value="<?php echo $invoice_date->date_i18n( 'i' ); ?>" pattern="[0-5]{1}[0-9]{1}" />
+						<input type="text" class="date-picker-field" name="wcpdf_invoice_date" id="wcpdf_invoice_date" maxlength="10" value="<?php echo $invoice_date->date_i18n( 'Y-m-d' ); ?>" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" disabled="disabled"/>@<input type="number" class="hour" placeholder="<?php _e( 'h', 'woocommerce' ) ?>" name="wcpdf_invoice_date_hour" id="wcpdf_invoice_date_hour" min="0" max="23" size="2" value="<?php echo $invoice_date->date_i18n( 'H' ) ?>" pattern="([01]?[0-9]{1}|2[0-3]{1})" />:<input type="number" class="minute" placeholder="<?php _e( 'm', 'woocommerce' ) ?>" name="wcpdf_invoice_date_minute" id="wcpdf_invoice_date_minute" min="0" max="59" size="2" value="<?php echo $invoice_date->date_i18n( 'i' ); ?>" pattern="[0-5]{1}[0-9]{1}" />
 						<?php else : ?>
 						<input type="text" class="date-picker-field" name="wcpdf_invoice_date" id="wcpdf_invoice_date" maxlength="10" disabled="disabled" value="" pattern="[0-9]{4}-(0[1-9]|1[012])-(0[1-9]|1[0-9]|2[0-9]|3[01])" />@<input type="number" class="hour" disabled="disabled" placeholder="<?php _e( 'h', 'woocommerce' ) ?>" name="wcpdf_invoice_date_hour" id="wcpdf_invoice_date_hour" min="0" max="23" size="2" value="" pattern="([01]?[0-9]{1}|2[0-3]{1})" />:<input type="number" class="minute" placeholder="<?php _e( 'm', 'woocommerce' ) ?>" name="wcpdf_invoice_date_minute" id="wcpdf_invoice_date_minute" min="0" max="59" size="2" value="" pattern="[0-5]{1}[0-9]{1}" disabled="disabled" />
 						<?php endif; ?>
@@ -275,6 +404,46 @@ class Admin {
 	}
 
 	/**
+	 * Send emails manually
+	 */
+	public function send_emails( $post_id, $post ) {
+		if ( ! empty( $_POST['wpo_wcpdf_send_emails'] ) ) {
+			$order = wc_get_order( $post_id );
+			$action = wc_clean( $_POST['wpo_wcpdf_send_emails'] );
+			if ( strstr( $action, 'send_email_' ) ) {
+				// Switch back to the site locale.
+				wc_switch_to_site_locale();
+				do_action( 'woocommerce_before_resend_order_emails', $order );
+				// Ensure gateways are loaded in case they need to insert data into the emails.
+				WC()->payment_gateways();
+				WC()->shipping();
+				// Load mailer.
+				$mailer = WC()->mailer();
+				$email_to_send = str_replace( 'send_email_', '', $action );
+				$mails = $mailer->get_emails();
+				if ( ! empty( $mails ) ) {
+					foreach ( $mails as $mail ) {
+						if ( $mail->id == $email_to_send ) {
+							$mail->trigger( $order->get_id(), $order );
+							/* translators: %s: email title */
+							$order->add_order_note( sprintf( __( '%s email notification manually sent.', 'woocommerce-pdf-invoices-packing-slips' ), $mail->title ), false, true );
+						}
+					}
+				}
+				do_action( 'woocommerce_after_resend_order_email', $order, $email_to_send );
+				// Restore user locale.
+				wc_restore_locale();
+				// Change the post saved message.
+				add_filter( 'redirect_post_location', function( $location ) {
+					// messages in includes/admin/class-wc-admin-post-types.php
+					// 11 => 'Order updated and sent.'
+					return add_query_arg( 'message', 11, $location );
+				} );
+			}
+		}
+	}
+
+	/**
 	 * Add invoice number to order search scope
 	 */
 	public function search_fields ( $custom_fields ) {
@@ -282,7 +451,6 @@ class Admin {
 		$custom_fields[] = '_wcpdf_formatted_invoice_number';
 		return $custom_fields;
 	}
-
 
 	/**
 	 * Check if this is a shop_order page (edit or list)
@@ -295,6 +463,25 @@ class Admin {
 			return false;
 		}
 	}
+
+	/**
+	 * Add invoice number to order search scope
+	 */
+	public function invoice_number_column_sortable( $columns ) {
+		$columns['pdf_invoice_number'] = 'pdf_invoice_number';
+		return $columns;
+	}
+
+	public function sort_by_invoice_number( $query ) {
+		if( ! is_admin() )
+			return;
+		$orderby = $query->get( 'orderby');
+		if( 'pdf_invoice_number' == $orderby ) {
+			$query->set('meta_key','_wcpdf_invoice_number');
+			$query->set('orderby','meta_value_num');
+		}
+	}
+
 }
 
 endif; // class_exists

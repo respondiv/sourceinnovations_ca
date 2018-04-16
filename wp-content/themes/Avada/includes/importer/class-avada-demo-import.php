@@ -287,8 +287,12 @@ class Avada_Demo_Import {
 				// $this->content_tracker->set_general_data();
 				$this->after_import();
 
-				// Reset all caches. Deletes demo data as well.
-				avada_reset_all_cache();
+				// Reset all caches, don't remove demo data.
+				avada_reset_all_caches(
+					array(
+						'demo_data' => false,
+					)
+				);
 
 				echo 'imported';
 			} else {
@@ -568,10 +572,13 @@ class Avada_Demo_Import {
 
 			// It's important to disable 'prefill_existing_posts'.
 			// In case GUID of importing post matches GUID of an existing post it won't be imported.
-			$importer = new Fusion_WXR_Importer( array(
-				'fetch_attachments'      => $this->fetch_attachments,
-				'prefill_existing_posts' => false,
-			) );
+			$importer = new Fusion_WXR_Importer(
+				array(
+					'fetch_attachments'      => $this->fetch_attachments,
+					'prefill_existing_posts' => false,
+					'aggressive_url_search'  => true,
+				)
+			);
 			$importer->set_logger( $logger );
 
 			ob_start();
@@ -711,8 +718,8 @@ class Avada_Demo_Import {
 	 */
 	private function assign_menus_to_locations() {
 
-		// Set imported menus to registered theme locations
-		$locations = get_theme_mod( 'nav_menu_locations' ); // Registered menu locations in theme.
+		// Set imported menus to registered theme locations.
+		$locations = maybe_unserialize( get_theme_mod( 'nav_menu_locations' ) ); // Registered menu locations in theme.
 		$menus     = wp_get_nav_menus(); // Registered menus.
 
 		if ( $menus ) {
@@ -788,6 +795,12 @@ class Avada_Demo_Import {
 					if ( 'Technology Main Menu' === $menu->name ) {
 						$locations['main_navigation'] = $menu->term_id;
 					}
+				} elseif ( 'university' === $this->demo_type ) {
+					if ( 'University Main Menu' === $menu->name ) {
+						$locations['main_navigation'] = $menu->term_id;
+					} elseif ( 'University Top Secondary Menu' == $menu->name ) {
+						$locations['top_navigation'] = $menu->term_id;
+					}
 				} else {
 					if ( ucwords( str_replace( '_', ' ', $this->demo_type ) ) . ' Main Menu' === $menu->name ) {
 						$locations['main_navigation'] = $menu->term_id;
@@ -831,14 +844,16 @@ class Avada_Demo_Import {
 
 			foreach ( $this->sidebars as $sidebar ) {
 				$sidebar_class = avada_name_to_class( $sidebar );
-				register_sidebar( array(
-					'name'          => $sidebar,
-					'id'            => 'avada-custom-sidebar-' . strtolower( $sidebar_class ),
-					'before_widget' => '<div id="%1$s" class="widget %2$s">',
-					'after_widget'  => '</div>',
-					'before_title'  => '<div class="heading"><h4 class="widget-title">',
-					'after_title'   => '</h4></div>',
-				) );
+				register_sidebar(
+					array(
+						'name'          => $sidebar,
+						'id'            => 'avada-custom-sidebar-' . strtolower( $sidebar_class ),
+						'before_widget' => '<div id="%1$s" class="widget %2$s">',
+						'after_widget'  => '</div>',
+						'before_title'  => '<div class="heading"><h4 class="widget-title">',
+						'after_title'   => '</h4></div>',
+					)
+				);
 			}
 		}
 
@@ -929,6 +944,7 @@ class Avada_Demo_Import {
 
 		// Import Revslider.
 		if ( class_exists( 'UniteFunctionsRev' ) && false != $this->importer_files->get_revslider() ) { // If revslider is activated.
+			add_action( 'wp_generate_attachment_metadata', array( $this, 'add_rev_slider_demo_import_meta' ), 10, 2 );
 
 			$slider = new RevSlider();
 			foreach ( $this->importer_files->get_revslider() as $rev_file ) {
@@ -943,7 +959,22 @@ class Avada_Demo_Import {
 					$this->content_tracker->add_rev_slider_to_stack( $result['sliderID'] );
 				}
 			}
+
+			remove_action( 'wp_generate_attachment_metadata', array( $this, 'add_rev_slider_demo_import_meta' ), 10 );
 		}
+	}
+
+	/**
+	 * Add meta data for media imported by Rev Slider importer.
+	 *
+	 * @access public
+	 * @since 5.4.1
+	 *
+	 * @param mixed $metadata      Metadata for attachment.
+	 * @param int   $attachment_id ID of the attachment.
+	 */
+	public function add_rev_slider_demo_import_meta( $metadata, $attachment_id ) {
+		update_post_meta( $attachment_id, 'fusion_slider_demo_import', $this->demo_type );
 	}
 
 	/**

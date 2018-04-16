@@ -136,25 +136,35 @@ abstract class ameDashboardWidget {
 	 * @return bool
 	 */
 	public function isVisibleTo($user, $menuEditor = null) {
+		return self::userCanAccess($user, $this->grantAccess, $menuEditor);
+	}
+
+	/**
+	 * @param WP_User $user
+	 * @param array $grantAccess
+	 * @param WPMenuEditor|null $menuEditor
+	 * @return bool
+	 */
+	public static function userCanAccess($user, $grantAccess, $menuEditor = null) {
 		//By default, any user can see any widget.
 		if ( empty($user) ) {
 			return true;
 		}
 
 		$userActor = 'user:' . $user->user_login;
-		if ( isset($this->grantAccess[$userActor]) ) {
-			return $this->grantAccess[$userActor];
+		if ( isset($grantAccess[$userActor]) ) {
+			return $grantAccess[$userActor];
 		}
 
 		if ( is_multisite() && is_super_admin($user->ID) ) {
 			//Super Admin can access everything unless explicitly denied.
-			if ( isset($this->grantAccess['special:super_admin']) ) {
-				return $this->grantAccess['special:super_admin'];
+			if ( isset($grantAccess['special:super_admin']) ) {
+				return $grantAccess['special:super_admin'];
 			}
 			return true;
 		}
 
-		if (!$menuEditor) {
+		if ( !$menuEditor ) {
 			$menuEditor = $GLOBALS['wp_menu_editor'];
 		}
 
@@ -162,8 +172,8 @@ abstract class ameDashboardWidget {
 		$roles = $menuEditor->get_user_roles($user);
 		$hasAccess = null;
 		foreach ($roles as $roleId) {
-			if ( isset($this->grantAccess['role:' . $roleId]) ) {
-				$roleHasAccess = $this->grantAccess['role:' . $roleId];
+			if ( isset($grantAccess['role:' . $roleId]) ) {
+				$roleHasAccess = $grantAccess['role:' . $roleId];
 				if ( is_null($hasAccess) ){
 					$hasAccess = $roleHasAccess;
 				} else {

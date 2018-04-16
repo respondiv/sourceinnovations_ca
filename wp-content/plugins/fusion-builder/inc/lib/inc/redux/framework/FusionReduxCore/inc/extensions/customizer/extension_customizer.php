@@ -683,9 +683,9 @@
 				);
 
 				$localize = array(
-					'save_pending'   => __( 'You have changes that are not saved. Would you like to save them now?', 'fusion-builder' ),
-					'reset_confirm'  => __( 'Are you sure? Resetting will lose all custom values.', 'fusion-builder' ),
-					'preset_confirm' => __( 'Your current options will be replaced with the values of this preset. Would you like to proceed?', 'fusion-builder' ),
+					'save_pending'   => __( 'You have changes that are not saved. Would you like to save them now?', 'Avada' ),
+					'reset_confirm'  => __( 'Are you sure? Resetting will lose all custom values.', 'Avada' ),
+					'preset_confirm' => __( 'Your current options will be replaced with the values of this preset. Would you like to proceed?', 'Avada' ),
 					'opt_name'       => $this->args['opt_name'],
 					//'folds'             => $this->folds,
 					'options'        => $this->parent->options,
@@ -718,9 +718,9 @@
 				//wp_enqueue_style('fusionredux-extension-customizer-css', $this->_extension_url . 'assets/css/customizer.css');
 
 				$localize = array(
-					'save_pending'   => __( 'You have changes that are not saved.  Would you like to save them now?', 'fusion-builder' ),
-					'reset_confirm'  => __( 'Are you sure?  Resetting will lose all custom values.', 'fusion-builder' ),
-					'preset_confirm' => __( 'Your current options will be replaced with the values of this preset.  Would you like to proceed?', 'fusion-builder' ),
+					'save_pending'   => __( 'You have changes that are not saved.  Would you like to save them now?', 'Avada' ),
+					'reset_confirm'  => __( 'Are you sure?  Resetting will lose all custom values.', 'Avada' ),
+					'preset_confirm' => __( 'Your current options will be replaced with the values of this preset.  Would you like to proceed?', 'Avada' ),
 					'opt_name'       => $this->args['opt_name'],
 					//'folds'             => $this->folds,
 					'field'          => $this->parent->options,

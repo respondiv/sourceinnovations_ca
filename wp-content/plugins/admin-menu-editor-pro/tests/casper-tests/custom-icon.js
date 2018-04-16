@@ -13,7 +13,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertExists('#menu-media', 'The "Media" menu exists');
 	casper.test.assertDoesntExist('#menu-media.menu-icon-media', "The default icon class has been removed");
 	casper.test.assertExists(
@@ -57,7 +57,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertExists(
 		'#menu-media .wp-menu-image.dashicons-admin-tools',
 		'The menu icon class was successfully changed using the icon selector'
@@ -81,7 +81,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertExists(
 		'#menu-posts .wp-menu-image.dashicons-search',
 		'The menu icon was successfully changed to a Dashicon using the icon selector'
@@ -102,7 +102,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertExists(
 		'#menu-posts.ame-menu-fa-heart',
 		'The menu icon was successfully changed to a Font Awesome icon using the icon selector'
@@ -152,7 +152,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertExists(
 		'#menu-settings ul.wp-submenu a[href="options-writing.php"] .dashicons-star-empty',
 		'Custom submenu icons show up correctly'
@@ -175,14 +175,14 @@ casper.waitForSelector('#ws_plugin_settings_form', function() {
 	casper.click('#submit');
 });
 
-casper.waitForSelector('div.updated', function() {
-	//All submenus should have a Dashicon now.
+ameTest.waitForSettingsSavedMessage(function() {
+	//All submenus should have a Dashicon or Font Awesome icon now.
 	casper.test.assertEvalEquals(
 		function() {
 			var submenusWithoutIcons = jQuery('#adminmenu')
 				.find('ul.wp-submenu li a')
 				.filter(function() {
-					return jQuery(this).find('.dashicons').length == 0
+					return jQuery(this).find('.dashicons,.ame-fa').length === 0
 				});
 			return submenusWithoutIcons.length;
 		},
@@ -199,7 +199,7 @@ casper.waitForSelector('#ws_plugin_settings_form', function() {
 	casper.click('#submit');
 });
 
-casper.waitForSelector('div.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	//No submenu icons should be visible now. Even the custom icon we set for Settings -> Writing should be gone.
 	casper.test.assertDoesntExist(
 		'#adminmenu ul.wp-submenu li a .dashicons',

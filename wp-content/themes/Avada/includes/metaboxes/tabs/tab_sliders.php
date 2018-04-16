@@ -20,7 +20,7 @@ $this->select(
 	array(
 		'no'      => esc_attr__( 'No Slider', 'Avada' ),
 		'layer'   => 'LayerSlider',
-		'flex'    => 'Fusion Slider',
+		'flex'    => esc_attr__( 'Fusion Slider', 'Avada' ),
 		'rev'     => 'Slider Revolution',
 		'elastic' => 'Elastic Slider',
 	),
@@ -65,11 +65,11 @@ $this->select(
 );
 
 if ( method_exists( 'FusionCore_Plugin', 'get_fusion_sliders' ) ) {
-	$slides_array = FusionCore_Plugin::get_fusion_sliders();
+	$slides_array = FusionCore_Plugin::get_fusion_sliders( esc_html__( 'Select a slider', 'Avada' ) );
 
 	$this->select(
 		'wooslider',
-		esc_attr__( 'Select Fusion Slider', 'Avada' ) ,
+		esc_attr__( 'Select Fusion Slider', 'Avada' ),
 		$slides_array,
 		esc_html__( 'Select the unique name of the slider.', 'Avada' ),
 		array(
@@ -141,7 +141,9 @@ $this->radio_buttonset(
 		'below'   => esc_attr__( 'Below', 'Avada' ),
 		'above'   => esc_attr__( 'Above', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Select if the slider shows below or above the header. Only works for top header position. %s', 'Avada' ), Avada()->settings->get_default_description( 'slider_position', '', 'select' ) ),
+	'',
 	array(
 		array(
 			'field'      => 'slider_type',
@@ -159,7 +161,9 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to enable or disable Avada styles for Slider Revolution. %s', 'Avada' ), Avada()->settings->get_default_description( 'avada_rev_styles', '', 'reverseyesno' ) ),
+	'',
 	array(
 		array(
 			'field'      => 'slider_type',

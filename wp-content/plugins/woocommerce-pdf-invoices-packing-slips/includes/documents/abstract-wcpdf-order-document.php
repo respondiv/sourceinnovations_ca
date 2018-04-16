@@ -175,6 +175,7 @@ abstract class Order_Document {
 
 	public function init() {
 		$this->set_date( current_time( 'timestamp', true ) );
+		do_action( 'wpo_wcpdf_init_document', $this );
 	}
 
 	public function save( $order = null ) {
@@ -255,7 +256,7 @@ abstract class Order_Document {
 	}
 
 	public function get_title() {
-		return apply_filters( "wpo_wcpdf_{$this->slug}_title", $this->title );
+		return apply_filters( "wpo_wcpdf_{$this->slug}_title", $this->title, $this );
 	}
 
 	/*
@@ -348,7 +349,7 @@ abstract class Order_Document {
 
 	public function get_number_settings() {
 		$number_settings = isset($this->settings['number_format'])?$this->settings['number_format']:array();
-		return $number_settings;
+		return apply_filters( 'wpo_wcpdf_document_number_settings', $number_settings, $this );
 	}
 
 	/**
@@ -416,7 +417,12 @@ abstract class Order_Document {
 		} else {
 			$text = $default;
 		}
-		return apply_filters( "wpo_wcpdf_{$settings_key}", $text, $this );
+		// legacy filters
+		if ( in_array( $settings_key, array( 'shop_name', 'shop_address', 'footer', 'extra_1', 'extra_2', 'extra_3' ) ) ) {
+			$text = apply_filters( "wpo_wcpdf_{$settings_key}", $text, $this );
+		}
+
+		return apply_filters( "wpo_wcpdf_{$settings_key}_settings_text", $text, $this );
 	}
 
 	/**

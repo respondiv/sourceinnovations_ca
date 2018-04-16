@@ -24,7 +24,7 @@ casper.then(function() {
 });
 
 //Wait for the "settings saved" message and verify the moved item has the right URL.
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertEvalEquals(
 		getPagesSubmenuUrl,
 		expectedItemUrl,

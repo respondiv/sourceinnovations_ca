@@ -15,7 +15,7 @@ global $woocommerce;
 
 <div class="shipping-coupon">
 	<?php get_template_part( 'templates/wc-cart-shipping-calc' ); ?>
-	<?php if ( WC()->cart->coupons_enabled() ) : ?>
+	<?php if ( wc_coupons_enabled() ) : ?>
 		<div class="coupon">
 			<h2><?php esc_attr_e( 'Have A Promotional Code?', 'Avada' ); ?></h2>
 

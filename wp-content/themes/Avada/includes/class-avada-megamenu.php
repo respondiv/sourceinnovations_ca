@@ -29,7 +29,9 @@ if ( ! class_exists( 'Avada_Megamenu' ) ) {
 		 * @access public
 		 */
 		public function __construct() {
-			add_action( 'wp_update_nav_menu_item', array( $this, 'save_custom_menu_style_fields' ), 10, 3 );
+			if ( ! is_customize_preview() ) {
+				add_action( 'wp_update_nav_menu_item', array( $this, 'save_custom_menu_style_fields' ), 10, 3 );
+			}
 			add_filter( 'wp_setup_nav_menu_item', array( $this, 'add_menu_style_data_to_menu' ) );
 			add_filter( 'wp_edit_nav_menu_walker', array( $this, 'add_custom_fields' ) );
 		}

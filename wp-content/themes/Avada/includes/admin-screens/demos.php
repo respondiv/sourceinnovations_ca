@@ -30,6 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			var DemoImportNonce = '<?php echo esc_attr( wp_create_nonce( 'avada_demo_ajax' ) ); ?>';
 		</script>
 		<div class="avada-important-notice">
+			<?php /* translators: %1$s: "System Status" link. %2$s: "View more info here" link. */ ?>
 			<p class="about-description"><?php printf( wp_kses_post( __( "Avada demos can be fully imported (everything), or partially imported (only portions). Hover over the demo you want to use and make your selections. Any demo you use will display a badge on it after import so you can quickly recognize and modify the content you already imported. You can choose to uninstall this content at any time. Uninstalling content from a demo will remove ALL previously imported demo content from that demo and restore your site to it's previous state before the demo content was imported.<br /><strong>IMPORTANT:</strong> Demo imports can vary in time. The included plugins need to be installed and activated before you install a demo. Please check the %1\$s tab to ensure your server meets all requirements for a successful import. Settings that need attention will be listed in red. %2\$s.", 'Avada' ) ), '<a href="' . esc_url_raw( admin_url( 'admin.php?page=avada-system-status' ) ) . '" target="_blank">' . esc_attr__( 'System Status', 'Avada' ) . '</a>', '<a href="' . esc_url_raw( trailingslashit( $this->theme_fusion_url ) ) . 'avada-doc/demo-content-info/import-xml-file/" target="_blank">' . esc_attr__( 'View more info here', 'Avada' ) . '</a>' ); ?></p>
 		</div>
 	<?php
@@ -38,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	$demos = Avada_Importer_Data::get_data();
 	$all_tags = array(
-		'all' => esc_attr__( 'All Demos' ),
+		'all' => esc_attr__( 'All Demos', 'Avada' ),
 	);
 
 	foreach ( $demos as $demo => $demo_details ) {
@@ -49,7 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	}
 
 	// Check which recommended plugins are installed and activated.
-	$plugin_dependencies = TGM_Plugin_Activation::$instance->plugins;
+	$plugin_dependencies = Avada_TGM_Plugin_Activation::$instance->plugins;
 
 	foreach ( $plugin_dependencies as $key => $plugin ) {
 		$plugin_dependencies[ $key ]['active']    = is_plugin_active( $plugin['file_path'] );
@@ -128,7 +129,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	 * simply by removing the "display:none" from the wrapper.
 	 */
 	?>
-		<div class="avada-importer-tags-selector" style="margin-bottom: 1.5em; display: none;">
+		<div class="avada-importer-tags-selector" style="margin-bottom: 1.5em; <?php echo ( isset( $_GET['beta'] ) ) ? '' : 'display: none;'; ?>">
 			<?php foreach ( $all_tags as $key => $label ) : ?>
 				<button class="button small button-small button-<?php echo ( 'all' === $key ) ? 'primary' : 'secondary'; ?>" data-tag="<?php echo esc_attr( $key ); ?>"><?php echo esc_attr( $label ); ?></button>
 			<?php endforeach; ?>
@@ -206,9 +207,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 					} else {
 						$demo_import_badge = __( 'Partial Import', 'Avada' );
 					}
+
+					$new_imported = '';
 					?>
-					<div class="fusion-admin-box">
-						<div id="theme-demo-<?php echo esc_attr( strtolower( $demo ) ); ?>" class="theme" data-tags="<?php echo esc_attr( implode( ',', $tags ) ); ?>">
+					<div class="fusion-admin-box" data-tags="<?php echo esc_attr( implode( ',', $tags ) ); ?>">
+						<div id="theme-demo-<?php echo esc_attr( strtolower( $demo ) ); ?>" class="theme">
 							<div class="theme-wrapper">
 								<div class="theme-screenshot">
 									<img src="" <?php echo ( ! empty( $demo_details['previewImage'] ) ) ? 'data-src="' . esc_url_raw( $demo_details['previewImage'] ) . '"' : ''; ?> <?php echo ( ! empty( $demo_details['previewImageRetina'] ) ) ? 'data-src-retina="' . esc_url_raw( $demo_details['previewImageRetina'] ) . '"' : ''; ?>>
@@ -224,10 +227,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 								</div>
 
 								<?php if ( isset( $demo_details['new'] ) && true === $demo_details['new'] ) : ?>
+									<?php $new_imported = ' plugin-required-premium'; ?>
 									<div class="plugin-required"><?php esc_attr_e( 'New', 'Avada' ); ?></div>
 								<?php endif; ?>
 
-								<div class="demo-imported" style="display: <?php echo esc_attr( true === $demo_imported ? 'block' : 'none' ); ?>;"><?php echo esc_html( $demo_import_badge ); ?></div>
+								<div class="plugin-premium<?php echo esc_attr( $new_imported ); ?>" style="display: <?php echo esc_attr( true === $demo_imported ? 'block' : 'none' ); ?>;"><?php echo esc_html( $demo_import_badge ); ?></div>
 
 								<div id="demo-modal-<?php echo esc_attr( strtolower( $demo ) ); ?>" class="demo-update-modal-wrap" style="display:none;">
 
@@ -328,15 +332,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 											<div class="demo-update-modal-status-bar-progress-bar"></div>
 
 											<a class="button-install-demo" data-demo-id="<?php echo esc_attr( strtolower( $demo ) ); ?>" href="#">
-												<?php echo esc_html__( 'Import', 'Avada' ); ?>
+												<?php esc_attr_e( 'Import', 'Avada' ); ?>
 											</a>
 
 											<a class="button-uninstall-demo" data-demo-id="<?php echo esc_attr( strtolower( $demo ) ); ?>" href="#">
-												<?php echo esc_html__( 'Remove', 'Avada' ); ?>
+												<?php esc_attr_e( 'Remove', 'Avada' ); ?>
 											</a>
 
 											<a class="button-done-demo demo-update-modal-close" href="#">
-												<?php echo esc_html__( 'Done', 'Avada' ); ?>
+												<?php esc_attr_e( 'Done', 'Avada' ); ?>
 											</a>
 										</div>
 									</div>
@@ -367,6 +371,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php else : ?>
 		<div class="avada-important-notice" style="border-left: 4px solid #dc3232;">
 			<h3 style="color: #dc3232; margin-top: 0;"><?php esc_attr_e( 'Avada Demos Can Only Be Imported With A Valid Token Registration', 'Avada' ); ?></h3>
+			<?php /* translators: "Product Registration" link. */ ?>
 			<p><?php printf( esc_attr__( 'Please visit the %s page and enter a valid token to import the full Avada Demos and the single pages through Fusion Builder.', 'Avada' ), '<a href="' . esc_url_raw( admin_url( 'admin.php?page=avada-registration' ) ) . '">' . esc_attr__( 'Product Registration', 'Avada' ) . '</a>' ); ?></p>
 		</div>
 	<?php endif; ?>

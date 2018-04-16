@@ -2,7 +2,7 @@
 /// <reference path="../../../js/knockout.d.ts" />
 /// <reference path="../../../modules/actor-selector/actor-selector.ts" />
 /// <reference path="../../../js/common.d.ts" />
-var AmeMetaBoxEditor = (function () {
+var AmeMetaBoxEditor = /** @class */ (function () {
     function AmeMetaBoxEditor(settings, forceRefreshUrl) {
         var _this = this;
         this.canAnyBoxesBeDeleted = false;
@@ -36,6 +36,7 @@ var AmeMetaBoxEditor = (function () {
         this.canAnyBoxesBeDeleted = AmeMetaBoxEditor._.some(this.screens, 'canAnyBeDeleted');
         this.settingsData = ko.observable('');
         this.forceRefreshUrl = forceRefreshUrl;
+        this.isSlugWarningEnabled = ko.observable(true);
     }
     //noinspection JSUnusedGlobalSymbols It's actually used in the KO template, but PhpStorm doesn't realise that.
     AmeMetaBoxEditor.prototype.saveChanges = function () {
@@ -70,10 +71,10 @@ var AmeMetaBoxEditor = (function () {
             window.location.href = this.forceRefreshUrl;
         }
     };
+    AmeMetaBoxEditor._ = wsAmeLodash;
     return AmeMetaBoxEditor;
 }());
-AmeMetaBoxEditor._ = wsAmeLodash;
-var AmeMetaBox = (function () {
+var AmeMetaBox = /** @class */ (function () {
     function AmeMetaBox(settings, metaBoxEditor) {
         var _this = this;
         this.isHiddenByDefault = false;
@@ -106,6 +107,19 @@ var AmeMetaBox = (function () {
                 }
             },
             write: function (checked) {
+                if ((_this.id === 'slugdiv') && !checked && _this.metaBoxEditor.isSlugWarningEnabled()) {
+                    var warningMessage = 'Hiding the "Slug" metabox can prevent the user from changing the post slug.\n'
+                        + 'This is caused by a known bug in WordPress core.\n'
+                        + 'Do you want to hide this metabox anyway?';
+                    if (confirm(warningMessage)) {
+                        //Suppress the warning.
+                        _this.metaBoxEditor.isSlugWarningEnabled(false);
+                    }
+                    else {
+                        _this.isAvailable.notifySubscribers();
+                        return;
+                    }
+                }
                 var actor = metaBoxEditor.selectedActor();
                 if (actor !== null) {
                     _this.grantAccess.set(actor.id, checked);
@@ -191,11 +205,11 @@ var AmeMetaBox = (function () {
         var tags = /<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, commentsAndPhpTags = /<!--[\s\S]*?-->|<\?(?:php)?[\s\S]*?\?>/gi;
         return input.replace(commentsAndPhpTags, '').replace(tags, '');
     };
+    AmeMetaBox._ = wsAmeLodash;
+    AmeMetaBox.counter = 0;
     return AmeMetaBox;
 }());
-AmeMetaBox._ = wsAmeLodash;
-AmeMetaBox.counter = 0;
-var AmeActorAccessDictionary = (function () {
+var AmeActorAccessDictionary = /** @class */ (function () {
     function AmeActorAccessDictionary(initialData) {
         this.items = {};
         this.numberOfObservables = ko.observable(0);
@@ -238,7 +252,7 @@ var AmeActorAccessDictionary = (function () {
     };
     return AmeActorAccessDictionary;
 }());
-var AmeMetaBoxCollection = (function () {
+var AmeMetaBoxCollection = /** @class */ (function () {
     function AmeMetaBoxCollection(screenId, metaBoxes, metaBoxEditor) {
         this.canAnyBeDeleted = false;
         this.screenId = screenId;
@@ -255,9 +269,9 @@ var AmeMetaBoxCollection = (function () {
     AmeMetaBoxCollection.prototype.deleteBox = function (item) {
         this.boxes.remove(item);
     };
+    AmeMetaBoxCollection._ = wsAmeLodash;
     return AmeMetaBoxCollection;
 }());
-AmeMetaBoxCollection._ = wsAmeLodash;
 jQuery(function () {
     var metaBoxEditor = new AmeMetaBoxEditor(wsAmeMetaBoxEditorData.settings, wsAmeMetaBoxEditorData.refreshUrl);
     ko.applyBindings(metaBoxEditor, document.getElementById('ame-meta-box-editor'));

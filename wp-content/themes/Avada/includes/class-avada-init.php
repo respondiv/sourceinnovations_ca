@@ -26,19 +26,28 @@ class Avada_Init {
 	 * @access  public
 	 */
 	public function __construct() {
-
 		add_action( 'after_setup_theme', array( $this, 'load_textdomain' ) );
 		add_action( 'after_setup_theme', array( $this, 'set_builder_status' ), 10 );
 		add_action( 'after_setup_theme', array( $this, 'add_theme_supports' ), 10 );
 		add_action( 'after_setup_theme', array( $this, 'register_nav_menus' ) );
 		add_action( 'after_setup_theme', array( $this, 'add_image_size' ) );
+		add_filter( 'image_size_names_choose', array( $this, 'add_image_sizes_to_media_library_dialog' ) );
 
 		if ( class_exists( 'BuddyPress' ) && ! Avada_Helper::is_buddypress() ) {
 			add_action( 'init', array( $this, 'remove_buddypress_redirection' ), 5 );
 		}
 
+		if ( class_exists( 'Convert_Plug' ) ) {
+			add_action( 'init', array( $this, 'remove_convert_plus_notices' ) );
+		}
+
 		if ( class_exists( 'GF_User_Registration_Bootstrap' ) ) {
 			add_action( 'init', array( $this, 'change_gravity_user_registration_priority' ) );
+		}
+
+		// Init FPO for Event Espresso plugin.
+		if ( class_exists( 'EE_Calendar' ) ) {
+			add_filter( 'fusion_page_options_init', array( $this, 'init_fusion_page_option_for_event_espresso' ) );
 		}
 
 		add_action( 'widgets_init', array( $this, 'widget_init' ) );
@@ -72,6 +81,8 @@ class Avada_Init {
 		if ( false !== get_option( 'scheduled_avada_fusionbuilder_migration_cleanups', false ) ) {
 			add_action( 'init', array( 'Fusion_Builder_Migrate', 'cleanup_backups' ) );
 		}
+
+		add_action( 'wp_footer', array( $this, 'add_wp_footer_scripts' ), 9999 );
 	}
 
 	/**
@@ -216,12 +227,36 @@ class Avada_Init {
 		add_image_size( 'blog-medium', 320, 202, true );
 		add_image_size( 'recent-posts', 700, 441, true );
 		add_image_size( 'recent-works-thumbnail', 66, 66, true );
+
 		// Image sizes used for grid layouts.
 		add_image_size( '200', 200, '', false );
 		add_image_size( '400', 400, '', false );
 		add_image_size( '600', 600, '', false );
 		add_image_size( '800', 800, '', false );
 		add_image_size( '1200', 1200, '', false );
+	}
+
+	/**
+	 * Add image sizes to WP Media Library Dialog.
+	 *
+	 * @since 5.3
+	 * @access public
+	 * @param array $sizes The image sizes already in the WP Meida Library Dialog.
+	 * @return array Image sizes for WP Media Library Dialog.
+	 */
+	public function add_image_sizes_to_media_library_dialog( $sizes ) {
+		/* translators: image size. */
+		$sizes['200'] = sprintf( esc_attr__( 'Avada Grid %s', 'Avada' ), 200 );
+		/* translators: image size. */
+		$sizes['400'] = sprintf( esc_attr__( 'Avada Grid %s', 'Avada' ), 400 );
+		/* translators: image size. */
+		$sizes['600'] = sprintf( esc_attr__( 'Avada Grid %s', 'Avada' ), 600 );
+		/* translators: image size. */
+		$sizes['800'] = sprintf( esc_attr__( 'Avada Grid %s', 'Avada' ), 800 );
+		/* translators: image size. */
+		$sizes['1200'] = sprintf( esc_attr__( 'Avada Grid %s', 'Avada' ), 1200 );
+
+		return $sizes;
 	}
 
 	/**
@@ -246,25 +281,36 @@ class Avada_Init {
 	 */
 	public function theme_activation() {
 
-		update_option( 'shop_catalog_image_size',   array(
-			'width' => 500,
-			'height' => '',
-			0,
-		) );
-		update_option( 'shop_single_image_size',    array(
-			'width' => 700,
-			'height' => '',
-			0,
-		) );
-		update_option( 'shop_thumbnail_image_size', array(
-			'width' => 120,
-			'height' => '',
-			0,
-		) );
+		update_option(
+			'shop_catalog_image_size', array(
+				'width' => 500,
+				'height' => '',
+				0,
+			)
+		);
+		update_option(
+			'shop_single_image_size', array(
+				'width' => 700,
+				'height' => '',
+				0,
+			)
+		);
+		update_option(
+			'shop_thumbnail_image_size', array(
+				'width' => 120,
+				'height' => '',
+				0,
+			)
+		);
+
+		update_option( 'woocommerce_single_image_width', 700 );
+		update_option( 'woocommerce_thumbnail_image_width', 500 );
+		update_option( 'woocommerce_thumbnail_cropping', 'uncropped' );
+
 		// Delete the patcher caches.
 		delete_site_transient( 'fusion_patcher_check_num' );
 		// Delete compiled JS.
-		avada_reset_all_cache();
+		avada_reset_all_caches();
 
 	}
 
@@ -278,7 +324,7 @@ class Avada_Init {
 		// Delete the patcher caches.
 		delete_site_transient( 'fusion_patcher_check_num' );
 		// Delete compiled JS.
-		avada_reset_all_cache();
+		avada_reset_all_caches();
 
 	}
 
@@ -342,6 +388,7 @@ class Avada_Init {
 		register_widget( 'Fusion_Widget_Social_Links' );
 		register_widget( 'Fusion_Widget_Facebook_Page' );
 		register_widget( 'Fusion_Widget_Menu' );
+		register_widget( 'Fusion_Widget_Vertical_Menu' );
 
 	}
 
@@ -396,6 +443,19 @@ class Avada_Init {
 	}
 
 	/**
+	 * Removes admin notices from Convert Plus plugin.
+	 *
+	 * @since 5.4.1
+	 * @access public
+	 * @return void
+	 */
+	public function remove_convert_plus_notices() {
+		if ( ! defined( 'BSF_PRODUCTS_NOTICES' ) ) {
+			define( 'BSF_PRODUCTS_NOTICES', false );
+		}
+	}
+
+	/**
 	 * Changes the hook priority of the GF_User_Registration->maybe_activate_user() function.
 	 *
 	 * @since 5.1
@@ -407,14 +467,31 @@ class Avada_Init {
 		add_action( 'wp', array( gf_user_registration(), 'maybe_activate_user' ), 999 );
 	}
 
+	/**
+	 * Adds needed argument to FPO loading if clause, so that options will be displayed on Events Espresso pages.
+	 *
+	 * @since 5.4.2
+	 * @access public
+	 * @param bool $additional_argument Additional argument.
+	 * @return bool
+	 */
+	public function init_fusion_page_option_for_event_espresso( $additional_argument ) {
+		global $pagenow;
+
+		$additional_argument = 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'espresso_events' === $_GET['page'] && isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['post'] );
+
+		return $additional_argument;
+	}
+
 
 	/**
 	 * Modifies the search filter.
 	 *
+	 * @access public
 	 * @param object $query The search query.
 	 * @return object $query The modified search query.
 	 */
-	function modify_search_filter( $query ) {
+	public function modify_search_filter( $query ) {
 		if ( is_search() && $query->is_search ) {
 			if ( isset( $_GET ) && ( 2 < count( $_GET ) || ( 2 == count( $_GET ) && ! isset( $_GET['lang'] ) ) ) ) {
 				return $query;
@@ -437,6 +514,24 @@ class Avada_Init {
 			}
 		}
 		return $query;
+	}
+
+	/**
+	 * Add scripts to the wp_footer action hook.
+	 *
+	 * @since 5.3.1
+	 * @access public
+	 * @return void.
+	 */
+	public function add_wp_footer_scripts() {
+		/**
+		 * Echo the scripts added to the "before </body>" field in Theme Options.
+		 * The 'space_body' setting is not sanitized.
+		 * In order to be able to take advantage of this,
+		 * a user would have to gain access to the database
+		 * in which case this is the least on your worries.
+		 */
+		echo Avada()->settings->get( 'space_body' ); // WPCS: XSS ok.
 	}
 }
 

@@ -1,15 +1,24 @@
 <?php
-	/**
-	 * Review order table
-	 *
-	 * @author 		WooThemes
-	 * @package 	WooCommerce/Templates
-	 * @version     2.3.0
-	 */
+/**
+ * Review order table
+ *
+ * This template can be overridden by copying it to yourtheme/woocommerce/checkout/review-order.php.
+ *
+ * HOWEVER, on occasion WooCommerce will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
+ * @see 	    https://docs.woocommerce.com/document/template-structure/
+ * @author 		WooThemes
+ * @package 	WooCommerce/Templates
+ * @version     3.3.0
+ */
 
-	if ( ! defined( 'ABSPATH' ) ) {
-		exit;
-	}
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 ?>
 <table class="shop_table woocommerce-checkout-review-order-table">
 	<thead>
@@ -26,34 +35,32 @@
 			$_product     = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
 			if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_checkout_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
+				$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
 				?>
 				<tr class="<?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
 					<td class="product-name">
 
-						<?php // Avada edit ?>
+						<?php // ThemeFusion edit for Avada theme: add thumbnail to product name column. ?>
 						<span class="product-thumbnail">
-									<?php
-										$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+							<?php
+								$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
 
-										if ( ! $_product->is_visible() )
-											echo $thumbnail;
-										else
-											printf( '<a href="%s">%s</a>', $_product->get_permalink(), $thumbnail );
-									?>
-								</span>
+								if ( ! $product_permalink ) {
+									echo $thumbnail;
+								} else {
+									printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $thumbnail );
+								}
+							?>
+						</span>
+
 						<div class="product-info">
 							<?php // Avada edit ?>
-							<?php echo apply_filters( 'woocommerce_cart_item_name', $_product->get_title(), $cart_item, $cart_item_key ); ?>
+							<?php echo apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;'; ?>
 							<?php echo apply_filters( 'woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf( '&times; %s', $cart_item['quantity'] ) . '</strong>', $cart_item, $cart_item_key ); ?>
-							<?php echo WC()->cart->get_item_data( $cart_item ); ?>
+							<?php echo wc_get_formatted_cart_item_data( $cart_item ); ?>
 
 						</div>
 					</td>
-					<!--<td class="product-name">-->
-					<!--	--><?php //echo apply_filters( 'woocommerce_cart_item_name', $_product->get_title(), $cart_item, $cart_item_key ); ?>
-					<!--	--><?php //echo apply_filters( 'woocommerce_checkout_cart_item_quantity', ' <strong class="product-quantity">' . sprintf( '&times; %s', $cart_item['quantity'] ) . '</strong>', $cart_item, $cart_item_key ); ?>
-					<!--	--><?php //echo WC()->cart->get_item_data( $cart_item ); ?>
-					<!--</td>-->
 					<td class="product-total">
 						<?php echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key ); ?>
 					</td>
@@ -73,7 +80,7 @@
 	</tr>
 
 	<?php foreach ( WC()->cart->get_coupons() as $code => $coupon ) : ?>
-		<tr class="cart-discount coupon-<?php echo esc_attr( $code ); ?>">
+		<tr class="cart-discount coupon-<?php echo esc_attr( sanitize_title( $code ) ); ?>">
 			<th><?php wc_cart_totals_coupon_label( $coupon ); ?></th>
 			<td><?php wc_cart_totals_coupon_html( $coupon ); ?></td>
 		</tr>
@@ -96,18 +103,18 @@
 		</tr>
 	<?php endforeach; ?>
 
-	<?php if ( WC()->cart->tax_display_cart === 'excl' ) : ?>
-		<?php if ( get_option( 'woocommerce_tax_total_display' ) === 'itemized' ) : ?>
+	<?php if ( wc_tax_enabled() && ! WC()->cart->display_prices_including_tax() ) : ?>
+		<?php if ( 'itemized' === get_option( 'woocommerce_tax_total_display' ) ) : ?>
 			<?php foreach ( WC()->cart->get_tax_totals() as $code => $tax ) : ?>
 				<tr class="tax-rate tax-rate-<?php echo sanitize_title( $code ); ?>">
 					<th><?php echo esc_html( $tax->label ); ?></th>
-					<td><?php echo $tax->formatted_amount; // WPCS: XSS ok. ?></td>
+					<td><?php echo wp_kses_post( $tax->formatted_amount ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 		<?php else : ?>
 			<tr class="tax-total">
 				<th><?php echo esc_html( WC()->countries->tax_or_vat() ); ?></th>
-				<td><?php echo wc_price( WC()->cart->get_taxes_total() ); ?></td>
+				<td><?php wc_cart_totals_taxes_total_html(); ?></td>
 			</tr>
 		<?php endif; ?>
 	<?php endif; ?>

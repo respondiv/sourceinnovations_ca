@@ -14,30 +14,47 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'Direct script access denied.' );
 }
 
+$screen = get_current_screen();
+
 $this->dimension(
 	array(
 		'main_top_padding',
 		'main_bottom_padding',
 	),
 	esc_attr__( 'Page Content Padding', 'Avada' ),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'In pixels ex: 20px. %s', 'Avada' ), Avada()->settings->get_default_description( 'main_padding', array( 'top', 'bottom' ) ) )
 );
+
+if ( 'product' === $screen->post_type ) {
+	$this->radio_buttonset(
+		'portfolio_width_100',
+		esc_attr__( 'Use 100% Width Page', 'Avada' ),
+		array(
+			'default' => esc_attr__( 'Default', 'Avada' ),
+			'no'      => esc_attr__( 'No', 'Avada' ),
+			'yes'     => esc_attr__( 'Yes', 'Avada' ),
+		),
+		/* translators: Additional description (defaults). */
+		sprintf( esc_html__( 'Choose to set this post to 100&#37; browser width. %s', 'Avada' ), Avada()->settings->get_default_description( 'product_width_100', '', 'yesno' ) )
+	);
+}
 
 $this->text(
 	'hundredp_padding',
 	esc_html__( '100% Width Padding', 'Avada' ),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Controls the left and right padding for page content when using 100&#37; site width, 100&#37; width page template or 100&#37; width post option. This does not affect Fusion Builder containers.  Enter value including any valid CSS unit, ex: 30px. %s', 'Avada' ), Avada()->settings->get_default_description( 'hundredp_padding' ) )
 );
-
-$screen = get_current_screen();
 
 if ( 'page' === $screen->post_type ) {
 	$this->radio_buttonset(
 		'show_first_featured_image',
 		esc_attr__( 'Disable First Featured Image', 'Avada' ),
 		array(
-			'no'  => esc_attr__( 'No', 'Avada' ),
 			'yes' => esc_attr__( 'Yes', 'Avada' ),
+			'no'  => esc_attr__( 'No', 'Avada' ),
+
 		),
 		esc_html__( 'Disable the 1st featured image on page.', 'Avada' )
 	);
@@ -52,7 +69,8 @@ if ( 'tribe_events' === $screen->post_type ) {
 			'yes'     => esc_attr__( 'Show', 'Avada' ),
 			'no'      => esc_attr__( 'Hide', 'Avada' ),
 		),
-		sprintf( esc_html__( 'Choose to show or hide the social share box. %s', 'Avada' ), Avada()->settings->get_default_description( 'events_social_sharing_box' , '', 'showhide' ) )
+		/* translators: Additional description (defaults). */
+		sprintf( esc_html__( 'Choose to show or hide the social share box. %s', 'Avada' ), Avada()->settings->get_default_description( 'events_social_sharing_box', '', 'showhide' ) )
 	);
 }
 

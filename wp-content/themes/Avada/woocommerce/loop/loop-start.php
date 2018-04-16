@@ -2,9 +2,18 @@
 /**
  * Product Loop Start
  *
+ * This template can be overridden by copying it to yourtheme/woocommerce/loop/loop-start.php.
+ *
+ * HOWEVER, on occasion WooCommerce will need to update template files and you
+ * (the theme developer) will need to copy the new files to your theme to
+ * maintain compatibility. We try to do this as little as possible, but it does
+ * happen. When this occurs the version of the template file will be bumped and
+ * the readme will list any important changes.
+ *
+ * @see 	    https://docs.woocommerce.com/document/template-structure/
  * @author 		WooThemes
  * @package 	WooCommerce/Templates
- * @version     2.0.0
+ * @version     3.3.0
  */
 
 // Exit if accessed directly.
@@ -12,28 +21,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-global $woocommerce_loop;
-
 // Reset according to sidebar or fullwidth pages.
-if ( empty( $woocommerce_loop['columns'] ) ) {
-	if ( is_shop() || is_product_category() || is_product_tag() || is_tax() ) {
-
-		if ( is_shop() ) {
-			$woocommerce_loop['columns'] = Avada()->settings->get( 'woocommerce_shop_page_columns' );
-		}
-		if ( is_product_category() ||
-			is_product_tag() ||
-			is_tax()
-		) {
-			$woocommerce_loop['columns'] = Avada()->settings->get( 'woocommerce_archive_page_columns' );
-			$columns = Avada()->settings->get( 'woocommerce_archive_page_columns' );
-		}
-	}
+if ( is_shop() ) {
+	wc_set_loop_prop( 'columns', Avada()->settings->get( 'woocommerce_shop_page_columns' ) );
+}
+if ( is_product_category() ||
+	is_product_tag() ||
+	is_tax()
+) {
+	$columns = Avada()->settings->get( 'woocommerce_archive_page_columns' );
+	wc_set_loop_prop( 'columns', $columns );
 }
 
-$column_class = '';
-if ( isset( $woocommerce_loop['columns'] ) ) {
-	$column_class = ' products-' . $woocommerce_loop['columns'];
-}
+
+$column_class = ' products-' . wc_get_loop_prop( 'columns' );
 ?>
-<ul class="products clearfix<?php echo $column_class; ?>">
+<ul class="products clearfix<?php echo esc_attr( $column_class ); ?>">

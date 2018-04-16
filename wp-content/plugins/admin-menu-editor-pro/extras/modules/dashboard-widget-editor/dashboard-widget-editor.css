@@ -123,8 +123,6 @@
     display: block;
     padding: 0;
     margin-bottom: 1em; }
-    .ame-widget-properties ame-widget-property:last-child {
-      margin-bottom: 0; }
   .ame-widget-properties .ame-widget-property-name {
     display: inline-block; }
   .ame-widget-properties input[type="text"].ame-widget-property-value,

@@ -18,6 +18,10 @@ class ameMetaBoxEditor extends ameModule {
 	public function __construct($menuEditor) {
 		parent::__construct($menuEditor);
 
+		if ( !$this->isEnabledForRequest() ) {
+			return;
+		}
+
 		add_action('add_meta_boxes', array($this, 'addDelayedMetaBoxHook'), 10, 1);
 		add_filter('default_hidden_meta_boxes', array($this, 'filterDefaultHiddenBoxes'), 10, 2);
 
@@ -28,6 +32,10 @@ class ameMetaBoxEditor extends ameModule {
 		add_action('set_current_user', array($this, 'clearCache'), 10, 0);
 		add_action('updated_user_meta', array($this, 'clearCache'), 10, 0);
 		add_action('deleted_user_meta', array($this, 'clearCache'), 10, 0);
+	}
+
+	protected function isEnabledForRequest() {
+		return !is_network_admin();
 	}
 
 	public function addDelayedMetaBoxHook($postType) {

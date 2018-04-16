@@ -198,6 +198,13 @@ function avada_options_section_logo( $sections ) {
 							),
 						),
 					),
+					'logo_custom_link' => array(
+						'label'           => esc_html__( 'Logo Custom Link URL', 'Avada' ),
+						'description'     => esc_html__( 'Enter a custom URL the site logo should link to. Leave empty to let logo link to the home page.', 'Avada' ),
+						'id'              => 'logo_custom_link',
+						'default'         => '',
+						'type'            => 'text',
+					),
 					'default_logo_info_title' => array(
 						'label'       => esc_html__( 'Default Logo', 'Avada' ),
 						'description' => '',

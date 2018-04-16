@@ -17,7 +17,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated');
+ameTest.waitForSettingsSavedMessage();
 ameTest.thenLogin('editor', 'password');
 
 casper.then(function() {

@@ -133,7 +133,7 @@ final class Fusion_Updater {
 		if ( isset( $transient->checked ) && class_exists( 'Avada' ) ) {
 
 			// Get the installed version of Avada.
-			$current_avada_version = Avada::get_normalized_theme_version();
+			$current_avada_version = Fusion_Helper::normalize_version( Avada::get_theme_version() );
 
 			// Get the themes from the Envato API.
 			$themes = $this->registration->envato_api()->themes();
@@ -152,7 +152,7 @@ final class Fusion_Updater {
 				}
 			}
 
-			if ( version_compare( $current_avada_version, $latest_avada['version'], '<' ) ) {
+			if ( version_compare( $current_avada_version, Fusion_Helper::normalize_version( $latest_avada['version'] ), '<' ) ) {
 				$transient->response[ $latest_avada['name'] ] = array(
 					'theme'       => $latest_avada['name'],
 					'new_version' => $latest_avada['version'],
@@ -175,43 +175,64 @@ final class Fusion_Updater {
 	public function update_plugins( $transient ) {
 
 		// Get the array of arguments.
-		$args = $this->registration->get_args();
+		$bundled_plugins = array();
+		$plugins = array();
+
+		if ( class_exists( 'Avada' ) ) {
+			$plugins_info = Avada::get_bundled_plugins();
+			$bundled_plugins = $this->args['bundled'];
+			$plugins = get_plugins();
+		}
 
 		// Get an array of premium plugins from the Envato API.
-		$premiums = $this->registration->envato_api()->plugins();
+		/* $premiums = $this->registration->envato_api()->plugins(); */
 
 		// Loop available plugins.
-		$plugins = get_plugins();
-		foreach ( $plugins as $plugin_file => $plugin ) {
-			// Process bundled plugin updates.
-			if ( isset( $args['bundled'] ) && ! empty( $args['bundled'] ) ) {
-				foreach ( $args['bundled'] as $bundled_plugin ) {
-					if ( $plugin['Name'] === $bundled_plugin && isset( $args['bundled-versions'][ $bundled_plugin ] ) && version_compare( $plugin['Version'], $args['bundled-versions'][ $bundled_plugin ], '<' ) && class_exists( 'Avada' ) ) {
+		if ( isset( $plugins ) && ! empty( $plugins ) && isset( $bundled_plugins ) && ! empty( $bundled_plugins ) ) {
+			foreach ( $plugins as $plugin_file => $plugin ) {
+				// Process bundled plugin updates.
+				foreach ( $bundled_plugins as $bundled_plugin_slug => $bundled_plugin_name ) {
+					if ( $plugin['Name'] === $bundled_plugin_name && isset( $plugins_info[ $bundled_plugin_slug ] ) && version_compare( $plugin['Version'], $plugins_info[ $bundled_plugin_slug ]['version'], '<' ) && class_exists( 'Avada' ) ) {
 						$_plugin = array(
 							'slug'        => dirname( $plugin_file ),
 							'plugin'      => $plugin,
-							'new_version' => $args['bundled-versions'][ $bundled_plugin ],
+							'new_version' => $plugins_info[ $bundled_plugin_slug ]['version'],
 							'url'         => '',
-							'package'     => Avada()->remote_install->get_package( $bundled_plugin ),
+							'package'     => Avada()->remote_install->get_package( $bundled_plugin_name ),
+							'icons'       => array(
+								'1x' => esc_url_raw( $plugins_info[ $bundled_plugin_slug ]['icon'] ),
+								'2x' => esc_url_raw( $plugins_info[ $bundled_plugin_slug ]['icon'] ),
+							),
+						);
+						if ( $plugins_info[ $bundled_plugin_slug ]['banner'] ) {
+							$_plugin['banners'] = array(
+								'2x'      => esc_url_raw( $plugins_info[ $bundled_plugin_slug ]['banner'] ),
+								'default' => esc_url_raw( $plugins_info[ $bundled_plugin_slug ]['banner'] ),
+							);
+						}
+						$transient->response[ $plugin_file ] = (object) $_plugin;
+					}
+				}
+
+				/*
+				WIP
+				// Process premium plugin updates.
+				foreach ( $premiums as $premium ) {
+					if ( $plugin['Name'] === $premium['name'] && version_compare( $plugin['Version'], $premium['version'], '<' ) ) {
+						$_plugin = array(
+							'slug'        => dirname( $plugin_file ),
+							'plugin'      => $plugin,
+							'new_version' => $premium['version'],
+							'url'         => $premium['url'],
+							'package'     => $this->deferred_download( $premium['id'] ),
 						);
 						$transient->response[ $plugin_file ] = (object) $_plugin;
 					}
 				}
-			}
-			// Process premium plugin updates.
-			foreach ( $premiums as $premium ) {
-				if ( $plugin['Name'] === $premium['name'] && version_compare( $plugin['Version'], $premium['version'], '<' ) ) {
-					$_plugin = array(
-						'slug'        => dirname( $plugin_file ),
-						'plugin'      => $plugin,
-						'new_version' => $premium['version'],
-						'url'         => $premium['url'],
-						'package'     => $this->deferred_download( $premium['id'] ),
-					);
-					$transient->response[ $plugin_file ] = (object) $_plugin;
-				}
+				*/
 			}
 		}
+
 		return $transient;
 	}
 

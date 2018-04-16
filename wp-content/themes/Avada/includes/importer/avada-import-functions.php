@@ -121,7 +121,7 @@ function fusion_parse_import_data( $import_array ) {
 					}
 					$current_multiwidget = isset( $current_widget_data['_multiwidget'] ) ? $current_widget_data['_multiwidget'] : false;
 					$new_multiwidget = isset( $widget_data[ $title ]['_multiwidget'] ) ? $widget_data[ $title ]['_multiwidget'] : false;
-					$multiwidget = ( $current_multiwidget != $new_multiwidget) ? $current_multiwidget : 1;
+					$multiwidget = ( $current_multiwidget != $new_multiwidget ) ? $current_multiwidget : 1;
 					unset( $current_widget_data['_multiwidget'] );
 					$current_widget_data['_multiwidget'] = $multiwidget;
 					$new_widgets[ $title ] = $current_widget_data;
@@ -191,15 +191,36 @@ function fusion_fs_importer_replace_url( $matches ) {
 	if ( is_array( $matches ) ) {
 		foreach ( $matches as $key => $match ) {
 			if ( false !== strpos( $match, 'wp-content/uploads/sites/' ) ) {
-				$parts = explode( 'wp-content/uploads/sites/', $match );
-				if ( isset( $parts[1] ) ) {
-					$sub_parts = explode( '/', $parts[1] );
-					unset( $sub_parts[0] );
-					$parts[1] = implode( '/', $sub_parts );
 
-					// append the url to the uploads url.
-					$parts[0] = $wp_upload_dir['baseurl'];
-					return implode( '/', $parts );
+				// @codingStandardsIgnoreLine Squiz.PHP.DisallowMultipleAssignments.Found
+				if ( false !== $meta_arr = @unserialize( $match ) ) {
+					foreach ( $meta_arr as $k => $v ) {
+						if ( false !== strpos( $v, 'wp-content/uploads/sites/' ) ) {
+							$parts = explode( 'wp-content/uploads/sites/', $v );
+							if ( isset( $parts[1] ) ) {
+								$sub_parts = explode( '/', $parts[1] );
+								unset( $sub_parts[0] );
+								$parts[1] = implode( '/', $sub_parts );
+
+								// append the url to the uploads url.
+								$parts[0] = $wp_upload_dir['baseurl'];
+								$meta_arr[ $k ] = implode( '/', $parts );
+							}
+						}
+					}
+					return serialize( $meta_arr );
+				} else {
+					$parts = explode( 'wp-content/uploads/sites/', $match );
+					if ( isset( $parts[1] ) ) {
+						$sub_parts = explode( '/', $parts[1] );
+						unset( $sub_parts[0] );
+						$parts[1] = implode( '/', $sub_parts );
+
+						// append the url to the uploads url.
+						$parts[0] = $wp_upload_dir['baseurl'];
+
+						return implode( '/', $parts );
+					}
 				}
 			}
 		}

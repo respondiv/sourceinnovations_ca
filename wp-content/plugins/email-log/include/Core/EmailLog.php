@@ -14,9 +14,10 @@ class EmailLog {
 	 * Plugin Version number.
 	 *
 	 * @since Genesis
+	 *
 	 * @var string
 	 */
-	const VERSION = '2.0.2';
+	const VERSION = '2.2.5';
 
 	/**
 	 * Email Log Store URL.
@@ -28,6 +29,7 @@ class EmailLog {
 	 *
 	 * @since 2.0
 	 * @access private
+	 *
 	 * @var bool
 	 */
 	private $loaded = false;
@@ -37,6 +39,7 @@ class EmailLog {
 	 *
 	 * @since 2.0
 	 * @access private
+	 *
 	 * @var string
 	 */
 	private $plugin_file;
@@ -45,6 +48,7 @@ class EmailLog {
 	 * Filesystem directory path where translations are stored.
 	 *
 	 * @since 2.0
+	 *
 	 * @var string
 	 */
 	public $translations_path;
@@ -60,17 +64,20 @@ class EmailLog {
 	 * Database Table Manager.
 	 *
 	 * @since 2.0
+	 *
 	 * @var \EmailLog\Core\DB\TableManager
 	 */
 	public $table_manager;
 
 	/**
 	 * Add-on Licenser.
+	 * For non-admin requests it will not be set.
 	 *
 	 * @since 2.0
+	 *
 	 * @var \EmailLog\Addon\License\Licenser
 	 */
-	private $licenser;
+	private $licenser = null;
 
 	/**
 	 * List of loadies.
@@ -87,8 +94,8 @@ class EmailLog {
 	 * @param TableManager       $table_manager Table Manager.
 	 */
 	public function __construct( $file, $loader, $table_manager ) {
-		$this->plugin_file = $file;
-		$this->loader = $loader;
+		$this->plugin_file   = $file;
+		$this->loader        = $loader;
 		$this->table_manager = $table_manager;
 
 		$this->add_loadie( $table_manager );
@@ -110,7 +117,7 @@ class EmailLog {
 	/**
 	 * Get Licenser.
 	 *
-	 * @return \EmailLog\Addon\License\Licenser
+	 * @return \EmailLog\Addon\License\Licenser|null
 	 */
 	public function get_licenser() {
 		return $this->licenser;

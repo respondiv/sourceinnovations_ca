@@ -72,10 +72,10 @@
 
 		printf(
 			'<div class="ame-color-option %3$s">
-				<label>
+				<label for="ame-color-%2$s">
 					<span class="ame-menu-color-name">%1$s</span>
-					<input type="text" class="ame-color-picker" name="%2$s" id="ame-color-%2$s">
 				</label>
+				<input type="text" class="ame-color-picker" name="%2$s" id="ame-color-%2$s">
 			</div>',
 			$title,
 			esc_attr($id),

@@ -18,7 +18,7 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 		 * @access public
 		 */
 		public function __construct() {
-			add_action( 'wp_loaded', array( $this, 'init_post_type' ), 10 );
+			add_action( 'init', array( $this, 'init_post_type' ) );
 			add_action( 'wp', array( $this, 'init' ), 10 );
 			add_action( 'wp_before_admin_bar_render', array( $this, 'fusion_admin_bar_render' ) );
 			add_filter( 'themefusion_es_groups_row_actions', array( $this, 'remove_taxonomy_actions' ), 10, 1 );
@@ -34,7 +34,7 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 			add_action( 'create_slide-page', array( $this, 'slider_save_taxonomy_custom_meta' ), 10, 2 );
 			// Clone slide.
 			add_action( 'admin_action_save_as_new_slide', array( $this, 'save_as_new_slide' ) );
-			add_filter( 'post_row_actions',  array( $this, 'admin_clone_slide_button' ), 10, 2 );
+			add_filter( 'post_row_actions', array( $this, 'admin_clone_slide_button' ), 10, 2 );
 			add_action( 'edit_form_after_title', array( $this, 'admin_clone_slide_button_after_title' ) );
 			// Clone slider.
 			add_filter( 'slide-page_row_actions', array( $this, 'admin_clone_slider_button' ), 10, 2 );
@@ -83,13 +83,14 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 				)
 			);
 
-			register_taxonomy('slide-page', 'slide',
+			register_taxonomy(
+				'slide-page', 'slide',
 				array(
+					'public'            => true,
 					'hierarchical'      => true,
 					'label'             => 'Slider',
 					'query_var'         => true,
 					'rewrite'           => true,
-					'hierarchical'      => true,
 					'show_in_nav_menus' => false,
 					'show_tagcloud'     => false,
 					'labels'            => array(
@@ -137,9 +138,9 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 				// Check if header is enabled.
 				if ( ! is_page_template( 'blank.php' ) && is_object( $post ) && 'no' !== fusion_get_page_option( 'display_header', $post->ID ) ) {
-					$dependencies = array( 'jquery', 'avada-header', 'modernizr', 'cssua', 'jquery-flexslider', 'fusion-flexslider','froogaloop', 'fusion-video-general', 'fusion-video-bg' );
+					$dependencies = array( 'jquery', 'avada-header', 'modernizr', 'cssua', 'jquery-flexslider', 'fusion-flexslider', 'froogaloop', 'fusion-video-general', 'fusion-video-bg' );
 				} else {
-					$dependencies = array( 'jquery', 'modernizr', 'cssua', 'jquery-flexslider', 'fusion-flexslider','froogaloop', 'fusion-video-general', 'fusion-video-bg' );
+					$dependencies = array( 'jquery', 'modernizr', 'cssua', 'jquery-flexslider', 'fusion-flexslider', 'froogaloop', 'fusion-video-general', 'fusion-video-bg' );
 				}
 
 				if ( $fusion_settings->get( 'typography_responsive' ) ) {
@@ -204,9 +205,10 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 		/**
 		 * Enqueue Scripts and Styles
 		 *
-		 * @return    void
+		 * @access public
+		 * @return void
 		 */
-		function admin_init() {
+		public function admin_init() {
 			global $pagenow;
 
 			$post_type = '';
@@ -276,6 +278,14 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 			// Retrieve the existing value(s) for this meta field. This returns an array.
 			$term_meta = get_option( "taxonomy_$t_id" );
 
+			if ( ! array_key_exists( 'slider_indicator', $term_meta ) ) {
+				$term_meta['slider_indicator'] = '';
+			}
+
+			if ( ! array_key_exists( 'slider_indicator_color', $term_meta ) ) {
+				$term_meta['slider_indicator_color'] = '';
+			}
+
 			if ( ! array_key_exists( 'typo_sensitivity', $term_meta ) ) {
 				$term_meta['typo_sensitivity'] = '1';
 			}
@@ -344,21 +354,31 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 		 */
 		public function export_sliders() {
 
-			// @codingStandardsIgnoreLine
-			if ( isset( $_POST['export_button'] ) && $_POST['export_button'] ) {
+			if ( isset( $_POST['fusion_slider_export_button'] ) ) {
+
+				check_admin_referer( 'fs_export' );
+
+				if ( ! wp_unslash( $_POST['fusion_slider_export_button'] ) ) {
+					return;
+				}
+
 				// Load Importer API.
 				require_once wp_normalize_path( ABSPATH . 'wp-admin/includes/export.php' );
 
 				ob_start();
-				export_wp( array(
-					'content' => 'slide',
-				) );
+				export_wp(
+					array(
+						'content' => 'slide',
+					)
+				);
 				$export = ob_get_contents();
 				ob_get_clean();
 
-				$terms = get_terms( 'slide-page', array(
-					'hide_empty' => 1,
-				) );
+				$terms = get_terms(
+					'slide-page', array(
+						'hide_empty' => 1,
+					)
+				);
 
 				foreach ( $terms as $term ) {
 					$term_meta = get_option( 'taxonomy_' . $term->term_id );
@@ -375,7 +395,8 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 				// @codingStandardsIgnoreLine
 				$loop = new WP_Query( array( 'post_type' => 'slide', 'posts_per_page' => -1, 'meta_key' => '_thumbnail_id' ) );
 
-				while ( $loop->have_posts() ) { $loop->the_post();
+				while ( $loop->have_posts() ) {
+					$loop->the_post();
 					$post_image_id = get_post_thumbnail_id( get_the_ID() );
 					$image_path = get_attached_file( $post_image_id );
 					if ( isset( $image_path ) && $image_path ) {
@@ -398,7 +419,7 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 						echo 'Couldn\'t export sliders, make sure wp-content/uploads is writeable.';
 					} else {
 						// Initialize archive object.
-						$zip = new ZipArchive;
+						$zip = new ZipArchive();
 						$zip->open( 'fusion_slider.zip', ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE );
 
 						foreach ( new DirectoryIterator( $fs_dir ) as $file ) {
@@ -454,7 +475,7 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 				// Attempt to manually extract the zip file first. Required for fptext method.
 				if ( class_exists( 'ZipArchive' ) ) {
-					$zip = new ZipArchive;
+					$zip = new ZipArchive();
 					if ( true === $zip->open( $zip_file ) ) {
 						$zip->extractTo( $fs_dir );
 						$zip->close();
@@ -532,7 +553,8 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 					// It's important to disable 'prefill_existing_posts'.
 					// In case GUID of importing post matches GUID of an existing post it won't be imported.
-					$importer = new Fusion_WXR_Importer( array(
+					$importer = new Fusion_WXR_Importer(
+						array(
 							'fetch_attachments'      => true,
 							'prefill_existing_posts' => false,
 						)
@@ -553,7 +575,8 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 					if ( $loop->have_posts() ) {
 
-						while ( $loop->have_posts() ) { $loop->the_post();
+						while ( $loop->have_posts() ) {
+							$loop->the_post();
 							$post_thumb_meta = get_post_meta( get_the_ID(), '_thumbnail_id', true );
 
 							if ( isset( $post_thumb_meta ) && $post_thumb_meta ) {
@@ -562,6 +585,10 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 						}
 					}
 					wp_reset_postdata();
+
+					if ( ! $this->filesystem()->is_dir( $fs_dir ) ) {
+						return;
+					}
 
 					foreach ( new DirectoryIterator( $fs_dir ) as $file ) {
 						if ( $file->isDot() || '.DS_Store' === $file->getFilename() ) {
@@ -930,6 +957,9 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 				if ( is_object( $term_details ) ) {
 					$slider_settings = get_option( 'taxonomy_' . $term_details->term_id );
+					$slider_settings['slider_id'] = $term_details->term_id;
+				} else {
+					$slider_settings['slider_id'] = '0';
 				}
 
 				if ( ! isset( $slider_settings['typo_sensitivity'] ) ) {
@@ -946,6 +976,14 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 
 				if ( ! isset( $slider_settings['slider_height'] ) || '' === $slider_settings['slider_height'] ) {
 					$slider_settings['slider_height'] = '500px';
+				}
+
+				if ( ! isset( $slider_settings['orderby'] ) ) {
+						$slider_settings['orderby'] = 'date';
+				}
+
+				if ( ! isset( $slider_settings['order'] ) ) {
+						$slider_settings['order'] = 'DESC';
 				}
 
 				if ( ! isset( $slider_settings['full_screen'] ) ) {
@@ -971,6 +1009,14 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 				$nav_box_height_half = '0';
 				if ( $slider_settings['nav_box_height'] ) {
 					$nav_box_height_half = intval( $slider_settings['nav_box_height'] ) / 2;
+				}
+
+				if ( ! isset( $slider_settings['slider_indicator'] ) ) {
+					$slider_settings['slider_indicator'] = '';
+				}
+
+				if ( ! isset( $slider_settings['slider_indicator_color'] ) || '' === $slider_settings['slider_indicator_color'] ) {
+					$slider_settings['slider_indicator_color'] = '#ffffff';
 				}
 
 				$slider_data = '';
@@ -1000,6 +1046,8 @@ if ( ! class_exists( 'Fusion_Slider' ) ) {
 					// @codingStandardsIgnoreLine
 					'posts_per_page'   => -1,
 					'suppress_filters' => 0,
+					'orderby'          => $slider_settings['orderby'],
+					'order'            => $slider_settings['order'],
 				);
 				$args['tax_query'][] = array(
 					'taxonomy' => 'slide-page',

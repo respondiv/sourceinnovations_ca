@@ -341,7 +341,7 @@ class Fusion_Envato_API {
 	 * @param string $retval The string to fix.
 	 * @return string
 	 */
-	static private function remove_non_unicode( $retval ) {
+	public static function remove_non_unicode( $retval ) {
 		return preg_replace( '/[\x00-\x1F\x80-\xFF]/', '', $retval );
 	}
 

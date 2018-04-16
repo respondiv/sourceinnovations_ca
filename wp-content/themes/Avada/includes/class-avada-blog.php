@@ -60,6 +60,19 @@ class Avada_Blog {
 	}
 
 	/**
+	 * Get the post (excerpt).
+	 *
+	 * @return void Content is directly echoed.
+	 */
+	public function render_post_content() {
+		if ( is_search() && ! Avada()->settings->get( 'search_excerpt' ) ) {
+			return;
+		}
+
+		echo fusion_get_post_content(); // WPCS: XSS ok.
+	}
+
+	/**
 	 * Apply post per page on search pages.
 	 *
 	 * @param  object $query The WP_Query object.
@@ -128,7 +141,7 @@ class Avada_Blog {
 			array_pop( $content );
 		}
 
-		$content = implode( ' ',$content );
+		$content = implode( ' ', $content );
 		$content = preg_replace( '~(?:\[/?)[^/\]]+/?\]~s', '', $content ); // Strip shortcodes and keep the content.
 		$content = str_replace( ']]>', ']]&gt;', $content );
 		$content = strip_tags( $content );
@@ -206,13 +219,13 @@ class Avada_Blog {
 				if ( $limit < count( $content ) ) {
 
 					array_pop( $content );
-					$content = implode( ' ',$content );
+					$content = implode( ' ', $content );
 					if ( Avada()->settings->get( 'disable_excerpts' ) ) {
 						$content .= ( 0 != $limit ) ? $readmore : '';
 					}
 				} else {
 
-					$content = implode( ' ',$content );
+					$content = implode( ' ', $content );
 
 				}
 			}
@@ -261,6 +274,25 @@ class Avada_Blog {
 
 		return $content;
 
+	}
+
+	/**
+	 * Get the blog layout for the current page template.
+	 *
+	 * @return string The correct layout name for the blog post class.
+	 */
+	public function get_blog_layout() {
+		$theme_options_blog_var = '';
+
+		if ( is_home() ) {
+			$theme_options_blog_var = 'blog_layout';
+		} elseif ( is_archive() || is_author() ) {
+			$theme_options_blog_var = 'blog_archive_layout';
+		} elseif ( is_search() ) {
+			$theme_options_blog_var = 'search_layout';
+		}
+
+		return str_replace( ' ', '-', strtolower( Avada()->settings->get( $theme_options_blog_var ) ) );
 	}
 }
 

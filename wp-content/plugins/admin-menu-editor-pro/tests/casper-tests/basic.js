@@ -54,8 +54,8 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message', function() {
-	casper.test.assertSelectorHasText('#message', 'Settings saved.', 'Menu saved successfully');
+ameTest.waitForSettingsSavedMessage(function() {
+	casper.test.assertSelectorHasText('#message,#setting-error-settings_updated', 'Settings saved.', 'Menu saved successfully');
 	casper.test.assertSelectorHasText('#menu-dashboard', 'Custom Title', '"Dashboard" was changed to "Custom Title"');
 	casper.test.assertSelectorHasText(
 		'#menu-settings .wp-submenu a[href="options-general.php"]',

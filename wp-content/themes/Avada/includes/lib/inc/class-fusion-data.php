@@ -140,7 +140,7 @@ class Fusion_Data {
 				'color' => '#cd201f',
 			),
 			'email'      => array(
-				'label' => esc_html__( 'Email Address', 'Avada' ),
+				'label' => esc_attr__( 'Email Address', 'Avada' ),
 				'color' => '#000000',
 			),
 		);
@@ -1051,7 +1051,7 @@ class Fusion_Data {
 	 * @return array
 	 */
 	public static function color_theme( $context ) {
-		$options = get_option( Avada::get_option_name(), array() );
+		$options = get_option( Fusion_Settings::get_option_name(), array() );
 
 		$light = array();
 		$light['header_bg_color'] = '#ffffff';
@@ -1088,7 +1088,8 @@ class Fusion_Data {
 		$light['body_typography']['color'] = '#747474';
 		$light['link_color'] = '#333333';
 		$light['menu_h45_bg_color'] = '#FFFFFF';
-		$light['menu_first_color'] = '#333333';
+		$light['nav_typography'] = isset( $options['nav_typography'] ) ? $options['nav_typography'] : array();
+		$light['nav_typography']['color'] = '#333333';
 		$light['menu_sub_bg_color'] = '#f2efef';
 		$light['menu_sub_color'] = '#333333';
 		$light['menu_bg_hover_color'] = '#f8f8f8';
@@ -1159,6 +1160,9 @@ class Fusion_Data {
 		$light['mobile_menu_background_color'] = '#f9f9f9';
 		$light['mobile_menu_border_color'] = '#dadada';
 		$light['mobile_menu_hover_color'] = '#f6f6f6';
+		$light['mobile_menu_typography'] = isset( $options['mobile_menu_typography'] ) ? $options['mobile_menu_typography'] : array();
+		$light['mobile_menu_typography']['color'] = '#333333';
+		$light['mobile_menu_font_hover_color'] = '#333333';
 		$light['social_links_icon_color'] = '#bebdbd';
 		$light['social_links_box_color'] = '#e8e8e8';
 		$light['sharing_social_links_icon_color'] = '#bebdbd';
@@ -1207,7 +1211,8 @@ class Fusion_Data {
 		$dark['body_typography']['color'] = '#aaa9a9';
 		$dark['link_color'] = '#ffffff';
 		$dark['menu_h45_bg_color'] = '#29292A';
-		$dark['menu_first_color'] = '#ffffff';
+		$dark['nav_typography'] = isset( $options['nav_typography'] ) ? $options['nav_typography'] : array();
+		$dark['nav_typography']['color'] = '#ffffff';
 		$dark['menu_sub_bg_color'] = '#3e3e3e';
 		$dark['menu_sub_color'] = '#d6d6d6';
 		$dark['menu_bg_hover_color'] = '#383838';
@@ -1278,6 +1283,9 @@ class Fusion_Data {
 		$dark['mobile_menu_background_color'] = '#3e3e3e';
 		$dark['mobile_menu_border_color'] = '#212122';
 		$dark['mobile_menu_hover_color'] = '#383737';
+		$dark['mobile_menu_typography'] = isset( $options['mobile_menu_typography'] ) ? $options['mobile_menu_typography'] : array();
+		$dark['mobile_menu_typography']['color'] = '#ffffff';
+		$dark['mobile_menu_font_hover_color'] = '#ffffff';
 		$dark['social_links_icon_color'] = '#3e3e3e';
 		$dark['social_links_box_color'] = '#383838';
 		$dark['sharing_social_links_icon_color'] = '#919191';

@@ -15,6 +15,9 @@ interface WidgetEditorSettings {
 		version: string
 	},
 	widgets: Array<WidgetPropertyMap>;
+	welcomePanel: {
+		grantAccess: AmeDictionary<boolean>
+	},
 	siteComponentHash: string;
 }
 
@@ -23,6 +26,8 @@ class AmeDashboardWidgetEditor {
 	private static autoCleanupEnabled: boolean = true;
 
 	widgets: KnockoutObservableArray<AmeDashboardWidget>;
+
+	private welcomePanel: AmeWelcomeWidget;
 
 	actorSelector: AmeActorSelector;
 	selectedActor: KnockoutComputed<string>;
@@ -53,7 +58,7 @@ class AmeDashboardWidgetEditor {
 		this.actorSelector = new AmeActorSelector(AmeActors, true);
 
 		//Wrap the selected actor in a computed observable so that it can be used with Knockout.
-		var _selectedActor = ko.observable(this.actorSelector.selectedActor);
+		let _selectedActor = ko.observable(this.actorSelector.selectedActor);
 		this.selectedActor = ko.computed<string>({
 			read: function () {
 				return _selectedActor();
@@ -92,7 +97,10 @@ class AmeDashboardWidgetEditor {
 		const _ = AmeDashboardWidgetEditor._;
 		this.widgets.removeAll();
 
-		for (var i = 0; i < widgetSettings.widgets.length; i++) {
+		this.welcomePanel = new AmeWelcomeWidget(_.get(widgetSettings, 'welcomePanel', {}), this);
+		this.widgets.push(this.welcomePanel);
+
+		for (let i = 0; i < widgetSettings.widgets.length; i++) {
 			let properties = widgetSettings.widgets[i],
 				widget = null;
 
@@ -125,16 +133,18 @@ class AmeDashboardWidgetEditor {
 		this.initialWidgetSettings = widgetSettings;
 	}
 
+	// noinspection JSUnusedGlobalSymbols Used in Knockout templates.
 	removeWidget(widget: AmeDashboardWidget, event) {
 		jQuery(event.target).closest('.ame-dashboard-widget').slideUp(300, () => {
 			this.widgets.remove(widget);
 		});
 	}
 
+	// noinspection JSUnusedGlobalSymbols Used in Knockout templates.
 	addHtmlWidget() {
 		this.newWidgetCounter++;
 
-		var widget = new AmeCustomHtmlWidget({
+		let widget = new AmeCustomHtmlWidget({
 			id: AmeDashboardWidgetEditor.customIdPrefix + this.newWidgetCounter,
 			title: 'New Widget ' + this.newWidgetCounter
 		}, this);
@@ -145,6 +155,7 @@ class AmeDashboardWidgetEditor {
 		this.widgets.unshift(widget);
 	}
 
+	// noinspection JSUnusedGlobalSymbols Used in Knockout templates.
 	saveChanges() {
 		let settings = this.getCurrentSettings();
 
@@ -158,23 +169,32 @@ class AmeDashboardWidgetEditor {
 
 	protected getCurrentSettings(): WidgetEditorSettings {
 		const collectionFormatName = 'Admin Menu Editor dashboard widgets';
-		const collectionFormatVersion = '1.0';
+		const collectionFormatVersion = '1.1';
+		const _ = AmeDashboardWidgetEditor._;
 
-		var settings: WidgetEditorSettings = {
+		let settings: WidgetEditorSettings = {
 			format: {
 				name: collectionFormatName,
 				version: collectionFormatVersion
 			},
 			widgets: [],
+			welcomePanel: {
+				grantAccess: _.pick(this.welcomePanel.grantAccess.getAll(), function(hasAccess, actorId) {
+					//Remove "allow" settings for actors that can't actually see the panel.
+					return AmeActors.hasCapByDefault(actorId, 'edit_theme_options') || !hasAccess;
+
+				}),
+			},
 			siteComponentHash: this.initialWidgetSettings.siteComponentHash
 		};
-		AmeDashboardWidgetEditor._.forEach(this.widgets(), function (widget) {
+		_.forEach(_.without(this.widgets(), this.welcomePanel), function (widget) {
 			settings.widgets.push(widget.toPropertyMap());
 		});
 
 		return settings;
 	}
 
+	// noinspection JSUnusedGlobalSymbols Used in Knockout templates.
 	exportWidgets() {
 		//Temporarily disable the export button to prevent accidental repeated clicks.
 		this.isExportButtonEnabled(false);
@@ -235,7 +255,7 @@ class AmeDashboardWidgetEditor {
 			beforeSubmit: (formData) => {
 
 				//Check if the user has selected a file
-				for (var i = 0; i < formData.length; i++) {
+				for (let i = 0; i < formData.length; i++) {
 					if ( formData[i].name === 'widget_file' ){
 						if ( (typeof formData[i].value === 'undefined') || !formData[i].value){
 							alert('Select a file first!');
@@ -289,6 +309,7 @@ class AmeDashboardWidgetEditor {
 		});
 	}
 
+	// noinspection JSUnusedGlobalSymbols Used in Knockout templates.
 	openImportDialog() {
 		this.importDialog.dialog('open');
 	}

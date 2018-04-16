@@ -50,21 +50,25 @@ class Fusion_Widget_Facebook_Page extends WP_Widget {
 
 		extract( $args );
 
-		$title        = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
-		$language     = get_locale();
-		$page_url     = ! empty( $instance['page_url'] ) ? $instance['page_url'] : '';
-		$app_id       = ! empty( $instance['app_id'] ) ? $instance['app_id'] : '';
-		$widget_width = ! empty( $instance['width'] ) ? $instance['width'] : 268;
-		$show_faces   = ! empty( $instance['show_faces'] ) ? 'true' : 'false';
-		$show_stream  = ! empty( $instance['show_stream'] ) ? 'true' : 'false';
-		$show_header  = ! empty( $instance['show_header'] ) ? 'false' : 'true';
-		$small_header = ! empty( $instance['small_header'] ) ? 'true' : 'false';
-		$height       = '65';
+		$title          = apply_filters( 'widget_title', isset( $instance['title'] ) ? $instance['title'] : '' );
+		$language       = get_locale();
+		$page_url       = ! empty( $instance['page_url'] ) ? $instance['page_url'] : '';
+		$app_id         = ! empty( $instance['app_id'] ) ? $instance['app_id'] : '';
+		$widget_width   = ! empty( $instance['width'] ) ? $instance['width'] : 268;
+		$show_faces     = ! empty( $instance['show_faces'] ) ? 'true' : 'false';
+		$show_stream    = ! empty( $instance['show_stream'] ) ? 'timeline,' : '';
+		$show_events    = ! empty( $instance['show_events'] ) ? 'events,' : '';
+		$show_messages  = ! empty( $instance['show_messages'] ) ? 'messages' : '';
+		$show_header    = ! empty( $instance['show_header'] ) ? 'false' : 'true';
+		$small_header   = ! empty( $instance['small_header'] ) ? 'true' : 'false';
+		$show_tabs      = ( $show_stream || $show_events || $show_messages ) ? true : false;
+		$tabs           = rtrim( $show_stream . $show_events . $show_messages, ',' );
+		$height         = '65';
 
 		$height = ( 'true' === $show_faces ) ? '240' : $height;
-		$height = ( 'true' === $show_stream ) ? '515' : $height;
-		$height = ( 'true' === $show_stream && 'true' === $show_faces && 'true' === $show_header ) ? '540' : $height;
-		$height = ( 'true' === $show_stream && 'true' === $show_faces && 'false' === $show_header ) ? '540' : $height;
+		$height = ( $show_tabs ) ? '515' : $height;
+		$height = ( $show_tabs && 'true' === $show_faces && 'true' === $show_header ) ? '540' : $height;
+		$height = ( $show_tabs && 'true' === $show_faces && 'false' === $show_header ) ? '540' : $height;
 		$height = ( 'true' === $show_header ) ? $height + 30 : $height;
 
 		echo $before_widget; // WPCS: XSS ok.
@@ -81,18 +85,10 @@ class Fusion_Widget_Facebook_Page extends WP_Widget {
 		<?php if ( $page_url ) : ?>
 
 			<script>
-			(function(d, s, id) {
-			  var js, fjs = d.getElementsByTagName(s)[0];
-			  if (d.getElementById(id)) return;
-			  js = d.createElement(s); js.id = id;
-			  js.src = "//connect.facebook.net/<?php echo esc_attr( $language ); ?>/sdk.js#xfbml=1&version=v2.6&appId=<?php echo esc_attr( $app_id ); ?>";
-			  fjs.parentNode.insertBefore(js, fjs);
-			}(document, 'script', 'facebook-jssdk'));
-
 			window.fbAsyncInit = function() {
 				fusion_resize_page_widget();
 
-				jQuery( window ).resize(function() {
+				jQuery( window ).resize( function() {
 					fusion_resize_page_widget();
 				});
 
@@ -100,21 +96,32 @@ class Fusion_Widget_Facebook_Page extends WP_Widget {
 					var $container_width = jQuery( '.<?php echo esc_attr( $args['widget_id'] ); ?>' ).width();
 
 					if ( 1 > $container_width ) {
-						$container_width = <?php echo esc_attr( $widget_width );?>;
+						$container_width = <?php echo esc_attr( $widget_width ); ?>;
 					}
 
-					if ( $container_width != jQuery('.<?php echo esc_attr( $args['widget_id'] ); ?> .fb-page' ).data( 'width' ) ) {
+					if ( $container_width != jQuery('.<?php echo esc_attr( $args['widget_id'] ); ?> .fb-page' ).data( 'width' ) && $container_width != jQuery('.<?php echo esc_attr( $args['widget_id'] ); ?> .fb-page' ).data( 'original-width' ) ) {
 						jQuery('.<?php echo esc_attr( $args['widget_id'] ); ?> .fb-page' ).attr( 'data-width', $container_width );
-						FB.XFBML.parse();
+						if ( 'undefined' !== typeof FB ) {
+							FB.XFBML.parse();
+						}
 					}
 				}
-			}
+		  };
+
+			(function(d, s, id) {
+			  var js, fjs = d.getElementsByTagName(s)[0];
+			  if (d.getElementById(id)) return;
+			  js = d.createElement(s); js.id = id;
+			  js.src = "https://connect.facebook.net/<?php echo esc_attr( $language ); ?>/sdk.js#xfbml=1&version=v2.11&appId=<?php echo esc_attr( $app_id ); ?>";
+			  fjs.parentNode.insertBefore(js, fjs);
+			}(document, 'script', 'facebook-jssdk'));
 			</script>
 
 			<div class="fb-like-box-container <?php echo esc_attr( $args['widget_id'] ); ?>" id="fb-root">
-				<div class="fb-page" data-href="<?php echo esc_url_raw( $page_url ); ?>" data-width="<?php echo esc_attr( $widget_width ); ?>" data-adapt-container-width="true" data-small-header="<?php echo esc_attr( $small_header ); ?>" data-height="<?php echo esc_attr( $height ); ?>" data-hide-cover="<?php echo esc_attr( $show_header ); ?>" data-show-facepile="<?php echo esc_attr( $show_faces ); ?>" data-show-posts="<?php echo esc_attr( $show_stream ); ?>"></div>
+				<div class="fb-page" data-href="<?php echo esc_url_raw( $page_url ); ?>" data-original-width="<?php echo esc_attr( $widget_width ); ?>" data-width="<?php echo esc_attr( $widget_width ); ?>" data-adapt-container-width="true" data-small-header="<?php echo esc_attr( $small_header ); ?>" data-height="<?php echo esc_attr( $height ); ?>" data-hide-cover="<?php echo esc_attr( $show_header ); ?>" data-show-facepile="<?php echo esc_attr( $show_faces ); ?>" data-tabs="<?php echo esc_attr( $tabs ); ?>"></div>
 			</div>
-		<?php endif;
+		<?php
+		endif;
 
 		echo $after_widget; // WPCS: XSS ok.
 
@@ -137,14 +144,16 @@ class Fusion_Widget_Facebook_Page extends WP_Widget {
 
 		$instance = $old_instance;
 
-		$instance['title']        = isset( $new_instance['title'] ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['page_url']     = isset( $new_instance['page_url'] ) ? $new_instance['page_url'] : '';
-		$instance['app_id']       = isset( $new_instance['app_id'] ) ? $new_instance['app_id'] : '';
-		$instance['width']        = isset( $new_instance['width'] ) ? $new_instance['width'] : '';
-		$instance['show_faces']   = isset( $new_instance['show_faces'] ) ? $new_instance['show_faces'] : '';
-		$instance['show_stream']  = isset( $new_instance['show_stream'] ) ? $new_instance['show_stream'] : '';
-		$instance['show_header']  = isset( $new_instance['show_header'] ) ? $new_instance['show_header'] : '';
-		$instance['small_header'] = isset( $new_instance['small_header'] ) ? $new_instance['small_header'] : '';
+		$instance['title']          = isset( $new_instance['title'] ) ? strip_tags( $new_instance['title'] ) : '';
+		$instance['page_url']       = isset( $new_instance['page_url'] ) ? $new_instance['page_url'] : '';
+		$instance['app_id']         = isset( $new_instance['app_id'] ) ? $new_instance['app_id'] : '';
+		$instance['width']          = isset( $new_instance['width'] ) ? $new_instance['width'] : '';
+		$instance['show_faces']     = isset( $new_instance['show_faces'] ) ? $new_instance['show_faces'] : '';
+		$instance['show_stream']    = isset( $new_instance['show_stream'] ) ? $new_instance['show_stream'] : '';
+		$instance['show_events']    = isset( $new_instance['show_events'] ) ? $new_instance['show_events'] : '';
+		$instance['show_messages']  = isset( $new_instance['show_messages'] ) ? $new_instance['show_messages'] : '';
+		$instance['show_header']    = isset( $new_instance['show_header'] ) ? $new_instance['show_header'] : '';
+		$instance['small_header']   = isset( $new_instance['small_header'] ) ? $new_instance['small_header'] : '';
 
 		return $instance;
 
@@ -159,17 +168,20 @@ class Fusion_Widget_Facebook_Page extends WP_Widget {
 	public function form( $instance ) {
 
 		$defaults = array(
-			'title'        => __( 'Find us on Facebook', 'Avada' ),
-			'page_url'     => '',
-			'app_id'       => '',
-			'width'        => '268',
-			'show_faces'   => 'on',
-			'show_stream'  => false,
-			'show_header'  => false,
-			'small_header' => false,
+			'title'          => __( 'Find us on Facebook', 'Avada' ),
+			'page_url'       => '',
+			'app_id'         => '',
+			'width'          => '268',
+			'show_faces'     => 'on',
+			'show_stream'    => false,
+			'show_events'    => false,
+			'show_messages'  => false,
+			'show_header'    => false,
+			'small_header'   => false,
 		);
 
-		$instance = wp_parse_args( (array) $instance, $defaults ); ?>
+		$instance = wp_parse_args( (array) $instance, $defaults );
+		?>
 
 		<h4 style="line-height: 1.6em;"><?php esc_attr_e( 'IMPORTANT: Please create a Facebook App and use its ID for features like sharing.', 'Avada' ); ?> <a href="https://developers.facebook.com/docs/apps/register" target="_blank" rel="noopener noreferrer"><?php esc_attr_e( 'See Instructions.', 'Avada' ); ?></a></h4>
 
@@ -200,7 +212,17 @@ class Fusion_Widget_Facebook_Page extends WP_Widget {
 
 		<p>
 			<input class="checkbox" type="checkbox" <?php checked( $instance['show_stream'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_stream' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_stream' ) ); ?>" />
-			<label for="<?php echo esc_attr( $this->get_field_id( 'show_stream' ) ); ?>"><?php esc_attr_e( 'Show Posts', 'Avada' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_stream' ) ); ?>"><?php esc_attr_e( 'Show Timeline Tab', 'Avada' ); ?></label>
+		</p>
+
+		<p>
+			<input class="checkbox" type="checkbox" <?php checked( $instance['show_events'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_events' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_events' ) ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_events' ) ); ?>"><?php esc_attr_e( 'Show Events Tab', 'Avada' ); ?></label>
+		</p>
+
+		<p>
+			<input class="checkbox" type="checkbox" <?php checked( $instance['show_messages'], 'on' ); ?> id="<?php echo esc_attr( $this->get_field_id( 'show_messages' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_messages' ) ); ?>" />
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_messages' ) ); ?>"><?php esc_attr_e( 'Show Messages Tab', 'Avada' ); ?></label>
 		</p>
 
 		<p>

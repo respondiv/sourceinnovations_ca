@@ -47,7 +47,7 @@ class ameMetaBox {
 	protected $isHiddenByDefault = false;
 
 	public function __construct($properties) {
-		$this->id = $properties['id'];
+		$this->id = strval($properties['id']);
 
 		$properties = array_merge(
 			array(
@@ -191,7 +191,7 @@ class ameMetaBox {
 
 	protected function setProperties(array $properties) {
 		//Always overwritten.
-		$this->title = $properties['title'];
+		$this->title = strval($properties['title']);
 		$this->callback = ameUtils::get($properties, 'callback');
 		$this->callbackArgs = ameUtils::get($properties, 'callbackArgs');
 		$this->context = ameUtils::get($properties, 'context', 'normal');

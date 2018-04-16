@@ -13,11 +13,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'Direct script access denied.' );
 }
-?>
-<div class="fusion-header-sticky-height"></div>
-<div class="fusion-header">
-	<div class="fusion-row">
-		<?php avada_logo(); ?>
-		<?php avada_main_menu(); ?>
-	</div>
-</div>
+$header_type = Avada()->settings->get( 'header_layout' );
+get_template_part( 'templates/header-' . $header_type );
+
+/* Omit closing PHP tag to avoid "Headers already sent" issues. */

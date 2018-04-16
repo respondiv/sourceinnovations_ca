@@ -38,6 +38,25 @@
 	</td>
 </tr>
 <tr class="form-field form-field-checkbox">
+	<th scope="row" valign="top"><label for="term_meta[slider_indicator]"><?php esc_attr_e( 'Slider Indicator', 'fusion-core' ); ?></label></th>
+	<td>
+		<select name="term_meta[slider_indicator]" id="term_meta[slider_indicator]">
+			<option value=""><?php esc_attr_e( 'None', 'fusion-core' ); ?></option>
+			<option value="scroll_down_indicator" <?php echo ( isset( $term_meta['slider_indicator'] ) && 'scroll_down_indicator' === esc_attr( $term_meta['slider_indicator'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Scroll Down Indicator', 'fusion-core' ); ?></option>
+			<option value="pagination_circles" <?php echo ( isset( $term_meta['slider_indicator'] ) && 'pagination_circles' === esc_attr( $term_meta['slider_indicator'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Pagination Circles', 'fusion-core' ); ?></option>
+	  </select>
+		<p class="description"><?php esc_attr_e( 'Choose do you want to display paginatin circler or scroll down indicator.', 'fusion-core' ); ?></p>
+	</td>
+</tr>
+<tr class="form-field">
+	<th scope="row" valign="top"><label for="term_meta[slider_indicator_color]"><?php esc_attr_e( 'Slider Indicator Color', 'fusion-core' ); ?></label></th>
+	<td>
+		<input type="text" name="term_meta[slider_indicator_color]" id="slider_indicator_color" value="<?php echo ( isset( $term_meta['slider_indicator_color'] ) && esc_attr( $term_meta['slider_indicator_color'] ) ) ? esc_attr( $term_meta['slider_indicator_color'] ) : ''; ?>">
+		<?php $default = sprintf( esc_html__( 'Default: %s', 'fusion-core' ), '#fff' ); ?>
+		<p class="description"><?php printf( esc_html__( 'Select a color for the slider indicator icon. Hex color code, ex: #fff. %s', 'fusion-core' ), '<strong>' . esc_attr( $default ) . '</strong>' ); ?></p>
+	</td>
+</tr>
+<tr class="form-field form-field-checkbox">
 	<th scope="row" valign="top"><label for="term_meta[parallax]"><?php esc_attr_e( 'Parallax Scrolling Effect', 'fusion-core' ); ?></label></th>
 	<td>
 		<input type="hidden" name="term_meta[parallax]" id="term_meta[parallax]" value="0">
@@ -75,14 +94,6 @@
 	</td>
 </tr>
 <tr class="form-field form-field-checkbox">
-	<th scope="row" valign="top"><label for="term_meta[pagination_circles]"><?php esc_attr_e( 'Display Pagination Circles', 'fusion-core' ); ?></label></th>
-	<td>
-		<input type="hidden" name="term_meta[pagination_circles]" id="term_meta[pagination_circles]" value="0">
-		<input type="checkbox" name="term_meta[pagination_circles]" id="term_meta[pagination_circles]" value="1" <?php echo esc_attr( $term_meta['pagination_circles'] ) ? 'checked="checked"' : ''; ?>>
-		<p class="description"><?php esc_attr_e( 'Check this box to display the pagination circles.', 'fusion-core' ); ?></p>
-	</td>
-</tr>
-<tr class="form-field form-field-checkbox">
 	<th scope="row" valign="top"><label for="term_meta[autoplay]"><?php esc_attr_e( 'Autoplay', 'fusion-core' ); ?></label></th>
 	<td>
 		<input type="hidden" name="term_meta[autoplay]" id="term_meta[autoplay]" value="0">
@@ -96,6 +107,29 @@
 		<input type="hidden" name="term_meta[loop]" id="term_meta[loop]" value="0">
 		<input type="checkbox" name="term_meta[loop]" id="term_meta[loop]" value="1" <?php echo esc_attr( $term_meta['loop'] ) ? 'checked="checked"' : ''; ?>>
 		<p class="description"><?php esc_attr_e( 'Check this box to have the slider loop infinitely.', 'fusion-core' ); ?></p>
+	</td>
+</tr>
+<tr class="form-field">
+	<th scope="row" valign="top"><label for="term_meta[orderby]"><?php esc_attr_e( 'Order By', 'fusion-core' ); ?></label></th>
+	<td>
+		<select name="term_meta[orderby]" id="term_meta[orderby]">
+			<option value="date" <?php echo ( isset( $term_meta['orderby'] ) && 'date' === esc_attr( $term_meta['orderby'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Date', 'fusion-core' ); ?></option>
+			<option value="ID" <?php echo ( isset( $term_meta['orderby'] ) && 'ID' === esc_attr( $term_meta['orderby'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'ID', 'fusion-core' ); ?></option>
+			<option value="title" <?php echo ( isset( $term_meta['orderby'] ) && 'title' === esc_attr( $term_meta['orderby'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Title', 'fusion-core' ); ?></option>
+			<option value="modified" <?php echo ( isset( $term_meta['orderby'] ) && 'modified' === esc_attr( $term_meta['orderby'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Modified', 'fusion-core' ); ?></option>
+			<option value="rand" <?php echo ( isset( $term_meta['orderby'] ) && 'rand' === esc_attr( $term_meta['orderby'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Random', 'fusion-core' ); ?></option>
+		</select>
+		<p class="description"><?php esc_attr_e( 'Defines how the slides should be ordered.', 'fusion-core' ); ?></p>
+	</td>
+</tr>
+<tr class="form-field">
+	<th scope="row" valign="top"><label for="term_meta[order]"><?php esc_attr_e( 'Order', 'fusion-core' ); ?></label></th>
+	<td>
+		<select name="term_meta[order]" id="term_meta[order]">
+			<option value="DESC" <?php echo ( isset( $term_meta['order'] ) && 'DESC' === esc_attr( $term_meta['order'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Descending', 'fusion-core' ); ?></option>
+			<option value="ASC" <?php echo ( isset( $term_meta['order'] ) && 'ASC' === esc_attr( $term_meta['order'] ) ) ? 'selected="selected"' : ''; ?>><?php esc_attr_e( 'Ascending', 'fusion-core' ); ?></option>
+		</select>
+		<p class="description"><?php esc_attr_e( 'Defines the sorting order of the slides.', 'fusion-core' ); ?></p>
 	</td>
 </tr>
 <tr class="form-field">

@@ -22,6 +22,11 @@ class ameWidgetEditor {
 
 		$this->loadSettings();
 
+		if ( is_network_admin() ) {
+			//This module doesn't work in the network admin.
+			return;
+		}
+
 		add_action('wp_dashboard_setup', array($this, 'setupDashboard'), 200);
 
 		add_action('admin_menu_editor-enqueue_scripts-dashboard-widgets', array($this, 'enqueueScripts'));
@@ -51,7 +56,7 @@ class ameWidgetEditor {
 		//Store new widgets and changed defaults.
 		//We want a complete list of widgets, so we only do this when an administrator is logged in.
 		//Admins usually can see everything. Other roles might be missing specific widgets.
-		if ($changesDetected && $this->userCanEditWidgets()) {
+		if ( ($changesDetected || !empty($_GET['ame-cache-buster'])) && $this->userCanEditWidgets() ) {
 			//Remove wrapped widgets where the file no longer exists.
 			foreach($this->dashboardWidgets->getMissingWrappedWidgets() as $widget) {
 				$callbackFileName = $widget->getCallbackFileName();
@@ -77,6 +82,17 @@ class ameWidgetEditor {
 				//Technically, this line is not required. It just ensures that other plugins can't recreate the widget.
 				remove_meta_box($widget->getId(), 'dashboard', $widget->getLocation());
 			}
+		}
+
+		//Optionally, hide the "Welcome to WordPress!" panel. It's technically not a widget, but users
+		//assume that it is, it looks similar, and it shows up in the same place.
+		$isWelcomePanelHidden = !ameDashboardWidget::userCanAccess(
+			$currentUser,
+			$this->dashboardWidgets->getWelcomePanelVisibility(),
+			$this->menuEditor
+		);
+		if ( $isWelcomePanelHidden ) {
+			remove_action('welcome_panel', 'wp_welcome_panel');
 		}
 	}
 
@@ -295,8 +311,11 @@ class ameWidgetEditor {
 	}
 
 	private function loadSettings() {
-		//TODO: Respect scope settings
-		$settings = get_site_option(self::OPTION_NAME, null);
+		if ( $this->menuEditor->get_plugin_option('menu_config_scope') === 'site' ) {
+			$settings = get_option(self::OPTION_NAME, null);
+		} else {
+			$settings = get_site_option(self::OPTION_NAME, null);
+		}
 		if ( empty($settings) ) {
 			$this->dashboardWidgets = new ameWidgetCollection();
 		} else {

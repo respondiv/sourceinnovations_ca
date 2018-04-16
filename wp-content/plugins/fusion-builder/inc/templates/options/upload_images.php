@@ -16,29 +16,5 @@
 		data-element="{{ param.element }}"
 	/>
 	<div class="fusion-multiple-image-container">
-		<#
-		var imageIDs = option_value.split(','),
-		multiImageHtml = '';
-		jQuery.ajax( {
-			type: 'POST',
-			url: fusionBuilderConfig.ajaxurl,
-			data: {
-				action: 'fusion_builder_get_image_url',
-				fusion_load_nonce: fusionBuilderConfig.fusion_load_nonce,
-				fusion_image_ids: imageIDs
-			},
-			beforeSend: function() {
-			},
-			success: function( data ) {
-				var dataObj;
-				dataObj = JSON.parse( data );
-				_.each( dataObj.images, function( image ) {
-					jQuery('.fusion-multiple-image-container').append( image );
-				} );
-			},
-			complete: function( data ) {
-			}
-		} );
-		#>
 	</div>
 </div>

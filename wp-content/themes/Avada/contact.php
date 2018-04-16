@@ -16,7 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<?php get_header();
+<?php
+get_header();
 
 /**
  * Instantiate the Avada_Contact class.
@@ -24,7 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 $avada_contact = new Avada_Contact();
 ?>
 <section id="content" <?php Avada()->layout->add_style( 'content_style' ); ?>>
-	<?php while ( have_posts() ) : the_post(); ?>
+	<?php while ( have_posts() ) : ?>
+		<?php the_post(); ?>
 		<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 			<?php echo fusion_render_rich_snippets_for_pages(); // WPCS: XSS ok. ?>
 			<?php avada_featured_images_for_pages(); ?>
@@ -64,8 +66,7 @@ $avada_contact = new Avada_Contact();
 			<form action="" method="post" class="avada-contact-form">
 				<?php if ( 'above' == Avada()->settings->get( 'contact_comment_position' ) ) : ?>
 					<div id="comment-textarea">
-						<?php // @codingStandardsIgnoreLine ?>
-						<textarea name="msg" id="comment" cols="39" rows="4" tabindex="4" class="textarea-comment" placeholder="<?php esc_html_e( 'Message', 'Avada' ); ?>" aria-label="<?php esc_html_e( 'Message', 'Avada' ); ?>"><?php echo ( isset( $_POST['msg'] ) && ! empty( $_POST['msg'] ) ) ? esc_textarea( sanitize_text_field( wp_unslash( $_POST['msg'] ) ) ) : ''; ?></textarea>
+						<textarea name="msg" id="comment" cols="39" rows="4" tabindex="4" class="textarea-comment" placeholder="<?php esc_html_e( 'Message', 'Avada' ); ?>" aria-label="<?php esc_html_e( 'Message', 'Avada' ); ?>"><?php echo ( isset( $_POST['msg'] ) && ! empty( $_POST['msg'] ) ) ? esc_textarea( sanitize_text_field( wp_unslash( $_POST['msg'] ) ) ) : ''; // WPCS: CSRF ok. ?></textarea>
 					</div>
 				<?php endif; ?>
 
@@ -77,8 +78,7 @@ $avada_contact = new Avada_Contact();
 
 				<?php if ( 'above' != Avada()->settings->get( 'contact_comment_position' ) ) : ?>
 					<div id="comment-textarea" class="fusion-contact-comment-below">
-						<?php // @codingStandardsIgnoreLine ?>
-						<textarea name="msg" id="comment" cols="39" rows="4" class="textarea-comment" placeholder="<?php esc_html_e( 'Message', 'Avada' ); ?>" aria-label="<?php esc_html_e( 'Message', 'Avada' ); ?>"><?php echo ( isset( $_POST['msg'] ) && ! empty( $_POST['msg'] ) ) ? esc_textarea( sanitize_text_field( wp_unslash( $_POST['msg'] ) ) ) : ''; ?></textarea>
+						<textarea name="msg" id="comment" cols="39" rows="4" class="textarea-comment" placeholder="<?php esc_html_e( 'Message', 'Avada' ); ?>" aria-label="<?php esc_html_e( 'Message', 'Avada' ); ?>"><?php echo ( isset( $_POST['msg'] ) && ! empty( $_POST['msg'] ) ) ? esc_textarea( sanitize_text_field( wp_unslash( $_POST['msg'] ) ) ) : ''; // WPCS: CSRF ok. ?></textarea>
 					</div>
 				<?php endif; ?>
 
@@ -108,6 +108,7 @@ $avada_contact = new Avada_Contact();
 	<?php endwhile; ?>
 </section>
 <?php do_action( 'avada_after_content' ); ?>
-<?php get_footer();
+<?php
+get_footer();
 
 /* Omit closing PHP tag to avoid "Headers already sent" issues. */

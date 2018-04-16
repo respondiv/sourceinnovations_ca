@@ -143,7 +143,7 @@ class ameSuperUsers extends ameModule {
 			//Save settings.
 			$this->menuEditor->set_plugin_option('super_users', $userIDs);
 
-			wp_redirect($this->getTabUrl(array('updated' => 1)));
+			wp_redirect($this->getTabUrl(array('message' => 1)));
 			exit;
 		}
 	}

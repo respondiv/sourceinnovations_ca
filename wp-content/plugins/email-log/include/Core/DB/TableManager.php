@@ -1,8 +1,8 @@
 <?php namespace EmailLog\Core\DB;
-/**
- * Handle installation and db table creation
- */
 
+/**
+ * Handle installation and db table creation.
+ */
 use EmailLog\Core\Loadie;
 
 defined( 'ABSPATH' ) || exit; // Exit if accessed directly.
@@ -70,9 +70,9 @@ class TableManager implements Loadie {
 	/**
 	 * Add email log table to the list of tables deleted when a blog is deleted.
 	 *
-	 * @param  array $tables List of tables to be deleted.
+	 * @param array $tables List of tables to be deleted.
 	 *
-	 * @return string[]  $tables Modified list of tables to be deleted.
+	 * @return string[] $tables Modified list of tables to be deleted.
 	 */
 	public function delete_table_from_deleted_blog( $tables ) {
 		$tables[] = $this->get_log_table_name();
@@ -137,7 +137,7 @@ class TableManager implements Loadie {
 	/**
 	 * Deletes Email Logs older than the specified interval.
 	 *
-	 * @param  int $interval_in_days No. of days beyond which logs are to be deleted.
+	 * @param int $interval_in_days No. of days beyond which logs are to be deleted.
 	 *
 	 * @return int $deleted_rows_count  Count of rows deleted.
 	 */
@@ -145,7 +145,7 @@ class TableManager implements Loadie {
 		global $wpdb;
 		$table_name = $this->get_log_table_name();
 
-		$query = $wpdb->prepare( "DELETE FROM {$table_name} WHERE sent_date < DATE_SUB( CURDATE(), INTERVAL %d DAY )", $interval_in_days );
+		$query              = $wpdb->prepare( "DELETE FROM {$table_name} WHERE sent_date < DATE_SUB( CURDATE(), INTERVAL %d DAY )", $interval_in_days );
 		$deleted_rows_count = $wpdb->query( $query );
 
 		return $deleted_rows_count;
@@ -156,7 +156,7 @@ class TableManager implements Loadie {
 	 *
 	 * @param array $ids Optional. Array of IDs of the log items to be retrieved.
 	 *
-	 * @return array        Log item(s).
+	 * @return array Log item(s).
 	 */
 	public function fetch_log_items_by_id( $ids = array() ) {
 		global $wpdb;
@@ -258,10 +258,23 @@ class TableManager implements Loadie {
 				PRIMARY KEY  (id)
 			) ' . $charset_collate . ' ;';
 
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 			dbDelta( $sql );
 
 			add_option( self::DB_OPTION_NAME, self::DB_VERSION );
 		}
+	}
+
+	/**
+	 * Get the total number of email logs.
+	 *
+	 * @return int Total email log count
+	 */
+	public function get_logs_count() {
+		global $wpdb;
+
+		$query = 'SELECT count(*) FROM ' . $this->get_log_table_name();
+
+		return $wpdb->get_var( $query );
 	}
 }

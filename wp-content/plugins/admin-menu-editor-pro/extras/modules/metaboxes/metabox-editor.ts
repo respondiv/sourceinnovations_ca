@@ -24,6 +24,8 @@ class AmeMetaBoxEditor {
 	settingsData: KnockoutObservable<string>;
 	canAnyBoxesBeDeleted: boolean = false;
 
+	isSlugWarningEnabled: KnockoutObservable<boolean>;
+
 	private forceRefreshUrl: string;
 
 	constructor(settings: MetaBoxEditorSettings, forceRefreshUrl: string) {
@@ -62,6 +64,7 @@ class AmeMetaBoxEditor {
 
 		this.settingsData = ko.observable('');
 		this.forceRefreshUrl = forceRefreshUrl;
+		this.isSlugWarningEnabled = ko.observable(true);
 	}
 
 	//noinspection JSUnusedGlobalSymbols It's actually used in the KO template, but PhpStorm doesn't realise that.
@@ -162,6 +165,20 @@ class AmeMetaBox {
 				}
 			},
 			write: (checked: boolean) => {
+				if ((this.id === 'slugdiv') && !checked && this.metaBoxEditor.isSlugWarningEnabled()) {
+					const warningMessage =
+						'Hiding the "Slug" metabox can prevent the user from changing the post slug.\n'
+						+ 'This is caused by a known bug in WordPress core.\n'
+						+ 'Do you want to hide this metabox anyway?';
+					if (confirm(warningMessage)) {
+						//Suppress the warning.
+						this.metaBoxEditor.isSlugWarningEnabled(false);
+					} else {
+						this.isAvailable.notifySubscribers();
+						return;
+					}
+				}
+
 				const actor = metaBoxEditor.selectedActor();
 				if (actor !== null) {
 					this.grantAccess.set(actor.id, checked);

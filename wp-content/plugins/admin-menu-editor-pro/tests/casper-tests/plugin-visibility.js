@@ -248,6 +248,9 @@ casper.thenOpen(pluginsPageUrl, function() {
 	);
 });
 
+//Note: To delete test roles and users, you need to be logged in. Deleting the currently user would
+//force a logout, so we need to log in as a different user first.
+ameTest.thenLoginAsAdmin();
 //Delete test users.
 casper.thenOpen(ameTestConfig.adminUrl + '/?ame_delete_users=new_user,plugman,doubleman,editor_and_admin');
 //Delete test role.
@@ -255,7 +258,6 @@ casper.thenOpen(ameTestConfig.adminUrl + '/?ame_delete_roles=plugin_manager');
 
 //Rename one of the custom plugins.
 ameTest.resetPluginConfiguration();
-ameTest.thenLoginAsAdmin();
 
 thenOpenPluginVisibility(function() {
 	var pluginFile = 'dummy-plugin-a/dummy-plugin.php',

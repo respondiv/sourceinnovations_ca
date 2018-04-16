@@ -117,6 +117,8 @@ $isProVersion = apply_filters('admin_menu_editor_is_pro', false);
 				</td>
 			</tr>
 
+			<?php do_action('admin-menu-editor-display_addons'); ?>
+
 			<tr>
 				<th scope="row">
 					Modules

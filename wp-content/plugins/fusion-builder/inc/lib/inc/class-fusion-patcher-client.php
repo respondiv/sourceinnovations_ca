@@ -23,7 +23,7 @@ class Fusion_Patcher_Client {
 	 *
 	 * @var bool|array
 	 */
-	public static  $patches;
+	public static $patches;
 
 	/**
 	 * The URL of the patches remote server.
@@ -64,25 +64,45 @@ class Fusion_Patcher_Client {
 	 * @return bool|array
 	 */
 	private function query_patch_server() {
-
+		global $is_apache, $is_IIS, $wp_version;
 		$args = array();
 		if ( ! empty( $this->args ) ) {
 			$id = str_replace( '-', '_', $this->args['context'] );
 			$args[ $id . '_version' ] = $this->args['version'];
+			$args['limit'] = true;
 		}
+		$site_url = site_url();
+		// EVERYTHING is anonymous.
+		$args['site_url'] = md5( $site_url );
+		if ( isset( $_SERVER ) ) {
+			if ( $is_apache ) {
+				$args['server_software'] = 'apache';
+			} elseif ( $is_IIS ) {
+				$args['server_software'] = 'iis';
+			} elseif ( isset( $_SERVER['SERVER_SOFTWARE'] ) ) {
+				$server_software = sanitize_key( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) );
+				$args['server_software'] = ( false !== strpos( $server_software, 'nginx' ) ) ? 'nginx' : urlencode( $server_software );
+			}
+		}
+		if ( defined( 'PHP_VERSION_ID' ) ) {
+			$args['php_version_id'] = PHP_VERSION_ID;
+		}
+		$args['wp_version'] = $wp_version;
 
 		// Build the remote server URL using the provided version.
 		$url = add_query_arg( $args, self::$remote_patches_uri );
 
 		// Get the server response.
-		$response = wp_remote_get( $url, array(
-			'user-agent' => 'fusion-patcher-client',
-		) );
+		$response = wp_remote_get(
+			$url, array(
+				'user-agent' => 'fusion-patcher-client',
+			)
+		);
 
 		// Return false if we couldn't get to the server.
 		if ( is_wp_error( $response ) ) {
 			// Add a message so that the user knows what happened.
-			new Fusion_Patcher_Admin_Notices( 'server-unreachable', esc_attr__( 'The ThemeFusion patches server could not be reached. Please contact your host to unblock the "https://updates.theme-fusion.com/" domain.', 'fusion-builder' ) );
+			new Fusion_Patcher_Admin_Notices( 'server-unreachable', esc_attr__( 'The ThemeFusion patches server could not be reached. Please contact your host to unblock the "https://updates.theme-fusion.com/" domain.', 'Avada' ) );
 			return false;
 		}
 

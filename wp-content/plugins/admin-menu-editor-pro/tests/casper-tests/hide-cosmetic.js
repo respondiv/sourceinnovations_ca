@@ -104,7 +104,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.comment('Check menu visibility as "' + ameTestConfig.adminUsername + '"');
 	casper.test.assertNotExists('#menu-posts', 'The "Posts" menu is hidden');
 	casper.test.assertNotExists('#menu-pages', 'The "Pages" menu is hidden');

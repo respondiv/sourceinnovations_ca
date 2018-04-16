@@ -90,7 +90,7 @@
 .avada-wrap .avada-logo {
   background: #fff url(../images/logo.png) no-repeat center;
   border: none;
-  padding-top: 80px;
+  padding-top: 100px;
   height: 30px;
   position: absolute;
   top: 0;
@@ -139,6 +139,8 @@
 }
 
 .avada-thanks {
+	margin-top: 30px;
+	border-top: 1px solid #dddddd;
   float: left;
   width: 100%;
 }
@@ -328,33 +330,7 @@ span.avada-loader {
 .fusion-animated {
   visibility: hidden;
 }
-/*
-.demo-import-loader {
-  background: rgba(0, 0, 0, 0.75);
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  text-align: center;
-  display: none;
-}
 
-.demo-import-loader i {
-  text-align: center;
-  display: inline-block;
-  margin: -16px auto 0 auto;
-  height: 32px;
-  width: 32px;
-  top: 50%;
-  position: relative;
-  font-size: 32px;
-  line-height: 32px;
-  -moz-animation: spin 2s infinite linear;
-  -o-animation: spin 2s infinite linear;
-  -webkit-animation: spin 2s infinite linear;
-  animation: spin 2s infinite linear;
-}
-*/
 .success-icon i {
   margin: -20px auto 0 auto;
   height: 40px;
@@ -378,6 +354,25 @@ span.avada-loader {
   max-width: 100%;
 }
 
+.avada_page_avada-plugins .theme-browser .theme .theme-screenshot img {
+	left: 50%;
+	transform: translateX(-50%);
+	height: 100.5%;
+	width: auto;
+	max-width: none;
+  margin-bottom: 0;
+  background-color: #ffffff;
+}
+
+.avada_page_avada-plugins #wpwrap .theme-browser .theme:hover .theme-wrapper .theme-screenshot img {
+    -webkit-transform: translateX(-50%) scale(1.1);
+    transform: translateX(-50%) scale(1.1);
+}
+
+.avada_page_avada-plugins .theme-browser .theme .theme-screenshot:after {
+  padding-top: 84.9%;
+}
+
 .avada_page_avada-plugins .theme-wrapper .update-message.notice.notice-warning {
   z-index: 1;
   left: 1px;
@@ -392,17 +387,15 @@ span.avada-loader {
 }
 
 .avada_page_avada-plugins .theme-wrapper .update-message.notice.notice-warning p {
+    margin-top: 5px;
+    margin-bottom: 5px;
     font-size: 12px;
 }
 
 #wpwrap #avada-install-plugins .theme-browser .theme .theme-name {
-  padding: 15px;
+  padding: 13px 15px;
   height: 38px;
   line-height: 1;
-}
-
-#wpwrap #avada-install-plugins .theme-browser .theme .theme-name span {
-    display: block;
 }
 
 .avada-install-plugins .theme-screenshot,
@@ -426,17 +419,34 @@ span.avada-loader {
   font-weight: normal;
 }
 
-.plugin-required {
-  background: rgba(213, 78, 33, .95);
-  text-transform: uppercase;
-  color: #fff;
-  padding: 5px;
+.plugin-required,
+.plugin-premium {
   position: absolute;
   top: 1px;
+  padding: 5px;
+  text-transform: uppercase;
+  color: #fff;
 }
 
-.update .plugin-required {
+.plugin-required {
+	background: rgba(213, 78, 33, .95);
+}
+
+.plugin-premium {
+	background: rgba(0, 129, 0, .95);
+}
+
+.plugin-required-premium {
+	top: 32px;
+}
+
+.update .plugin-required,
+.update .plugin-premium {
   top: 43px;
+}
+
+.update .plugin-required-premium {
+	top: 74px;
 }
 
 .avada-install-plugins .theme-browser .theme .theme-actions {
@@ -916,7 +926,7 @@ span.avada-loader {
   top: 0;
   bottom: 0;
 
-  background-color: #076c9a;
+  background-color: #10658e;
 }
 
 .button-install-demo,
@@ -1153,15 +1163,6 @@ span.avada-loader {
 #wpwrap .avada-demo-themes .theme-browser .theme .theme-name {
     line-height: 18px;
     font-weight: 600;
-}
-
-#wpwrap .avada-demo-themes .theme-browser .theme .demo-imported {
-  background: rgba(0, 129, 0, .95);
-  text-transform: uppercase;
-  color: #fff;
-  padding: 5px;
-  position: absolute;
-  top: 32px;
 }
 
 .avada-wrap {
@@ -1540,4 +1541,39 @@ span.avada-loader {
   #tiptip_holder.tip_top #tiptip_arrow_inner {
     border-top-color: rgba(20, 20, 20, 0.92);
   }
+}
+
+.avada-admin-toggle-icon {
+  font-size: 23px;
+}
+.avada-admin-toggle-icon.avada-plus::before,
+.avada-admin-toggle-icon.avada-plus::after,
+.avada-admin-toggle-icon.avada-minus::after {
+  content: '';
+  height: 2px;
+  width: 14px;
+  display: block;
+  background: #333;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.avada-admin-toggle-icon.avada-plus::after {
+  height: 14px;
+  width: 2px;
+  left: 50%;
+  top: 50%;
+}
+.avada-admin-toggle-heading{
+  position: relative;
+}
+.avada-admin-toggle-icon{
+  position: absolute;
+  right:30px;
+  margin: 0;
+  top: 50%;
 }

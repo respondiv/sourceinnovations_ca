@@ -80,12 +80,59 @@ class Install {
 			WPO_WCPDF()->main->init_tmp( $tmp_base );
 		}
 
+		// Unsupported currency symbols 
+		$unsupported_symbols = array (
+			'AED',
+			'AFN',
+			'BDT',
+			'BHD',
+			'BTC',
+			'CRC',
+			'DZD',
+			'GEL',
+			'GHS',
+			'ILS',
+			'INR',
+			'IQD',
+			'IRR',
+			'IRT',
+			'JOD',
+			'KHR',
+			'KPW',
+			'KRW',
+			'KWD',
+			'LAK',
+			'LBP',
+			'LKR',
+			'LYD',
+			'MAD',
+			'MNT',
+			'MUR',
+			'MVR',
+			'NPR',
+			'OMR',
+			'PHP',
+			'PKR',
+			'PYG',
+			'QAR',
+			'RUB',
+			'SAR',
+			'SCR',
+			'SDG',
+			'SYP',
+			'THB',
+			'TND',
+			'TRY',
+			'UAH',
+			'YER',
+		);
+
 		// set default settings
 		$settings_defaults = array(
 			'wpo_wcpdf_settings_general' => array(
 				'download_display'			=> 'display',
 				'template_path'				=> WPO_WCPDF()->plugin_path() . '/templates/Simple',
-				// 'currency_font'				=> '',
+				'currency_font'				=> ( in_array( get_woocommerce_currency(), $unsupported_symbols ) ) ? 1 : '',
 				'paper_size'				=> 'a4',
 				// 'header_logo'				=> '',
 				// 'shop_name'					=> array(),
@@ -145,7 +192,10 @@ class Install {
 			WPO_WCPDF()->main->init_tmp( $tmp_base );
 		} else {
 			$font_path = WPO_WCPDF()->main->get_tmp_path( 'fonts' );
-			WPO_WCPDF()->main->copy_fonts( $font_path );
+			// don't try merging fonts with local when updating pre 2.0
+			$pre_2 = ( $installed_version == 'versionless' || version_compare( $installed_version, '2.0-dev', '<' ) );
+			$merge_with_local = $pre_2 ? false : true;
+			WPO_WCPDF()->main->copy_fonts( $font_path, $merge_with_local );
 		}
 		
 		// 1.5.28 update: copy next invoice number to separate setting

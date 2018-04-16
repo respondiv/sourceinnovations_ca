@@ -24,7 +24,7 @@ class Fusion_Widget_Flickr extends WP_Widget {
 	 *
 	 * @access public
 	 */
-	function __construct() {
+	public function __construct() {
 
 		$widget_ops = array(
 			'classname'   => 'flickr',
@@ -46,7 +46,7 @@ class Fusion_Widget_Flickr extends WP_Widget {
 	 *                        'before_widget', and 'after_widget'.
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 
 		extract( $args );
 
@@ -127,7 +127,7 @@ class Fusion_Widget_Flickr extends WP_Widget {
 	 * @param array $old_instance Old settings for this instance.
 	 * @return array Settings to save or bool false to cancel saving.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 
 		$instance = $old_instance;
 
@@ -146,7 +146,7 @@ class Fusion_Widget_Flickr extends WP_Widget {
 	 * @access public
 	 * @param array $instance Current settings.
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 
 		$defaults = array(
 			'title'       => __( 'Photos from Flickr', 'Avada' ),
@@ -165,6 +165,7 @@ class Fusion_Widget_Flickr extends WP_Widget {
 		</p>
 
 		<p>
+			<?php /* translators: URL. */ ?>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'screen_name' ) ); ?>"><?php printf( __( 'Flickr ID (<a href="%s">Get your flickr ID</a>):', 'Avada' ), esc_url_raw( $flickr_getid_url ) ); // WPCS: XSS ok. ?></label>
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'screen_name' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'screen_name' ) ); ?>" value="<?php echo esc_attr( $instance['screen_name'] ); ?>" />
 		</p>
@@ -175,8 +176,10 @@ class Fusion_Widget_Flickr extends WP_Widget {
 		</p>
 
 		<p>
+			<?php /* translators: URL. */ ?>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'api' ) ); ?>"><?php printf( __( 'API key (Use default or get your own from <a href="%s">Flickr APP Garden</a>):', 'Avada' ), esc_url_raw( $flickr_apply_url ) ); // WPCS: XSS ok. ?></label>
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'api' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'api' ) ); ?>" value="<?php echo esc_attr( $instance['api'] ); ?>" />
+			<?php /* translators: the default key. */ ?>
 			<small><?php printf( __( 'Default key is: %s', 'Avada' ), 'c9d2c2fda03a2ff487cb4769dc0781ea' ); // WPCS: XSS ok. ?></small>
 		</p>
 

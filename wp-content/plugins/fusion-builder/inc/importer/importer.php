@@ -43,7 +43,8 @@ function fusion_builder_importer() {
 
 					// It's important to disable 'prefill_existing_posts'.
 					// In case GUID of importing post matches GUID of an existing post it won't be imported.
-					$importer = new Fusion_WXR_Importer( array(
+					$importer = new Fusion_WXR_Importer(
+						array(
 							'fetch_attachments'      => true,
 							'prefill_existing_posts' => false,
 						)

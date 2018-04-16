@@ -362,8 +362,10 @@
 			 * @return array Params to be saved as a javascript object accessable to the UI.
 			 * @since  FusionRedux_Framework 3.1.5
 			 */
-			function localize( $field, $value = "" ) {
+			function localize( $field, $value = array() ) {
 
+				// ThemeFusion edit: make sure $value is an array, so count() below works on PHP 7.2+.
+				$value = (array) $value;
 
 				if ( isset( $field['subfields'] ) && empty( $field['fields'] ) ) {
 					$field['fields'] = $field['subfields'];

@@ -222,10 +222,6 @@ class Fusion_Dynamic_CSS_Helpers {
 			$c_page_id      = $fusion_library->get_page_id();
 			$page_id        = ( $c_page_id > 0 ) ? $c_page_id : 'global';
 
-			// If WooCommerce is active and we are on archive, use global CSS not shop page, which is return by get_page_id.
-			if ( class_exists( 'WooCommerce' ) && ( is_tax( 'product_cat' ) || is_tax( 'product_tag' ) ) ) {
-				$page_id = 'global';
-			}
 			$transient_name = 'fusion_dynamic_css_' . $page_id;
 
 			// Check if the dynamic CSS needs updating.

@@ -10,188 +10,154 @@
  * @since      5.1
  */
 
-// The $order_id is inherited from the Avada_Woocommerce::avada_woocommerce_view_order() method.
-$order = wc_get_order( $order_id );
-$show_purchase_note = $order->has_status( apply_filters( 'woocommerce_purchase_note_order_statuses', array( 'completed', 'processing' ) ) );
+// The $order_id is inherited from the Avada_Woocommerce::view_order() method. @codingStandardsIgnoreLine Squiz.PHP.DisallowMultipleAssignments.Found
+if ( ! $order = wc_get_order( $order_id ) ) { // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
+	return;
+}
+
+$order_items           = $order->get_items( apply_filters( 'woocommerce_purchase_order_item_types', 'line_item' ) );
+$show_purchase_note    = $order->has_status( apply_filters( 'woocommerce_purchase_note_order_statuses', array( 'completed', 'processing' ) ) );
+$show_customer_details = is_user_logged_in() && $order->get_user_id() === get_current_user_id();
+$downloads             = $order->get_downloadable_items();
+$show_downloads        = $order->has_downloadable_item() && $order->is_download_permitted();
 ?>
-<div class="avada-order-details woocommerce-content-box full-width">
-	<h2><?php esc_attr_e( 'Order details', 'woocommerce' ); ?></h2>
-	<table class="shop_table order_details">
+<section class="avada-order-details woocommerce-content-box full-width">
+	<h2 class="woocommerce-order-details__title"><?php esc_html_e( 'Order details', 'woocommerce' ); ?></h2>
+
+	<table class="woocommerce-table woocommerce-table--order-details shop_table order_details">
 		<thead>
 		<tr>
 			<th class="woocommerce-table__product-name product-name"><?php esc_html_e( 'Product', 'woocommerce' ); ?></th>
-			<th class="product-quantity"><?php esc_html_e( 'Quantity', 'woocommerce' ); ?></th>
 			<th class="woocommerce-table__product-table product-total"><?php esc_html_e( 'Total', 'woocommerce' ); ?></th>
 		</tr>
 		</thead>
-		<tfoot>
-			<?php $totals = $order->get_order_item_totals(); ?>
-			<?php if ( $totals ) : ?>
-				<?php foreach ( $totals as $total ) : ?>
-					<tr>
-						<td class="filler-td">&nbsp;</td>
-						<th scope="row">
-							<?php echo $total['label']; // WPCS: XSS ok. ?>
-						</th>
-						<td class="product-total">
-							<?php echo $total['value']; // WPCS: XSS ok. ?>
-						</td>
-					</tr>
-				<?php endforeach; ?>
-			<?php endif; ?>
-		</tfoot>
 		<tbody>
-			<?php if ( count( $order->get_items() ) > 0 ) :
-				foreach ( $order->get_items() as $item_id => $item ) :
-					// Checks for Woo < 2.7.
-					if ( version_compare( self::get_wc_version(), '2.7', '>=' ) ) {
-						$product = apply_filters( 'woocommerce_order_item_product', $item->get_product(), $item );
-					} else {
-						$product = apply_filters( 'woocommerce_order_item_product', $order->get_product_from_item( $item ), $item );
-					}
+			<?php
+			foreach ( $order_items as $item_id => $item ) :
+				$product           = apply_filters( 'woocommerce_order_item_product', $item->get_product(), $item );
+				$purchase_note     = ( $product ) ? $product->get_purchase_note() : '';
+				$is_visible        = $product && $product->is_visible();
 
-					if ( method_exists( $product, 'get_purchase_note' ) ) {
-						$purchase_note = ( $product ) ? $product->get_purchase_note() : '';
-					} else {
-						$purchase_note = get_post_meta( $product->id, '_purchase_note', true );
-					}
+				$product_permalink = apply_filters( 'woocommerce_order_item_permalink', $is_visible ? $product->get_permalink( $item ) : '', $item, $order );
 
-					$is_visible        = $product && $product->is_visible();
-					$product_permalink = apply_filters( 'woocommerce_order_item_permalink', $is_visible ? $product->get_permalink( $item ) : '', $item, $order );
-					?>
-					<tr class="<?php echo esc_attr( apply_filters( 'woocommerce_order_item_class', 'woocommerce-table__line-item order_item', $item, $order ) ); ?>">
-						<td class="woocommerce-table__product-name product-name">
+				if ( ! apply_filters( 'woocommerce_order_item_visible', true, $item ) ) {
+					return;
+				}
+				?>
+				<tr class="<?php echo esc_attr( apply_filters( 'woocommerce_order_item_class', 'woocommerce-table__line-item order_item', $item, $order ) ); ?>">
+					<td class="woocommerce-table__product-name product-name">
+
+						<?php if ( $is_visible ) : ?>
 							<span class="product-thumbnail">
 								<?php $thumbnail = $product->get_image(); ?>
-								<?php if ( ! $is_visible ) : ?>
+								<?php if ( ! $product_permalink ) : ?>
 									<?php echo $thumbnail; // WPCS: XSS ok. ?>
 								<?php else : ?>
-									<?php echo apply_filters( 'woocommerce_order_item_name', $product_permalink ? sprintf( '<a href="%s">%s</a>', $product_permalink, $thumbnail ) : $thumbnail, $item, $is_visible ); // WPCS: XSS ok. ?>
+									<a href="<?php echo esc_url( $product_permalink ); ?>"><?php echo $thumbnail; // WPCS: XSS ok. ?></a>
 								<?php endif; ?>
-
 							</span>
+						<?php endif; ?>
 
-							<div class="product-info">
-								<?php
-								// Check for Woo < 2.7.
-								if ( version_compare( self::get_wc_version(), '2.7', '>=' ) ) {
-									$product_name = $item->get_name();
-								} else {
-									$product_name = $item['name'];
-								}
-
-								if ( $product && ! $is_visible ) {
-									echo apply_filters( 'woocommerce_order_item_name', $product_name, $item,  $is_visible ); // WPCS: XSS ok.
-								} else {
-									echo apply_filters( 'woocommerce_order_item_name', sprintf( '<a href="%s">%s</a>', $product_permalink, $product_name ), $item, $is_visible ); // WPCS: XSS ok.
-								}
-
-								// Meta data.
-								do_action( 'woocommerce_order_item_meta_start', $item_id, $item, $order );
-								if ( version_compare( self::get_wc_version(), '3.0', '>=' ) ) {
-									wc_display_item_meta( $item );
-									wc_display_item_downloads( $item );
-								} else {
-									$order->display_item_meta( $item );
-									$order->display_item_downloads( $item );
-								}
-								do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $order );
-								?>
-							</div>
-						</td>
-						<td class="product-quantity">
+						<div class="product-info">
 							<?php
-							// Check for Woo < 3.0.
-							if ( version_compare( self::get_wc_version(), '3.0', '>=' ) ) {
-								$product_quantity = $item->get_quantity();
-							} else {
-								$product_quantity = $item['qty'];
-							}
-							echo apply_filters( 'woocommerce_order_item_quantity_html', $product_quantity, $item ); // WPCS: XSS ok.
-							?>
-						</td>
-						<td class="woocommerce-table__product-total product-total">
-							<?php echo $order->get_formatted_line_subtotal( $item ); // WPCS: XSS ok. ?>
-						</td>
-					</tr>
+							echo apply_filters( 'woocommerce_order_item_name', $product_permalink ? sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), esc_html( $item->get_name() ) ) : esc_html( $item->get_name() ), $item, $is_visible ); // WPCS: XSS ok.
+							echo apply_filters( 'woocommerce_order_item_quantity_html', ' <strong class="product-quantity">' . sprintf( '&times; %s', esc_html( $item->get_quantity() ) ) . '</strong>', $item ); // WPCS: XSS ok.
 
-					<?php if ( $show_purchase_note && $purchase_note ) : ?>
-						<tr class="woocommerce-table__product-purchase-note product-purchase-note">
-							<td colspan="3"><?php echo wpautop( do_shortcode( $purchase_note ) ); // WPCS: XSS ok. ?></td>
-						</tr>
-					<?php endif; ?>
-				<?php endforeach; ?>
-			<?php endif; ?>
+							// Meta data.
+							do_action( 'woocommerce_order_item_meta_start', $item_id, $item, $order, false );
+
+							wc_display_item_meta( $item );
+							wc_display_item_downloads( $item );
+
+							do_action( 'woocommerce_order_item_meta_end', $item_id, $item, $order, false );
+							?>
+						</div>
+					</td>
+
+					<td class="woocommerce-table__product-total product-total">
+						<?php echo $order->get_formatted_line_subtotal( $item ); // WPCS: XSS ok. ?>
+					</td>
+				</tr>
+
+				<?php if ( $show_purchase_note && $purchase_note ) : ?>
+					<tr class="woocommerce-table__product-purchase-note product-purchase-note">
+						<td colspan="3"><?php echo wpautop( do_shortcode( wp_kses_post( $purchase_note ) ) ); // WPCS: XSS ok. ?></td>
+					</tr>
+				<?php endif; ?>
+			<?php endforeach; ?>
 
 			<?php do_action( 'woocommerce_order_items_table', $order ); ?>
 		</tbody>
+		<tfoot>
+			<?php foreach ( $order->get_order_item_totals() as $key => $total ) : ?>
+				<tr>
+					<th scope="row"><?php echo $total['label']; // WPCS: XSS ok. ?></th>
+					<td class="product-total"><?php echo $total['value']; // WPCS: XSS ok. ?></td>
+				</tr>
+			<?php endforeach; ?>
+		</tfoot>
 	</table>
 	<?php do_action( 'woocommerce_order_details_after_order_table', $order ); ?>
-</div>
+</section>
 
-<div class="avada-customer-details woocommerce-content-box full-width">
-	<header>
-		<h2><?php esc_attr_e( 'Customer details', 'woocommerce' ); ?></h2>
-	</header>
-	<dl class="customer_details">
-		<?php $billing_email = ( method_exists( $order, 'get_billing_email' ) ) ? $order->get_billing_email() : $order->billing_email; ?>
-		<?php if ( $billing_email ) : ?>
-			<dt><?php esc_attr_e( 'Email:', 'woocommerce' ); ?></dt> <dd><?php echo esc_attr( $billing_email ); ?> </dd><br />
-		<?php endif; ?>
-
-		<?php $billing_phone = ( method_exists( $order, 'get_billing_phone' ) ) ? $order->get_billing_phone() : $order->billing_phone; ?>
-		<?php if ( $billing_phone ) : ?>
-			<dt><?php esc_attr_e( 'Phone:', 'woocommerce' ); ?></dt> <dd><?php echo esc_html( $billing_phone ); ?></dd>
-		<?php endif; ?>
-
-		<?php
-		// Additional customer details hook.
-		do_action( 'woocommerce_order_details_after_customer_details', $order );
-		?>
-	</dl>
-
-	<?php if ( 'no' === get_option( 'woocommerce_ship_to_billing_address_only' ) && 'no' !== get_option( 'woocommerce_calc_shipping' ) ) : ?>
-
-		<div class="col2-set addresses">
-			<div class="col-1">
-
-	<?php endif; ?>
-
-	<header class="title">
-		<h3><?php esc_attr_e( 'Billing address', 'woocommerce' ); ?></h3>
-	</header>
-
-	<address>
-		<p>
-			<?php if ( ! $order->get_formatted_billing_address() ) : ?>
-				<?php esc_attr_e( 'N/A', 'woocommerce' ); ?>
-			<?php else : ?>
-				<?php echo $order->get_formatted_billing_address(); // WPCS: XSS ok. ?>
+<?php if ( $show_customer_details ) : ?>
+	<section class="avada-customer-details woocommerce-content-box full-width">
+		<header>
+			<h2><?php esc_attr_e( 'Customer details', 'woocommerce' ); ?></h2>
+		</header>
+		<dl class="customer_details">
+			<?php $billing_email = $order->get_billing_email(); ?>
+			<?php if ( $billing_email ) : ?>
+				<dt><?php esc_attr_e( 'Email:', 'woocommerce' ); ?></dt> <dd><?php echo esc_attr( $billing_email ); ?> </dd><br />
 			<?php endif; ?>
-		</p>
-	</address>
 
-	<?php if ( 'no' === get_option( 'woocommerce_ship_to_billing_address_only' ) && 'no' !== get_option( 'woocommerce_calc_shipping' ) ) : ?>
+			<?php $billing_phone = $order->get_billing_phone(); ?>
+			<?php if ( $billing_phone ) : ?>
+				<dt><?php esc_attr_e( 'Phone:', 'woocommerce' ); ?></dt> <dd><?php echo esc_html( $billing_phone ); ?></dd>
+			<?php endif; ?>
 
-		</div>
-		<div class="col-2">
-			<header class="title">
-				<h3><?php esc_attr_e( 'Shipping address', 'woocommerce' ); ?></h3>
-			</header>
-			<address>
-				<p>
-					<?php if ( ! $order->get_formatted_shipping_address() ) : ?>
-						<?php esc_attr_e( 'N/A', 'woocommerce' ); ?>
-					<?php else : ?>
-						<?php echo $order->get_formatted_shipping_address(); // WPCS: XSS ok. ?>
-					<?php endif; ?>
-				</p>
-			</address>
-		</div>
+			<?php $customer_note = $order->get_customer_note(); ?>
+			<?php if ( $customer_note ) : ?>
+				<dt><?php esc_html_e( 'Note:', 'woocommerce' ); ?></dt> <dd><?php echo wptexturize( $customer_note ); // WPCS: XSS ok. ?></dd>
+			<?php endif; ?>
 
-	</div>
-	<?php endif; ?>
+			<?php
+			// Additional customer details hook.
+			do_action( 'woocommerce_order_details_after_customer_details', $order );
+			?>
+		</dl>
 
-	<div class="clear"></div>
+		<section class="woocommerce-columns woocommerce-columns--2 woocommerce-columns--addresses col2-set addresses">
+			<div class="woocommerce-column woocommerce-column--1 woocommerce-column--billing-address col-1">
 
-</div>
+				<header class="title">
+					<h3><?php esc_attr_e( 'Billing address', 'woocommerce' ); ?></h3>
+				</header>
+
+				<address>
+					<p>
+						<?php $address = $order->get_formatted_billing_address(); ?>
+						<?php echo ( $address ) ? $address : esc_attr__( 'N/A', 'woocommerce' ); // WPCS: XSS ok. ?>
+					</p>
+				</address>
+			</div>
+
+			<?php if ( ! wc_ship_to_billing_address_only() && $order->needs_shipping_address() ) : ?>
+				<div class="woocommerce-column woocommerce-column--2 woocommerce-column--shipping-address col-2">
+					<header class="title">
+						<h3><?php esc_attr_e( 'Shipping address', 'woocommerce' ); ?></h3>
+					</header>
+					<address>
+						<p>
+							<?php $address = $order->get_formatted_shipping_address(); ?>
+							<?php echo ( $address ) ? $address : esc_attr__( 'N/A', 'woocommerce' ); // WPCS: XSS ok. ?>
+						</p>
+					</address>
+				</div>
+			<?php endif; ?>
+
+			</section>
+		<div class="clear"></div>
+
+	</section>
+<?php endif; ?>

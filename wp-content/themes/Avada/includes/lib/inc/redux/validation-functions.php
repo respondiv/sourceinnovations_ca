@@ -82,7 +82,9 @@ if ( ! function_exists( 'fusion_redux_validate_dimension' ) ) {
 		}
 
 		if ( $warning ) {
+			/* translators: %1$s: The fallback value. %2$s: The saved value. %3$s: User-entered value. */
 			$replaced_units_message = esc_html__( 'We could not find a valid unit for this field, falling back to "%1$s". Saved value "%2$s" and not "%3$s".', 'Avada' );
+			/* translators: %1$s: The fallback value. %2$s: The saved value. %3$s: User-entered value. */
 			$units_message          = esc_html__( 'No units were entered, falling back to using pixels. Saved value "%2$s" and not "%3$s".', 'Avada' );
 			if ( empty( $value_unit ) ) {
 				$message    = $units_message;
@@ -163,7 +165,9 @@ if ( ! function_exists( 'fusion_redux_validate_font_size' ) ) {
 		}
 
 		if ( $warning ) {
+			/* translators: %1$s: The fallback value. %2$s: The saved value. %3$s: User-entered value. %4$s: A list of valid units. */
 			$replaced_units_message = esc_html__( 'We could not find a valid unit for this field, falling back to "%1$s". Valid units are %4$s. Saved value "%2$s" and not "%3$s.".', 'Avada' );
+			/* translators: %1$s: The fallback value. %2$s: The saved value. %3$s: User-entered value. %4$s: A list of valid units. */
 			$units_message          = esc_html__( 'No units were entered, falling back to using pixels. Saved value "%2$s" and not "%3$s".', 'Avada' );
 			if ( empty( $value_unit ) ) {
 				$message    = $units_message;
@@ -269,7 +273,9 @@ if ( ! function_exists( 'fusion_redux_validate_typography' ) ) {
 						if ( ! isset( $field['msg'] ) ) {
 							$field['msg'] = '';
 						}
+						/* translators: %1$s: The value. %2$s: Fallback value. %3$s: A list of valid units. %4$s: Saved value. %5$s: User-entered value. */
 						$replaced_units_message = esc_html__( 'We could not find a valid unit for %1$s, falling back to "%2$s". Valid units are %3$s. Saved value "%4$s" and not "%5$s.".', 'Avada' );
+						/* translators: %1$s: The value. %2$s: Fallback value. %3$s: A list of valid units. %4$s: Saved value. %5$s: User-entered value. */
 						$units_message          = esc_html__( 'No units were entered for %1$s, falling back to using pixels. Saved value "%4$s" and not "%5$s".', 'Avada' );
 						if ( empty( $subvalue_unit ) ) {
 							$message[]     = sprintf( $units_message, $key, $subvalue_unit, $imploded_valid_units, $subvalue_numeric . $subvalue_unit, $subvalue );
@@ -408,7 +414,9 @@ if ( ! function_exists( 'fusion_redux_validate_dimensions' ) ) {
 			}
 
 			if ( $warning[ $key ] ) {
+				/* translators: %1$s: Fallback value. %2$s: Saved value. %3$s: User-entered value. */
 				$replaced_units_message = esc_html__( 'We could not find a valid unit for this field, falling back to "%1$s". Saved value "%2$s" and not "%3$s".', 'Avada' );
+				/* translators: %2$s: Saved value. %3$s: User-entered value. */
 				$units_message          = esc_html__( 'No units were entered, falling back to using pixels. Saved value "%2$s" and not "%3$s".', 'Avada' );
 				if ( empty( $subvalue_unit ) ) {
 					$message       = $units_message;
@@ -470,6 +478,7 @@ if ( ! function_exists( 'fusion_redux_validate_color_rgba' ) ) {
 		if ( $value != $sanitized_value ) {
 			$error = true;
 			$field['msg'] = sprintf(
+				/* translators: The saved value and the user-entered value. */
 				esc_html__( 'Sanitized value and saved as %1$s instead of %2$s.', 'Avada' ),
 				'<code>' . $sanitized_value . '</code>',
 				'<code>' . $value . '</code>'
@@ -505,6 +514,7 @@ if ( ! function_exists( 'fusion_redux_validate_color_hex' ) ) {
 		if ( $value != $sanitized_value ) {
 			$error = true;
 			$field['msg'] = sprintf(
+				/* translators: The saved value and the user-entered value. */
 				esc_html__( 'Sanitized value and saved as %1$s instead of %2$s.', 'Avada' ),
 				'<code>' . $sanitized_value . '</code>',
 				'<code>' . $value . '</code>'

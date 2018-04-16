@@ -111,11 +111,6 @@ class Fusion_Dynamic_CSS_File {
 		$fusion_library = Fusion::get_instance();
 		$page_id        = ( $fusion_library->get_page_id() ) ? $fusion_library->get_page_id() : 'global';
 
-		// If WooCommerce is active and we are on archive, use global CSS not shop page, which is return by get_page_id.
-		if ( class_exists( 'WooCommerce' ) && ( is_tax( 'product_cat' ) || is_tax( 'product_tag' ) ) ) {
-			$page_id = 'global';
-		}
-
 		$file_name = "fusion-styles/fusion{$blog_id}-{$page_id}.css";
 
 		if ( 'filename' === $target ) {
@@ -169,11 +164,6 @@ class Fusion_Dynamic_CSS_File {
 
 		// Clean-up transient.
 		$page_id = ( $fusion_library->get_page_id() ) ? $fusion_library->get_page_id() : 'global';
-
-		// If WooCommerce is active and we are on archive, use global CSS not shop page, which is return by get_page_id.
-		if ( class_exists( 'WooCommerce' ) && ( is_tax( 'product_cat' ) || is_tax( 'product_tag' ) ) ) {
-			$page_id = 'global';
-		}
 
 		delete_transient( 'fusion_dynamic_css_' . $page_id );
 

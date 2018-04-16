@@ -4,7 +4,9 @@
  */
 
 // Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) { exit; }
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 global $fusion_builder_elements, $fusion_builder_multi_elements, $fusion_builder_enabled_elements, $parallax_id;
 $parallax_id = 1;
@@ -26,6 +28,7 @@ $fusion_builder_multi_elements = array();
  * @param array $module The element we're loading.
  */
 function fusion_builder_map( $module ) {
+
 	global $fusion_builder_elements, $fusion_builder_enabled_elements, $fusion_builder_multi_elements, $all_fusion_builder_elements, $fusion_settings;
 	if ( ! $fusion_settings ) {
 		$fusion_settings = Fusion_Settings::get_instance();
@@ -34,7 +37,8 @@ function fusion_builder_map( $module ) {
 	$shortcode    = $module['shortcode'];
 	$ignored_atts = array();
 
-	if ( isset( $module['params'] ) ) {
+	// Should only ever be run on backend, for performance reasons.
+	if ( is_admin() && isset( $module['params'] ) ) {
 
 		// Create an array of descriptions.
 		foreach ( $module['params'] as $key => $param ) {
@@ -48,7 +52,7 @@ function fusion_builder_map( $module ) {
 					$subset = ( isset( $builder_map['subset'] ) && '' !== $builder_map['subset'] ) ? $builder_map['subset'] : '';
 					$type = ( isset( $builder_map['type'] ) && '' !== $builder_map['type'] ) ? $builder_map['type'] : '';
 					$reset = ( ( isset( $builder_map['reset'] ) || 'range' === $type ) && '' !== $param['default'] ) ? $param['param_name'] : '';
-					$dynamic_description = $fusion_settings->get_default_description( $setting, $subset, $type , $reset, $param );
+					$dynamic_description = $fusion_settings->get_default_description( $setting, $subset, $type, $reset, $param );
 					$dynamic_description = apply_filters( 'fusion_builder_option_dynamic_description', $dynamic_description, $shortcode, $param['param_name'] );
 				}
 				if ( 'hide_on_mobile' === $param['param_name'] ) {
@@ -176,6 +180,9 @@ function fusion_load_element_frontend_assets() {
 	$dynamic_css_obj = Fusion_Dynamic_CSS::get_instance();
 	$mode = ( method_exists( $dynamic_css_obj, 'get_mode' ) ) ? $dynamic_css_obj->get_mode() : $dynamic_css_obj->mode;
 
+	if ( ! is_array( $all_fusion_builder_elements ) ) {
+		return;
+	}
 	foreach ( $all_fusion_builder_elements as $module ) {
 
 		// Load element front end js.

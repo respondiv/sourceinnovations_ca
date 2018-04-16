@@ -186,7 +186,13 @@ abstract class Order_Document_Methods extends Order_Document {
 	 * Return/Show a custom field
 	 */		
 	public function get_custom_field( $field_name ) {
-		$custom_field = WCX_Order::get_meta( $this->order, $field_name, true );
+		if ( !$this->is_order_prop( $field_name ) ) {
+			$custom_field = WCX_Order::get_meta( $this->order, $field_name, true );
+		}
+		// if not found, try prefixed with underscore
+		if ( !$custom_field && substr( $field_name, 0, 1 ) !== '_' && !$this->is_order_prop( "_{$field_name}" ) ) {
+			$custom_field = WCX_Order::get_meta( $this->order, "_{$field_name}", true );
+		}
 
 		// WC3.0 fallback to properties
 		$property = str_replace('-', '_', sanitize_title( ltrim($field_name, '_') ) );
@@ -197,7 +203,9 @@ abstract class Order_Document_Methods extends Order_Document {
 		// fallback to parent for refunds
 		if ( !$custom_field && $this->is_refund( $this->order ) ) {
 			$parent_order = $this->get_refund_parent( $this->order );
-			$custom_field = WCX_Order::get_meta( $parent_order, $field_name, true );
+			if ( !$this->is_order_prop( $field_name ) ) {
+				$custom_field = WCX_Order::get_meta( $parent_order, $field_name, true );
+			}
 
 			// WC3.0 fallback to properties
 			if ( !$custom_field && is_callable( array( $parent_order, "get_{$property}" ) ) ) {
@@ -219,37 +227,95 @@ abstract class Order_Document_Methods extends Order_Document {
 		}
 	}
 
+	public function is_order_prop( $key ) {
+		if ( version_compare( WOOCOMMERCE_VERSION, '3.0', '<' ) ) {
+			return false; // WC 2.X didn't have CRUD
+		}
+		// Taken from WC class
+		$order_props = array(
+			// Abstract order props
+			'parent_id',
+			'status',
+			'currency',
+			'version',
+			'prices_include_tax',
+			'date_created',
+			'date_modified',
+			'discount_total',
+			'discount_tax',
+			'shipping_total',
+			'shipping_tax',
+			'cart_tax',
+			'total',
+			'total_tax',
+			// Order props
+			'customer_id',
+			'order_key',
+			'billing_first_name',
+			'billing_last_name',
+			'billing_company',
+			'billing_address_1',
+			'billing_address_2',
+			'billing_city',
+			'billing_state',
+			'billing_postcode',
+			'billing_country',
+			'billing_email',
+			'billing_phone',
+			'shipping_first_name',
+			'shipping_last_name',
+			'shipping_company',
+			'shipping_address_1',
+			'shipping_address_2',
+			'shipping_city',
+			'shipping_state',
+			'shipping_postcode',
+			'shipping_country',
+			'payment_method',
+			'payment_method_title',
+			'transaction_id',
+			'customer_ip_address',
+			'customer_user_agent',
+			'created_via',
+			'customer_note',
+			'date_completed',
+			'date_paid',
+			'cart_hash',
+		);
+		return in_array($key, $order_props);
+	}
+
 	/**
 	 * Return/show product attribute
 	 */
 	public function get_product_attribute( $attribute_name, $product ) {
-		// WC3.0+ use parent product for variations
-		if ( version_compare( WOOCOMMERCE_VERSION, '3.0', '>=' ) && $product->is_type( 'variation' ) ) {
-			$product = wc_get_product( $product->get_parent_id() );
-		}
 		// first, check the text attributes
 		$attributes = $product->get_attributes();
 		$attribute_key = @wc_attribute_taxonomy_name( $attribute_name );
 		if (array_key_exists( sanitize_title( $attribute_name ), $attributes) ) {
 			$attribute = $product->get_attribute ( $attribute_name );
-			return $attribute;
 		} elseif (array_key_exists( sanitize_title( $attribute_key ), $attributes) ) {
 			$attribute = $product->get_attribute ( $attribute_key );
-			return $attribute;
 		}
 
-		// not a text attribute, try attribute taxonomy
-		$attribute_key = @wc_attribute_taxonomy_name( $attribute_name );
-		$product_id = WCX_Product::get_prop($product, 'id');
-		$product_terms = @wc_get_product_terms( $product_id, $attribute_key, array( 'fields' => 'names' ) );
-		// check if not empty, then display
-		if ( !empty($product_terms) ) {
-			$attribute = array_shift( $product_terms );
-			return $attribute;
-		} else {
-			// no attribute under this name
-			return false;
+		if (empty($attribute)) {
+			// not a text attribute, try attribute taxonomy
+			$attribute_key = @wc_attribute_taxonomy_name( $attribute_name );
+			$product_id = WCX_Product::get_prop($product, 'id');
+			$product_terms = @wc_get_product_terms( $product_id, $attribute_key, array( 'fields' => 'names' ) );
+			// check if not empty, then display
+			if ( !empty($product_terms) ) {
+				$attribute = array_shift( $product_terms );
+			}
 		}
+
+		// WC3.0+ fallback parent product for variations
+		if ( empty($attribute) && version_compare( WOOCOMMERCE_VERSION, '3.0', '>=' ) && $product->is_type( 'variation' ) ) {
+			$product = wc_get_product( $product->get_parent_id() );
+			$attribute = $this->get_product_attribute( $attribute_name, $product );
+		}
+
+		return isset($attribute) ? $attribute : false;
 	}
 	public function product_attribute( $attribute_name, $product ) {
 		echo $this->get_product_attribute( $attribute_name, $product );
@@ -496,8 +562,20 @@ abstract class Order_Document_Methods extends Order_Document {
 
 			$line_taxes = $line_tax_data['subtotal'];
 			foreach ( $line_taxes as $tax_id => $tax ) {
-				if ( !empty($tax) ) {
-					$tax_rates[] = $this->get_tax_rate_by_id( $tax_id ) . ' %';
+				if ( isset($tax) && $tax !== '' ) {
+					$tax_rate = $this->get_tax_rate_by_id( $tax_id );
+					if ( $tax_rate !== false ) {
+						$tax_rates[] = $tax_rate . ' %';
+					} else {
+						$tax_rates[] = $this->calculate_tax_rate( $line_total, $line_tax );
+					}
+				}
+			}
+
+			// apply decimal setting
+			if (function_exists('wc_get_price_decimal_separator')) {
+				foreach ($tax_rates as &$tax_rate) {
+					$tax_rate = str_replace('.', wc_get_price_decimal_separator(), strval($tax_rate) );
 				}
 			}
 
@@ -522,24 +600,26 @@ abstract class Order_Document_Methods extends Order_Document {
 
 			if (empty($tax_rates)) {
 				// one last try: manually calculate
-				if ( $line_total != 0) {
-					$tax_rates[] = round( ($line_tax / $line_total)*100, 1 ).' %';
-				} else {
-					$tax_rates[] = '-';
-				}
+				$tax_rates[] = $this->calculate_tax_rate( $line_total, $line_tax );
 			}
 
 			$tax_rates = implode(' ,', $tax_rates );
 		} else {
 			// Backwards compatibility/fallback: calculate tax from line items
-			if ( $line_total != 0) {
-				$tax_rates = round( ($line_tax / $line_total)*100, 1 ).' %';
-			} else {
-				$tax_rates = '-';
-			}
+			$tax_rates[] = $this->calculate_tax_rate( $line_total, $line_tax );
 		}
 		
 		return $tax_rates;
+	}
+
+	public function calculate_tax_rate( $price_ex_tax, $tax ) {
+		$precision = apply_filters( 'wpo_wcpdf_calculate_tax_rate_precision', 1 );
+		if ( $price_ex_tax != 0) {
+			$tax_rate = round( ($tax / $price_ex_tax)*100, $precision ).' %';
+		} else {
+			$tax_rate = '-';
+		}
+		return $tax_rate;
 	}
 
 	/**
@@ -550,7 +630,11 @@ abstract class Order_Document_Methods extends Order_Document {
 	public function get_tax_rate_by_id( $rate_id ) {
 		global $wpdb;
 		$rate = $wpdb->get_var( $wpdb->prepare( "SELECT tax_rate FROM {$wpdb->prefix}woocommerce_tax_rates WHERE tax_rate_id = %d;", $rate_id ) );
-		return (float) $rate;
+		if ($rate === NULL) {
+			return false;
+		} else {
+			return (float) $rate;
+		}
 	}
 
 	/**
@@ -563,8 +647,6 @@ abstract class Order_Document_Methods extends Order_Document {
 
 		$tax_rate_ids = array();
 		foreach ($rates as $rate) {
-			// var_dump($rate->tax_rate_id);
-			// die($rate);
 			$rate_id = $rate->tax_rate_id;
 			unset($rate->tax_rate_id);
 			$tax_rate_ids[$rate_id] = (array) $rate;
@@ -614,13 +696,21 @@ abstract class Order_Document_Methods extends Order_Document {
 		
 		// Extract the url from img
 		preg_match('/<img(.*)src(.*)=(.*)"(.*)"/U', $thumbnail_img_tag_url, $thumbnail_url );
-		// remove http/https from image tag url to avoid mixed origin conflicts
 		$thumbnail_url = array_pop($thumbnail_url);
-		$contextless_thumbnail_url = str_replace(array('http://','https://'), '', $thumbnail_url );
-		$contextless_site_url = str_replace(array('http://','https://'), '', trailingslashit(get_site_url()));
+		// remove http/https from image tag url to avoid mixed origin conflicts
+		$contextless_thumbnail_url = ltrim( str_replace(array('http://','https://'), '', $thumbnail_url ), '/' );
 
 		// convert url to path
-		$thumbnail_path = str_replace( $contextless_site_url, ABSPATH, $contextless_thumbnail_url);
+		if ( defined('WP_CONTENT_DIR') && strpos( WP_CONTENT_DIR, ABSPATH ) !== false ) {
+			$forwardslash_basepath = str_replace('\\','/', ABSPATH);
+			$contextless_site_url = str_replace(array('http://','https://'), '', trailingslashit(get_site_url()));
+		} else {
+			// bedrock e.a
+			$forwardslash_basepath = str_replace('\\','/', WP_CONTENT_DIR);
+			$contextless_site_url = str_replace(array('http://','https://'), '', trailingslashit(WP_CONTENT_URL));
+		}
+		$thumbnail_path = str_replace( $contextless_site_url, trailingslashit( $forwardslash_basepath ), $contextless_thumbnail_url);
+		
 		// fallback if thumbnail file doesn't exist
 		if (apply_filters('wpo_wcpdf_use_path', true) && !file_exists($thumbnail_path)) {
 			if ($thumbnail_id = $this->get_thumbnail_id( $product ) ) {
@@ -629,9 +719,17 @@ abstract class Order_Document_Methods extends Order_Document {
 		}
 
 		// Thumbnail (full img tag)
-		if (apply_filters('wpo_wcpdf_use_path', true) && file_exists($thumbnail_path)) {
+		if ( apply_filters('wpo_wcpdf_use_path', true) && file_exists($thumbnail_path) ) {
 			// load img with server path by default
 			$thumbnail = sprintf('<img width="90" height="90" src="%s" class="attachment-shop_thumbnail wp-post-image">', $thumbnail_path );
+		} elseif ( apply_filters('wpo_wcpdf_use_path', true) && !file_exists($thumbnail_path) ) {
+			// should use paths but file not found, replace // with http(s):// for dompdf compatibility
+			if ( substr( $thumbnail_url, 0, 2 ) === "//" ) {
+				$prefix = is_ssl() ? 'https://' : 'http://';
+				$https_thumbnail_url = $prefix . ltrim( $thumbnail_url, '/' );
+			}
+			$thumbnail_img_tag_url = str_replace($thumbnail_url, $https_thumbnail_url, $thumbnail_img_tag_url);
+			$thumbnail = $thumbnail_img_tag_url;
 		} else {
 			// load img with http url when filtered
 			$thumbnail = $thumbnail_img_tag_url;
@@ -661,7 +759,8 @@ abstract class Order_Document_Methods extends Order_Document {
 		// WC2.4 fix order_total for refunded orders
 		// not if this is the actual refund!
 		if ( ! $this->is_refund( $this->order ) ) {
-			if ( version_compare( WOOCOMMERCE_VERSION, '2.4', '>=' ) && isset($totals['order_total']) ) {
+			$total_refunded = method_exists($this->order, 'get_total_refunded') ? $this->order->get_total_refunded() : 0;
+			if ( version_compare( WOOCOMMERCE_VERSION, '2.4', '>=' ) && isset($totals['order_total']) && $total_refunded ) {
 				if ( version_compare( WOOCOMMERCE_VERSION, '3.0', '>=' ) ) {
 					$tax_display = get_option( 'woocommerce_tax_display_cart' );
 				} else {

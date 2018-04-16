@@ -38,10 +38,10 @@ if ( ! class_exists( 'FusionReduxFramework_switch' ) ) {
 			}
 
 			//Label ON
-			$this->field['on'] = isset( $this->field['on'] ) ? $this->field['on'] : __( 'On', 'fusion-builder' );
+			$this->field['on'] = isset( $this->field['on'] ) ? $this->field['on'] : __( 'On', 'Avada' );
 
 			//Label OFF
-			$this->field['off'] = isset( $this->field['off'] ) ? $this->field['off'] : __( 'Off', 'fusion-builder' );
+			$this->field['off'] = isset( $this->field['off'] ) ? $this->field['off'] : __( 'Off', 'Avada' );
 
 			echo '<div class="switch-options">';
 			echo '<label class="cb-enable' . $cb_enabled . '" data-id="' . $this->field['id'] . '"><span>' . $this->field['on'] . '</span></label>';

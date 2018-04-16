@@ -5,12 +5,17 @@
  */
 class ameWidgetCollection {
 	const FORMAT_NAME = 'Admin Menu Editor dashboard widgets';
-	const FORMAT_VERSION = '1.0';
+	const FORMAT_VERSION = '1.1';
 
 	/**
 	 * @var ameDashboardWidget[]
 	 */
 	private $widgets = array();
+
+	/**
+	 * @var array Settings for the special "Welcome to WordPress!" panel.
+	 */
+	private $welcomePanel = array();
 
 	/**
 	 * @var string
@@ -230,6 +235,7 @@ class ameWidgetCollection {
 				'version' => self::FORMAT_VERSION,
 			),
 			'widgets' => $widgets,
+			'welcomePanel' => $this->welcomePanel,
 			'siteComponentHash' => $this->siteComponentHash,
 		);
 
@@ -241,6 +247,18 @@ class ameWidgetCollection {
 	 */
 	public function toJSON() {
 		return json_encode($this->toArray(), JSON_PRETTY_PRINT);
+	}
+
+	/**
+	 * Get the visibility settings for the "Welcome" panel.
+	 *
+	 * @return array [actorId => boolean]
+	 */
+	public function getWelcomePanelVisibility() {
+		if (isset($this->welcomePanel['grantAccess']) && is_array($this->welcomePanel['grantAccess'])) {
+			return $this->welcomePanel['grantAccess'];
+		}
+		return array();
 	}
 
 	/**
@@ -273,8 +291,8 @@ class ameWidgetCollection {
 			throw new ameInvalidWidgetDataException(sprintf(
 				"Can't import widget settings that were created by a newer version of the plugin. '.
 				'Update the plugin and try again. (Newest supported format: '%s', input format: '%s'.)",
-				$input['format']['version'],
-				self::FORMAT_VERSION
+				self::FORMAT_VERSION,
+				$input['format']['version']
 			));
 		}
 
@@ -282,6 +300,12 @@ class ameWidgetCollection {
 		foreach($input['widgets'] as $widgetProperties) {
 			$widget = ameDashboardWidget::fromArray($widgetProperties);
 			$collection->widgets[$widget->getId()] = $widget;
+		}
+
+		if ( isset($input['welcomePanel'], $input['welcomePanel']['grantAccess']) ) {
+			$collection->welcomePanel = array(
+				'grantAccess' => (array)($input['welcomePanel']['grantAccess']),
+			);
 		}
 
 		$collection->siteComponentHash = isset($input['siteComponentHash']) ? strval($input['siteComponentHash']) : '';

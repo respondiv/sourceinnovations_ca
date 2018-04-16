@@ -222,7 +222,7 @@ class Fusion_Dynamic_CSS {
 		if ( ! $this->mode || null === $this->mode ) {
 			$this->set_mode();
 		}
-		return $this->mode;
+		return ( defined( 'FUSION_DISABLE_COMPILERS' ) && FUSION_DISABLE_COMPILERS ) ? 'inline' : $this->mode;
 
 	}
 
@@ -351,10 +351,6 @@ class Fusion_Dynamic_CSS {
 		if ( $fusion_library->get_page_id() ) {
 			$page_id = $fusion_library->get_page_id();
 
-			// If WooCommerce is active and we are on archive, use global CSS not shop page, which is return by get_page_id.
-			if ( class_exists( 'WooCommerce' ) && ( is_tax( 'product_cat' ) || is_tax( 'product_tag' ) ) ) {
-				$page_id = 'global';
-			}
 		}
 
 		// If the current page ID exists in the array of pages defined in the 'fusion_dynamic_css_posts' option
@@ -560,7 +556,7 @@ class Fusion_Dynamic_CSS {
 	 */
 	public function icomoon_css( $css ) {
 
-		$font_url = untrailingslashit( FUSION_LIBRARY_URL ) . '/assets/fonts/icomoon';
+		$font_url = FUSION_LIBRARY_URL . '/assets/fonts/icomoon';
 		$font_url = set_url_scheme( $font_url );
 
 		$css .= '@font-face {';

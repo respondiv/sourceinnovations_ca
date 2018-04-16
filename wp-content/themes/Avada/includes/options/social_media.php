@@ -496,66 +496,75 @@ function avada_options_section_social_media( $sections ) {
 					),
 					'sharing_facebook' => array(
 						'label'       => esc_html__( 'Facebook', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Facebook', 'Avada' ) ),
 						'id'          => 'sharing_facebook',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_twitter' => array(
 						'label'       => esc_html__( 'Twitter', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Twitter', 'Avada' ) ),
 						'id'          => 'sharing_twitter',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_reddit' => array(
 						'label'       => esc_html__( 'Reddit', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Reddit', 'Avada' ) ),
 						'id'          => 'sharing_reddit',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_linkedin' => array(
 						'label'       => esc_html__( 'LinkedIn', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'LinkedIn', 'Avada' ) ),
 						'id'          => 'sharing_linkedin',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_google' => array(
 						'label'       => esc_html__( 'Google+', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Google+', 'Avada' ) ),
 						'id'          => 'sharing_google',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_tumblr' => array(
 						'label'       => esc_html__( 'Tumblr', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Tumblr', 'Avada' ) ),
 						'id'          => 'sharing_tumblr',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_pinterest' => array(
 						'label'       => esc_html__( 'Pinterest', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Pinterest', 'Avada' ) ),
 						'id'          => 'sharing_pinterest',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_vk' => array(
 						'label'       => esc_html__( 'VK', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'VK', 'Avada' ) ),
 						'id'          => 'sharing_vk',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 					'sharing_email' => array(
 						'label'       => esc_html__( 'Email', 'Avada' ),
+						/* translators: Social Network name. */
 						'description' => sprintf( esc_html__( 'Turn on to display %s in the social share box.', 'Avada' ), esc_html__( 'Email', 'Avada' ) ),
 						'id'          => 'sharing_email',
 						'default'     => '1',
-						'type'        => 'toggle',
+						'type'        => 'switch',
 					),
 				),
 			),

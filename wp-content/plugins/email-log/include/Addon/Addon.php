@@ -107,6 +107,7 @@ class Addon {
 	protected function print_actions() {
 		if ( $this->has_valid_bundle_license() ) {
 			$this->print_valid_actions();
+
 			return;
 		}
 
@@ -123,6 +124,8 @@ class Addon {
 	 * Print actions that are available when the license is valid.
 	 */
 	protected function print_valid_actions() {
+		$actions = '';
+
 		if ( $this->is_installed() ) {
 			$actions = '<a disabled class="button button-secondary">' . _x( 'Installed', 'Installed on website but not activated', 'email-log' );
 
@@ -131,20 +134,38 @@ class Addon {
 			} else {
 				$actions .= sprintf( '</a> <a class="button button-primary" href="%s">%s</a>', $this->get_activate_url(), _x( 'Activate', 'Enable addon so it may be used', 'email-log' ) );
 			}
-		} else {
-			$actions = sprintf( '<a class="button button-primary" href="%s">%s</a>', $this->get_install_url(), _x( 'Install', 'Download and activate addon', 'email-log' ) );
 		}
 
-		$actions .= sprintf( ' <a class="button button-secondary" target="_blank" href="%s">%s</a>', $this->get_download_url(), _x( 'Download', 'Download to your computer', 'email-log' ) );
+		$actions .= sprintf(
+			' <a class="button button-secondary" target="_blank" onclick="%s" href="%s">%s</a>',
+			$this->get_download_button_js(),
+			$this->get_download_url(),
+			_x( 'Download', 'Download to your computer', 'email-log' )
+		);
 
 		echo $actions;
+	}
+
+	/**
+	 * Return the JavaScript that shows the message when the Download button is clicked.
+	 *
+	 * @since 2.2.4
+	 *
+	 * @return string JavaScript.
+	 */
+	protected function get_download_button_js() {
+		ob_start();
+		?>
+		javascript:alert( 'You will now be able to download the zip file. Once the zip file is downloaded, upload it from the plugin page to install the add-on.' );
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
 	 * Print actions that are available when the license is not valid.
 	 */
 	protected function print_invalid_actions() {
-		$label = _x( 'Activate License to Install', 'Download and activate addon', 'email-log' );
+		$label = _x( 'Activate License to Download', 'Download add-on', 'email-log' );
 
 		if ( $this->is_installed() ) {
 			$label = _x( 'Activate License to Use', 'Download and activate addon', 'email-log' );
@@ -152,7 +173,7 @@ class Addon {
 
 		printf(
 			'<a disabled class="button-secondary disabled" title="%s" href="#">%s</a>',
-			__( 'You need an active license to install the add-on', 'email-log' ),
+			__( 'You need an active license to use the add-on', 'email-log' ),
 			$label
 		);
 	}
@@ -166,7 +187,7 @@ class Addon {
 		$button_class = 'button-primary';
 		$dashicon     = 'down';
 		$license_wrap = 'hidden';
-		$expires = '';
+		$expires      = '';
 
 		if ( $this->has_valid_addon_license() ) {
 			$action       = 'el_license_deactivate';
@@ -176,7 +197,7 @@ class Addon {
 			$license_wrap = '';
 
 			$expiry_date = date( 'F d, Y', strtotime( $this->get_license()->get_expiry_date() ) );
-			$expires = sprintf( __( 'Your license expires on %s', 'email-log' ), $expiry_date );
+			$expires     = sprintf( __( 'Your license expires on %s', 'email-log' ), $expiry_date );
 		}
 		?>
 
@@ -266,7 +287,13 @@ class Addon {
 	 * @return string Download url for add-on.
 	 */
 	public function get_download_url() {
-		return $this->email_log->get_licenser()->get_addon_download_url( $this->slug );
+		$licenser = $this->email_log->get_licenser();
+
+		if ( is_null( $licenser ) ) {
+			return '';
+		}
+
+		return $licenser->get_addon_download_url( $this->slug );
 	}
 
 	/**
@@ -275,7 +302,13 @@ class Addon {
 	 * @return bool True if valid, False otherwise.
 	 */
 	protected function has_valid_bundle_license() {
-		return $this->email_log->get_licenser()->is_bundle_license_valid();
+		$licenser = $this->email_log->get_licenser();
+
+		if ( is_null( $licenser ) ) {
+			return false;
+		}
+
+		return $licenser->is_bundle_license_valid();
 	}
 
 	/**

@@ -22,6 +22,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide the footer. %s', 'Avada' ), Avada()->settings->get_default_description( 'footer_widgets', '', 'yesno' ) )
 );
 
@@ -33,6 +34,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to show or hide the copyright area. %s', 'Avada' ), Avada()->settings->get_default_description( 'footer_copyright', '', 'yesno' ) )
 );
 
@@ -44,6 +46,7 @@ $this->radio_buttonset(
 		'yes'     => esc_attr__( 'Yes', 'Avada' ),
 		'no'      => esc_attr__( 'No', 'Avada' ),
 	),
+	/* translators: Additional description (defaults). */
 	sprintf( esc_html__( 'Choose to set footer width to 100&#37; of the browser width. Select "No" for site width. %s', 'Avada' ), Avada()->settings->get_default_description( 'footer_100_width', '', 'yesno' ) )
 );
 

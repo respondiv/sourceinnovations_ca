@@ -82,6 +82,7 @@ function avada_options_section_contact( $sections ) {
 					),
 					'recaptcha_public' => ( Avada::$is_updating || version_compare( PHP_VERSION, '5.3' ) >= 0 ) ? array(
 						'label'           => esc_html__( 'ReCaptcha Site Key', 'Avada' ),
+						/* translators: "our docs" link. */
 						'description'     => sprintf( esc_html__( 'Follow the steps in %s to get the site key.', 'Avada' ), '<a href="http://theme-fusion.com/avada-doc/pages/setting-up-contact-page/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'our docs', 'Avada' ) . '</a>' ),
 						'id'              => 'recaptcha_public',
 						'default'         => '',
@@ -90,6 +91,7 @@ function avada_options_section_contact( $sections ) {
 					) : array(),
 					'recaptcha_private' => ( Avada::$is_updating || version_compare( PHP_VERSION, '5.3' ) >= 0 ) ? array(
 						'label'           => esc_html__( 'ReCaptcha Secret Key', 'Avada' ),
+						/* translators: "our docs" link. */
 						'description'     => sprintf( esc_html__( 'Follow the steps in %s to get the secret key.', 'Avada' ), '<a href="http://theme-fusion.com/avada-doc/pages/setting-up-contact-page/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'our docs', 'Avada' ) . '</a>' ),
 						'id'              => 'recaptcha_private',
 						'default'         => '',
@@ -146,6 +148,7 @@ function avada_options_section_contact( $sections ) {
 					),
 					'gmap_api' => array(
 						'label'           => esc_html__( 'Google Maps API Key', 'Avada' ),
+						/* translators: "the Google docs" link. */
 						'description'     => sprintf( esc_html__( 'Follow the steps in %s to get the API key. This key applies to both the contact page map and Fusion Builder google map element.', 'Avada' ), '<a href="https://developers.google.com/maps/documentation/javascript/get-api-key#key" target="_blank" rel="noopener noreferrer">' . esc_html__( 'the Google docs', 'Avada' ) . '</a>' ),
 						'id'              => 'gmap_api',
 						'default'         => '',
@@ -199,7 +202,7 @@ function avada_options_section_contact( $sections ) {
 						'label'       => esc_html__( 'Google Map Dimensions', 'Avada' ),
 						'description' => esc_html__( 'Controls the width and height of the google map. NOTE: height does not accept percentage value.', 'Avada' ),
 						'id'          => 'gmap_dimensions',
-						'units'		  => false,
+						'units'       => false,
 						'default'     => array(
 							'width'   => '100%',
 							'height'  => '415px',
@@ -296,7 +299,7 @@ function avada_options_section_contact( $sections ) {
 					),
 					'map_scrollwheel' => array(
 						'label'           => esc_html__( 'Map Zoom With Scrollwheel', 'Avada' ),
-						'description'     => esc_html__( 'Turn on to use the mouse scrollwheel to zoom the google map.', 'Avada' ),
+						'description'     => esc_html__( 'Turn on to use the mouse scrollwheel to zoom the google map. Use Cmd/Ctrl key + scroll to zoom.', 'Avada' ),
 						'id'              => 'map_scrollwheel',
 						'default'         => '1',
 						'type'            => 'switch',
@@ -396,7 +399,7 @@ function avada_options_section_contact( $sections ) {
 					),
 					'map_overlay_color' => array(
 						'label'           => esc_html__( 'Map Overlay Color', 'Avada' ),
-						'description'     => esc_html__( 'Custom styling setting only. Controls the overlay color for the map.', 'Avada' ),
+						'description'     => esc_html__( 'Custom styling setting only. Pick any overlaying color for the map besides pure black or white. Works best with "roadmap" type.', 'Avada' ),
 						'id'              => 'map_overlay_color',
 						'default'         => ( isset( $settings['primary_color'] ) ) ? $settings['primary_color'] : '#a0ce4e',
 						'type'            => 'color-alpha',
@@ -446,11 +449,6 @@ function avada_options_section_contact( $sections ) {
 						'type'            => 'textarea',
 						'active_callback' => array( 'Avada_Options_Conditionals', 'is_contact' ),
 						'required'    => array(
-							array(
-								'setting'  => 'map_infobox_styling',
-								'operator' => '==',
-								'value'    => 'custom',
-							),
 							array(
 								'setting'  => 'map_styling',
 								'operator' => '==',

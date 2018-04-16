@@ -12,7 +12,7 @@
 
 global $woocommerce;
 
-if ( ! WC()->cart->coupons_enabled() ) {
+if ( ! wc_coupons_enabled() ) {
 	return;
 }
 ?>

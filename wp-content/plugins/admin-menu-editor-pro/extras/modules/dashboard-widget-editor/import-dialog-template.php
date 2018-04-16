@@ -1,5 +1,5 @@
 <!-- Import dialog -->
-<div id="ame-import-widgets-dialog" title="Import">
+<div id="ame-import-widgets-dialog" title="Import" style="display: none;">
 	<form id="ame-import-widgets-form"
 	      action="<?php echo esc_attr(admin_url('admin-ajax.php')); ?>"
 	      method="post">

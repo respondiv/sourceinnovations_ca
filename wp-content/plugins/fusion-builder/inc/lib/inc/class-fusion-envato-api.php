@@ -59,7 +59,7 @@ class Fusion_Envato_API {
 	 * @codeCoverageIgnore
 	 */
 	public function __clone() {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Cheatin&#8217; huh?', 'fusion-builder' ), '1.0.0' );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Cheatin&#8217; huh?', 'Avada' ), '1.0.0' );
 	}
 
 	/**
@@ -70,7 +70,7 @@ class Fusion_Envato_API {
 	 * @codeCoverageIgnore
 	 */
 	public function __wakeup() {
-		_doing_it_wrong( __FUNCTION__, esc_html__( 'Cheatin&#8217; huh?', 'fusion-builder' ), '1.0.0' );
+		_doing_it_wrong( __FUNCTION__, esc_html__( 'Cheatin&#8217; huh?', 'Avada' ), '1.0.0' );
 	}
 
 	/**
@@ -104,7 +104,7 @@ class Fusion_Envato_API {
 		$args = wp_parse_args( $args, $defaults );
 
 		if ( empty( $this->token ) ) {
-			return new WP_Error( 'api_token_error', __( 'An API token is required.', 'fusion-builder' ) );
+			return new WP_Error( 'api_token_error', __( 'An API token is required.', 'Avada' ) );
 		}
 
 		// Make an API request.
@@ -118,11 +118,11 @@ class Fusion_Envato_API {
 			return new WP_Error( $response_code, $response_message );
 		}
 		if ( 200 !== $response_code ) {
-			return new WP_Error( $response_code, __( 'An unknown API error occurred.', 'fusion-builder' ) );
+			return new WP_Error( $response_code, __( 'An unknown API error occurred.', 'Avada' ) );
 		}
 		$return = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( null === $return ) {
-			return new WP_Error( 'api_error', __( 'An unknown API error occurred.', 'fusion-builder' ) );
+			return new WP_Error( 'api_error', __( 'An unknown API error occurred.', 'Avada' ) );
 		}
 		return $return;
 	}
@@ -341,7 +341,7 @@ class Fusion_Envato_API {
 	 * @param string $retval The string to fix.
 	 * @return string
 	 */
-	static private function remove_non_unicode( $retval ) {
+	public static function remove_non_unicode( $retval ) {
 		return preg_replace( '/[\x00-\x1F\x80-\xFF]/', '', $retval );
 	}
 

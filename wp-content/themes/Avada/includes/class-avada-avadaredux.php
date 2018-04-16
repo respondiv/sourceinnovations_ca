@@ -49,14 +49,18 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 		add_filter( 'fusion_options_font_size_dimension_fields', array( $this, 'fusion_options_font_size_dimension_fields' ) );
 		add_filter( 'fusion_options_sliders_not_in_pixels', array( $this, 'fusion_options_sliders_not_in_pixels' ) );
 		add_filter( 'fusion_options_page_soft_dependencies', array( $this, 'fusion_options_page_soft_dependencies' ) );
+
 		if ( class_exists( 'Fusion_Builder_Redux' ) ) {
 			// Split to multiple lines for PHP 5.2 compatibility.
 			$fusion_builder = FusionBuilder();
 			$fusion_builder_options_panel = $fusion_builder->get_fusion_builder_options_panel();
 			$fusion_builder_redux = $fusion_builder_options_panel->get_fusion_builder_redux();
-			add_filter( 'fusion_options_page_soft_dependencies', array( $fusion_builder_redux, 'fusion_options_builder_soft_dependencies' ) );
+			add_filter( 'fusion_options_builder_soft_dependencies', array( $fusion_builder_redux, 'fusion_options_builder_soft_dependencies' ) );
 		}
 		parent::init_fusionredux();
+
+		// Import options via Ajax.
+		add_action( 'wp_ajax_custom_option_import_code', array( $this, 'custom_option_import_code' ) );
 
 		// Importing/switching color scheme.
 		add_action( 'wp_ajax_custom_option_import', array( $this, 'reset_caches_handler' ) );
@@ -66,6 +70,70 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 
 		// Custom color scheme ajax delete.
 		add_action( 'wp_ajax_custom_colors_ajax_delete', array( $this, 'custom_colors_ajax_delete' ) );
+	}
+
+	/**
+	 * Import settings via Ajax.
+	 *
+	 * @access public
+	 */
+	public function custom_option_import_code() {
+		$option_name = Fusion_Settings::get_option_name();
+		$nonce_name  = 'fusionredux_ajax_nonce' . $option_name;
+		if ( ! isset( $_REQUEST['security'] ) || ! wp_verify_nonce( wp_unslash( $_REQUEST['security'] ), $nonce_name ) ) { // WPCS: sanitization ok.
+			echo json_encode(
+				array(
+					'status' => 'failed',
+					'action' => 'reload',
+				)
+			);
+			die();
+		}
+
+		if ( isset( $_POST['data'] ) && ! empty( $_POST['data'] ) ) {
+			$values        = array();
+			$fusionredux   = FusionReduxFrameworkInstances::get_instance( $option_name );
+
+			$values = $fusionredux->fields;
+			$values = wp_parse_args(
+				get_option( $option_name ),
+				$values
+			);
+
+			if ( isset( $_POST['data']['import_code'] ) && '' !== $_POST['data']['import_code'] ) {
+				$import_code = stripslashes( $_POST['data']['import_code'] ); // WPCS: sanitization ok.
+				$values['import_code'] = $import_code;
+			} else if ( isset( $_POST['data']['import_link'] ) && '' !== $_POST['data']['import_link'] ) {
+				$values['import_link'] = $_POST['data']['import_link']; // WPCS: sanitization ok.
+			} else {
+				echo json_encode( array(
+					'status' => 'failed',
+					'action' => 'reload',
+				) );
+				die();
+			}
+
+			if ( isset( $fusionredux->validation_ran ) ) {
+				unset( $fusionredux->validation_ran );
+			}
+
+			$fusionredux->set_options( $fusionredux->_validate_options( $values ) );
+
+			echo json_encode(
+				array(
+					'status' => 'success',
+					'action' => 'reload',
+				)
+			);
+		} else {
+			echo json_encode(
+				array(
+					'status' => 'failed',
+					'action' => 'reload',
+				)
+			);
+		}
+		die();
 	}
 
 	/**
@@ -103,18 +171,14 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 			return;
 		}
 
-		// @codingStandardsIgnoreLine
-		if ( ! empty( $_POST['data'] ) ) {
+		if ( ! empty( $_POST['data'] ) ) { // WPCS: CSRF ok.
 
 			$existing_colors  = get_option( 'avada_custom_color_schemes', array() );
 
-			// @codingStandardsIgnoreLine
-			if ( 'import' !== $_POST['data']['type'] ) {
+			if ( 'import' !== $_POST['data']['type'] ) { // WPCS: CSRF ok.
 				$scheme        = array();
-				// @codingStandardsIgnoreLine
-				$scheme_colors = wp_unslash( $_POST['data']['values'] );
-				// @codingStandardsIgnoreLine
-				$scheme_name   = sanitize_text_field( wp_unslash( $_POST['data']['name'] ) );
+				$scheme_colors = wp_unslash( $_POST['data']['values'] ); // WPCS: CSRF ok sanitization ok.
+				$scheme_name   = sanitize_text_field( wp_unslash( $_POST['data']['name'] ) ); // WPCS: CSRF ok.
 
 				if ( defined( 'FUSION_BUILDER_PLUGIN_DIR' ) ) {
 					$fb_options = get_option( 'fusion_options' );
@@ -130,8 +194,8 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 					'values' => $scheme_colors,
 				);
 
-				// Check if scheme trying to be saved already exists, if so unset and merge. @codingStandardsIgnoreLine
-				if ( 'update' == $_POST['data']['type'] ) {
+				// Check if scheme trying to be saved already exists, if so unset and merge.
+				if ( 'update' == $_POST['data']['type'] ) { // WPCS: CSRF ok.
 					// Remove existing saved version and and merge in.
 					foreach ( $existing_colors as $key => $existing_color ) {
 						if ( $existing_color['name'] == $scheme_name ) {
@@ -149,14 +213,15 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 				$schemes = $this->sanitize_color_schemes( $schemes );
 
 				update_option( 'avada_custom_color_schemes', $schemes );
-				echo wp_json_encode( array(
-					'status' => 'success',
-					'action' => '',
-				) );
+				echo wp_json_encode(
+					array(
+						'status' => 'success',
+						'action' => '',
+					)
+				);
 
 			} else {
-				// @codingStandardsIgnoreLine (sanitization is below using the sanitize_color_schemes method).
-				$schemes = stripslashes( stripcslashes( wp_unslash( $_POST['data']['values'] ) ) );
+				$schemes = stripslashes( stripcslashes( wp_unslash( $_POST['data']['values'] ) ) ); // WPCS: CSRF ok sanitization ok.
 				$schemes = json_decode( $schemes, true );
 				if ( is_array( $existing_colors ) ) {
 					// Add imported schemes to existing set.
@@ -168,10 +233,12 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 
 				update_option( 'avada_custom_color_schemes', $schemes );
 
-				echo wp_json_encode( array(
-					'status' => 'success',
-					'action' => '',
-				) );
+				echo wp_json_encode(
+					array(
+						'status' => 'success',
+						'action' => '',
+					)
+				);
 			} // End if().
 		} // End if().
 		die();
@@ -192,13 +259,11 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 			return;
 		}
 
-		// @codingStandardsIgnoreLine
-		if ( ! empty( $_POST['data'] ) && is_array( $_POST['data']['names'] ) ) {
+		if ( ! empty( $_POST['data'] ) && is_array( $_POST['data']['names'] ) ) { // WPCS: CSRF ok.
 
 			$existing_colors  = get_option( 'avada_custom_color_schemes', array() );
 
-			// @codingStandardsIgnoreLine (sanitization follows on a per-name basis).
-			$post_data_names = wp_unslash( $_POST['data']['names'] );
+			$post_data_names = wp_unslash( $_POST['data']['names'] ); // WPCS: CSRF ok sanitization ok.
 			foreach ( $post_data_names as $scheme_name ) {
 				$scheme_name = sanitize_text_field( $scheme_name );
 				// Remove from array of existing schemes.
@@ -211,10 +276,12 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 
 			update_option( 'avada_custom_color_schemes', $existing_colors );
 
-			echo wp_json_encode( array(
-				'status' => 'success',
-				'action' => '',
-			) );
+			echo wp_json_encode(
+				array(
+					'status' => 'success',
+					'action' => '',
+				)
+			);
 
 		}
 		die();
@@ -249,6 +316,7 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 				var timer = document.getElementById("timer");
 				if (count > 0){
 					count--;
+					<?php /* translators: Number. */ ?>
 					timer.innerHTML = "<?php printf( esc_html__( 'Theme options have changed, redirecting you to the new page in %s seconds.', 'Avada' ), '" + count + "' ); ?>";
 					setTimeout("countDown()", 1000);
 				} else {
@@ -282,7 +350,7 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 
 				// Add Custom Fonts group.
 				$font_groups['customfonts'] = array(
-					'text'     => __( 'Custom Fonts', 'fusionredux-framework' ),
+					'text'     => __( 'Custom Fonts', 'Avada' ),
 					'children' => array(),
 				);
 
@@ -353,6 +421,7 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 			'footer_widgets_columns',
 			'blog_grid_columns',
 			'excerpt_length_blog',
+			'blog_excerpt_length',
 			'portfolio_archive_excerpt_length',
 			'portfolio_archive_columns',
 			'portfolio_archive_items',
@@ -377,6 +446,7 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 			'woocommerce_archive_page_columns',
 			'typography_sensitivity',
 			'typography_factor',
+			'testimonials_speed',
 		);
 		return array_unique( array_merge( $fields, $extra_fields ) );
 	}
@@ -390,72 +460,74 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 	 * @return array
 	 */
 	public function fusion_options_page_soft_dependencies( $dependencies ) {
-		return array_merge( $dependencies, array(
-			'page_title_bar_text'                        => array( 'page_title_bar' ),
-			'page_title_100_width'                       => array( 'page_title_bar' ),
-			'page_title_height'                          => array( 'page_title_bar' ),
-			'page_title_mobile_height'                   => array( 'page_title_bar' ),
-			'page_title_bg_color'                        => array( 'page_title_bar' ),
-			'page_title_border_color'                    => array( 'page_title_bar' ),
-			'page_title_font_size'                       => array( 'page_title_bar', 'page_title_bar_text' ),
-			'page_title_line_height'                     => array( 'page_title_bar', 'page_title_bar_text' ),
-			'page_title_color'                           => array( 'page_title_bar', 'page_title_bar_text' ),
-			'page_title_subheader_font_size'             => array( 'page_title_bar', 'page_title_bar_text' ),
-			'page_title_alignment'                       => array( 'page_title_bar' ),
-			'page_title_bg'                              => array( 'page_title_bar' ),
-			'page_title_bg_retina'                       => array( 'page_title_bg', 'page_title_bar' ),
-			'page_title_bg_full'                         => array( 'page_title_bg', 'page_title_bar' ),
-			'page_title_bg_parallax'                     => array( 'page_title_bar', 'page_title_bg' ),
-			'page_title_fading'                          => array( 'page_title_bar' ),
-			'breadcrumb_important_note_info'             => array( 'page_title_bar' ),
-			'page_title_bar_bs'                          => array( 'page_title_bar' ),
-			'breadcrumb_mobile'                          => array( 'page_title_bar' ),
-			'breacrumb_prefix'                           => array( 'page_title_bar' ),
-			'breadcrumb_separator'                       => array( 'page_title_bar' ),
-			'breadcrumbs_font_size'                      => array( 'page_title_bar' ),
-			'breadcrumbs_text_color'                     => array( 'page_title_bar' ),
-			'breadcrumb_show_categories'                 => array( 'page_title_bar' ),
-			'breadcrumb_show_post_type_archive'          => array( 'page_title_bar' ),
-			'footer_widgets_columns'                     => array( 'footer_widgets' ),
-			'footer_widgets_center_content'              => array( 'footer_widgets' ),
-			'footer_copyright_center_content'            => array( 'footer_copyright' ),
-			'footer_text'                                => array( 'footer_copyright' ),
-			'footerw_bg_image'                           => array( 'footer_widgets' ),
-			'footerw_bg_full'                            => array( 'footer_widgets' ),
-			'footerw_bg_repeat'                          => array( 'footer_widgets' ),
-			'footerw_bg_pos'                             => array( 'footer_widgets' ),
-			'footer_100_width'                           => array( 'footer_widgets', 'footer_copyright' ),
-			'footer_area_padding'                        => array( 'footer_widgets', 'footer_copyright' ),
-			'footer_bg_color'                            => array( 'footer_widgets' ),
-			'footer_border_size'                         => array( 'footer_widgets' ),
-			'footer_border_color'                        => array( 'footer_widgets' ),
-			'footer_divider_color'                       => array( 'footer_widgets' ),
-			'copyright_padding'                          => array( 'footer_copyright' ),
-			'copyright_bg_color'                         => array( 'footer_copyright' ),
-			'copyright_border_size'                      => array( 'footer_copyright' ),
-			'copyright_border_color'                     => array( 'footer_copyright' ),
-			'footer_headings_typography'                 => array( 'footer_widgets', 'footer_copyright' ),
-			'footer_text_color'                          => array( 'footer_widgets', 'footer_copyright' ),
-			'footer_link_color'                          => array( 'footer_widgets', 'footer_copyright' ),
-			'footer_link_color_hover'                    => array( 'footer_widgets', 'footer_copyright' ),
-			'copyright_font_size'                        => array( 'footer_copyright' ),
-			'boxed_mode_backgrounds_important_note_info' => array( 'layout' ),
-			'bg_image'                                   => array( 'layout' ),
-			'bg_color'                                   => array( 'layout' ),
-			'bg_pattern_option'                          => array( 'layout' ),
-			'bg_pattern'                                 => array( 'layout' ),
-			'image_rollover_direction'                   => array( 'image_rollover' ),
-			'image_rollover_icon_size'                   => array( 'image_rollover' ),
-			'link_image_rollover'                        => array( 'image_rollover' ),
-			'zoom_image_rollover'                        => array( 'image_rollover' ),
-			'title_image_rollover'                       => array( 'image_rollover' ),
-			'cats_image_rollover'                        => array( 'image_rollover' ),
-			'icon_circle_image_rollover'                 => array( 'image_rollover' ),
-			'image_gradient_top_color'                   => array( 'image_rollover' ),
-			'image_gradient_bottom_color'                => array( 'image_rollover' ),
-			'image_rollover_text_color'                  => array( 'image_rollover' ),
-			'image_rollover_icon_color'                  => array( 'image_rollover' ),
-		) );
+		return array_merge(
+			$dependencies, array(
+				'page_title_bar_text'                        => array( 'page_title_bar' ),
+				'page_title_100_width'                       => array( 'page_title_bar' ),
+				'page_title_height'                          => array( 'page_title_bar' ),
+				'page_title_mobile_height'                   => array( 'page_title_bar' ),
+				'page_title_bg_color'                        => array( 'page_title_bar' ),
+				'page_title_border_color'                    => array( 'page_title_bar' ),
+				'page_title_font_size'                       => array( 'page_title_bar', 'page_title_bar_text' ),
+				'page_title_line_height'                     => array( 'page_title_bar', 'page_title_bar_text' ),
+				'page_title_color'                           => array( 'page_title_bar', 'page_title_bar_text' ),
+				'page_title_subheader_font_size'             => array( 'page_title_bar', 'page_title_bar_text' ),
+				'page_title_alignment'                       => array( 'page_title_bar' ),
+				'page_title_bg'                              => array( 'page_title_bar' ),
+				'page_title_bg_retina'                       => array( 'page_title_bg', 'page_title_bar' ),
+				'page_title_bg_full'                         => array( 'page_title_bg', 'page_title_bar' ),
+				'page_title_bg_parallax'                     => array( 'page_title_bar', 'page_title_bg' ),
+				'page_title_fading'                          => array( 'page_title_bar' ),
+				'breadcrumb_important_note_info'             => array( 'page_title_bar' ),
+				'page_title_bar_bs'                          => array( 'page_title_bar' ),
+				'breadcrumb_mobile'                          => array( 'page_title_bar' ),
+				'breacrumb_prefix'                           => array( 'page_title_bar' ),
+				'breadcrumb_separator'                       => array( 'page_title_bar' ),
+				'breadcrumbs_font_size'                      => array( 'page_title_bar' ),
+				'breadcrumbs_text_color'                     => array( 'page_title_bar' ),
+				'breadcrumb_show_categories'                 => array( 'page_title_bar' ),
+				'breadcrumb_show_post_type_archive'          => array( 'page_title_bar' ),
+				'footer_widgets_columns'                     => array( 'footer_widgets' ),
+				'footer_widgets_center_content'              => array( 'footer_widgets' ),
+				'footer_copyright_center_content'            => array( 'footer_copyright' ),
+				'footer_text'                                => array( 'footer_copyright' ),
+				'footerw_bg_image'                           => array( 'footer_widgets' ),
+				'footerw_bg_full'                            => array( 'footer_widgets' ),
+				'footerw_bg_repeat'                          => array( 'footer_widgets' ),
+				'footerw_bg_pos'                             => array( 'footer_widgets' ),
+				'footer_100_width'                           => array( 'footer_widgets', 'footer_copyright' ),
+				'footer_area_padding'                        => array( 'footer_widgets', 'footer_copyright' ),
+				'footer_bg_color'                            => array( 'footer_widgets' ),
+				'footer_border_size'                         => array( 'footer_widgets' ),
+				'footer_border_color'                        => array( 'footer_widgets' ),
+				'footer_divider_color'                       => array( 'footer_widgets' ),
+				'copyright_padding'                          => array( 'footer_copyright' ),
+				'copyright_bg_color'                         => array( 'footer_copyright' ),
+				'copyright_border_size'                      => array( 'footer_copyright' ),
+				'copyright_border_color'                     => array( 'footer_copyright' ),
+				'footer_headings_typography'                 => array( 'footer_widgets', 'footer_copyright' ),
+				'footer_text_color'                          => array( 'footer_widgets', 'footer_copyright' ),
+				'footer_link_color'                          => array( 'footer_widgets', 'footer_copyright' ),
+				'footer_link_color_hover'                    => array( 'footer_widgets', 'footer_copyright' ),
+				'copyright_font_size'                        => array( 'footer_copyright' ),
+				'boxed_mode_backgrounds_important_note_info' => array( 'layout' ),
+				'bg_image'                                   => array( 'layout' ),
+				'bg_color'                                   => array( 'layout' ),
+				'bg_pattern_option'                          => array( 'layout' ),
+				'bg_pattern'                                 => array( 'layout' ),
+				'image_rollover_direction'                   => array( 'image_rollover' ),
+				'image_rollover_icon_size'                   => array( 'image_rollover' ),
+				'link_image_rollover'                        => array( 'image_rollover' ),
+				'zoom_image_rollover'                        => array( 'image_rollover' ),
+				'title_image_rollover'                       => array( 'image_rollover' ),
+				'cats_image_rollover'                        => array( 'image_rollover' ),
+				'icon_circle_image_rollover'                 => array( 'image_rollover' ),
+				'image_gradient_top_color'                   => array( 'image_rollover' ),
+				'image_gradient_bottom_color'                => array( 'image_rollover' ),
+				'image_rollover_text_color'                  => array( 'image_rollover' ),
+				'image_rollover_icon_color'                  => array( 'image_rollover' ),
+			)
+		);
 	}
 
 	/**
@@ -523,13 +595,12 @@ class Avada_AvadaRedux extends Fusion_FusionRedux {
 		if ( is_multisite() && is_main_site() ) {
 			$sites = get_sites();
 			foreach ( $sites as $site ) {
-				// @codingStandardsIgnoreLine
-				switch_to_blog( $site->blog_id );
-				avada_reset_all_cache();
+				switch_to_blog( $site->blog_id ); // phpcs:ignore WordPress.VIP.RestrictedFunctions.switch_to_blog_switch_to_blog
+				avada_reset_all_caches();
 				restore_current_blog();
 			}
 			return;
 		}
-		avada_reset_all_cache();
+		avada_reset_all_caches();
 	}
 }

@@ -60,7 +60,7 @@ casper.waitWhileVisible('#ws_embedded_page_selector', function() {
 	casper.click('#ws_save_menu');
 }, null, 2000);
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.test.assertSelectorHasText(
 		'#adminmenu a[href*="?page=embedded-page-"]',
 		'Embedded Page',
@@ -96,7 +96,7 @@ casper.then(function() {
 	casper.click('#ws_save_menu');
 });
 
-casper.waitForSelector('#message.updated', function() {
+ameTest.waitForSettingsSavedMessage(function() {
 	casper.click('#adminmenu a[href*="?page=embedded-page-"]');
 });
 

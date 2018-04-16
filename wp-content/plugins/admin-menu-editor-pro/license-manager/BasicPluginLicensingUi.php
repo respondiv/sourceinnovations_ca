@@ -3,7 +3,7 @@
 class Wslm_BasicPluginLicensingUI {
 	private $licenseManager;
 	/**
-	 * @var PluginUpdateChecker_3_1
+	 * @var Puc_v4p2_Plugin_UpdateChecker
 	 */
 	private $updateChecker;
 	private $pluginFile;
@@ -40,6 +40,16 @@ class Wslm_BasicPluginLicensingUI {
 				'callback' => array($this, 'tabManageSites'),
 			),
 		);
+
+		//Turning on the DISALLOW_FILE_MODS constant disables the "update_plugins" capability,
+		//so we need to use something else in that case.
+		if ( defined('DISALLOW_FILE_MODS') && constant('DISALLOW_FILE_MODS') ) {
+			if ( is_multisite() ) {
+				$this->requiredCapability = 'manage_network_plugins';
+			} else {
+				$this->requiredCapability = 'activate_plugins';
+			}
+		}
 
 		$basename = plugin_basename($this->pluginFile);
 		add_filter(
@@ -124,6 +134,11 @@ class Wslm_BasicPluginLicensingUI {
 		if ( isset($_REQUEST['tab']) && is_string($_REQUEST['tab']) && array_key_exists($_REQUEST['tab'], $this->tabs) ) {
 			$this->currentTab = $_REQUEST['tab'];
 		}
+
+		//We run some core hooks later to load admin CSS and other dependencies. Some plugins that
+		//use those hooks will crash if they encounter a "fake" admin page without a screen object,
+		//causing the license page to be blank. Lets set up a screen to avoid that.
+		set_current_screen('wslm-' . $this->slug . '-licensing_ui');
 
 		$this->printHeader();
 		$this->dispatchAction($action);

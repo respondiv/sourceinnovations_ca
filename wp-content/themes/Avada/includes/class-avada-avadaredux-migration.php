@@ -169,10 +169,12 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 			),
 			array(
 				'callback'    => array( $this, 'typography_1' ),
+				/* translators: %1$s, %2$s: Numbers. */
 				'description' => sprintf( esc_html__( 'Typography Options (step %1$s of %2$s)', 'Avada' ), '1', '2' ),
 			),
 			array(
 				'callback'    => array( $this, 'typography_2' ),
+				/* translators: %1$s, %2$s: Numbers. */
 				'description' => sprintf( esc_html__( 'Typography Options (step %1$s of %2$s)', 'Avada' ), '2', '2' ),
 			),
 			array(
@@ -539,8 +541,8 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 			if ( isset( $field['type'] ) && isset( $field['id'] ) && 'slider' == $field['type'] ) {
 				$initial_value = ( isset( $options[ $field['id'] ] ) ) ? $options[ $field['id'] ] : 'UNDEFINED';
 
-				$min  = ( isset( $field['choices'] ) && isset( $field['choices']['min'] ) )  ? intval( $field['choices']['min'] )  : 0;
-				$max  = ( isset( $field['choices'] ) && isset( $field['choices']['max'] ) )  ? intval( $field['choices']['max'] )  : 100;
+				$min  = ( isset( $field['choices'] ) && isset( $field['choices']['min'] ) ) ? intval( $field['choices']['min'] ) : 0;
+				$max  = ( isset( $field['choices'] ) && isset( $field['choices']['max'] ) ) ? intval( $field['choices']['max'] ) : 100;
 				$step = ( isset( $field['choices'] ) && isset( $field['choices']['step'] ) ) ? $field['choices']['step'] : 1;
 
 				if ( isset( $options[ $field['id'] ] ) && '' != $options[ $field['id'] ] ) {
@@ -676,10 +678,12 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 					$value = $options[ $field['id'] ];
 				}
 				// Hack for fields that used to inherit their value from the primary color.
-				if ( in_array( $field['id'], array(
-					'content_box_hover_animation_accent_color',
-					'map_overlay_color',
-				) ) && '' == $value ) {
+				if ( in_array(
+					$field['id'], array(
+						'content_box_hover_animation_accent_color',
+						'map_overlay_color',
+					)
+				) && '' == $value ) {
 					$value = $options['primary_color'];
 				}
 				if ( is_array( $value ) ) {
@@ -801,7 +805,7 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 		$options = get_option( $this->avada_option_name, array() );
 
 		// Try to get the image from the media library.
-		$attachment = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $options[ $field['id'] ] ) );
+		$attachment = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid=%s;", $options[ $field['id'] ] ) );
 		// Attachment was not found in the media library.
 		// We'll have to create it ourselves.
 		if ( empty( $attachment ) ) {
@@ -814,7 +818,7 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 				$new_image  = media_sideload_image( $options[ $field['id'] ], 0, '', 'src' );
 				// Check that media_sideload_image did not return a WP_Error object.
 				if ( ! is_wp_error( $new_image ) ) {
-					$attachment = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $new_image ) );
+					$attachment = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid=%s;", $new_image ) );
 				}
 			}
 		}
@@ -1153,10 +1157,10 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 		$custom_font_svg  = ( is_array( $options['custom_font_svg'] ) && isset( $options['custom_font_svg']['url'] ) ) ? $options['custom_font_svg']['url'] : $options['custom_font_svg'];
 		$custom_font_eot  = ( is_array( $options['custom_font_eot'] ) && isset( $options['custom_font_eot']['url'] ) ) ? $options['custom_font_eot']['url'] : $options['custom_font_eot'];
 		// Get the attachment IDs.
-		$attachment_woff = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $custom_font_woff ) );
-		$attachment_ttf  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $custom_font_ttf ) );
-		$attachment_svg  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $custom_font_svg ) );
-		$attachment_eot  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid='%s';", $custom_font_eot ) );
+		$attachment_woff = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid=%s;", $custom_font_woff ) );
+		$attachment_ttf  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid=%s;", $custom_font_ttf ) );
+		$attachment_svg  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid=%s;", $custom_font_svg ) );
+		$attachment_eot  = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE guid=%s;", $custom_font_eot ) );
 		// Get the font name from the filename.
 		$custom_font_name = 'custom-font';
 		if ( is_array( $attachment_woff ) && isset( $attachment_woff[0] ) ) {
@@ -1321,13 +1325,17 @@ class Avada_AvadaRedux_Migration extends Avada_Migrate {
 				// If we're using a retina image then use that instead,
 				// and set the retina checkbox to 1.
 				if ( isset( $options['custom_icon_image_retina'] ) && ! empty( $options['custom_icon_image_retina'] ) ) {
-					$new_social['custom_source'][ $custom_icon_key ] = $this->single_media_file( array(
-						'id' => 'custom_icon_image_retina',
-					) );
+					$new_social['custom_source'][ $custom_icon_key ] = $this->single_media_file(
+						array(
+							'id' => 'custom_icon_image_retina',
+						)
+					);
 				} else {
-					$new_social['custom_source'][ $custom_icon_key ] = $this->single_media_file( array(
-						'id' => 'custom_icon_image',
-					) );
+					$new_social['custom_source'][ $custom_icon_key ] = $this->single_media_file(
+						array(
+							'id' => 'custom_icon_image',
+						)
+					);
 				}
 			}
 		} // End if().

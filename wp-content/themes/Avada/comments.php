@@ -71,6 +71,7 @@ do_action( 'avada_before_comments' );
 		'title_reply_to'       => esc_html__( 'Leave A Comment', 'Avada' ),
 		/* translators: Opening and closing link tags. */
 		'must_log_in'          => '<p class="must-log-in">' . sprintf( esc_html__( 'You must be %1$slogged in%2$s to post a comment.', 'Avada' ), '<a href="' . wp_login_url( apply_filters( 'the_permalink', get_permalink() ) ) . '">', '</a>' ) . '</p>',
+		/* translators: %1$s: The username. %2$s and %3$s: Opening and closing link tags. */
 		'logged_in_as'         => '<p class="logged-in-as">' . sprintf( esc_html__( 'Logged in as %1$s. %2$sLog out &raquo;%3$s', 'Avada' ), '<a href="' . admin_url( 'profile.php' ) . '">' . $user_identity . '</a>', '<a href="' . wp_logout_url( apply_filters( 'the_permalink', get_permalink() ) ) . '" title="' . esc_html__( 'Log out of this account', 'Avada' ) . '">', '</a>' ) . '</p>',
 		'comment_notes_before' => '',
 		'id_submit'            => 'comment-submit',
@@ -81,6 +82,7 @@ do_action( 'avada_before_comments' );
 
 	<?php comment_form( $comments_args ); ?>
 
-<?php endif;
+<?php
+endif;
 
 /* Omit closing PHP tag to avoid "Headers already sent" issues. */

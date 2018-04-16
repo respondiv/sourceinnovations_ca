@@ -14,7 +14,10 @@
 		<table class="form-table">
 			<tr valign="top">
 				<th scope="row"><?php esc_attr_e( 'Export', 'fusion-core' ); ?></th>
-				<td><input type="submit" class="button button-primary" name="export_button" value="<?php esc_attr_e( 'Export All Sliders', 'fusion-core' ); ?>" /></td>
+				<td>
+					<?php wp_nonce_field( 'fs_export' ); ?>
+					<input type="submit" class="button button-primary" name="fusion_slider_export_button" value="<?php esc_attr_e( 'Export All Sliders', 'fusion-core' ); ?>" />
+				</td>
 			</tr>
 			<tr valign="top">
 				<th>

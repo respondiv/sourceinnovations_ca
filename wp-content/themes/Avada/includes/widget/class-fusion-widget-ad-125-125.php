@@ -24,10 +24,10 @@ class Fusion_Widget_Ad_125_125 extends WP_Widget {
 	 *
 	 * @access public
 	 */
-	function __construct() {
+	public function __construct() {
 
 		$widget_ops = array(
-			'classname' => 'ad_125_125',
+			'classname' => 'fusion-ad-125-125 ad_125_125',
 			'description' => 'Add 125x125 ads.',
 		);
 		$control_ops = array(
@@ -45,26 +45,28 @@ class Fusion_Widget_Ad_125_125 extends WP_Widget {
 	 *                        'before_widget', and 'after_widget'.
 	 * @param array $instance The settings for the particular instance of the widget.
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 
 		extract( $args );
+
+		echo $before_widget; // WPCS: XSS ok.
 		?>
 
-		<div class="img-row">
+		<div class="fusion-image-row">
 			<?php $ads = array( 1, 2, 3, 4 ); ?>
 			<?php foreach ( $ads as $ad_count ) : ?>
 				<?php if ( $instance[ 'ad_125_img_' . $ad_count ] && $instance[ 'ad_125_link_' . $ad_count ] ) : ?>
-					<div class="img-holder">
-						<span class="hold">
-							<a href="<?php echo esc_url_raw( $instance[ 'ad_125_link_' . $ad_count ] ); ?>">
-								<img src="<?php echo esc_url_raw( $instance[ 'ad_125_img_' . $ad_count ] ); ?>" alt="" width="123" height="123" />
-							</a>
-						</span>
+					<div class="fusion-image-holder">
+						<a href="<?php echo esc_url_raw( $instance[ 'ad_125_link_' . $ad_count ] ); ?>">
+							<img src="<?php echo esc_url_raw( $instance[ 'ad_125_img_' . $ad_count ] ); ?>" alt="" width="123" height="123" />
+						</a>
 					</div>
 				<?php endif; ?>
 			<?php endforeach; ?>
 		</div>
 		<?php
+
+		echo $after_widget; // WPCS: XSS ok.
 	}
 
 	/**
@@ -80,7 +82,7 @@ class Fusion_Widget_Ad_125_125 extends WP_Widget {
 	 * @param array $old_instance Old settings for this instance.
 	 * @return array Settings to save or bool false to cancel saving.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 
 		$instance = $old_instance;
 
@@ -103,53 +105,57 @@ class Fusion_Widget_Ad_125_125 extends WP_Widget {
 	 * @access public
 	 * @param array $instance Current settings.
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 
 		$defaults = array(
-			'ad_125_img_1'	=> '',
-			'ad_125_link_1'	=> '',
-			'ad_125_img_2'	=> '',
-			'ad_125_link_2'	=> '',
-			'ad_125_img_3'	=> '',
+			'ad_125_img_1'  => '',
+			'ad_125_link_1' => '',
+			'ad_125_img_2'  => '',
+			'ad_125_link_2' => '',
+			'ad_125_img_3'  => '',
 			'ad_125_link_3' => '',
-			'ad_125_img_4'	=> '',
-			'ad_125_link_4'	=> '',
+			'ad_125_img_4'  => '',
+			'ad_125_link_4' => '',
 		);
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		?>
 
+		<?php /* translators: Number.*/ ?>
 		<p><strong><?php printf( esc_attr__( 'Ad %s', 'Avada' ), '1' ); ?></strong></p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_1' ) ); ?>"><?php esc_attr_e( 'Image Ad Link:', 'Avada' ); ?></label>
-			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_1' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_1' ) );?>" value="<?php echo esc_attr( $instance['ad_125_img_1'] ); ?>" />
+			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_1' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_1' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_img_1'] ); ?>" />
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_1' ) ); ?>"><?php esc_attr_e( 'Ad Link:', 'Avada' ); ?></label>
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_1' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_link_1' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_link_1'] ); ?>" />
 		</p>
+		<?php /* translators: Number.*/ ?>
 		<p><strong><?php printf( esc_attr__( 'Ad %s', 'Avada' ), '2' ); ?></strong></p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_2' ) ); ?>"><?php esc_attr_e( 'Image Ad Link:', 'Avada' ); ?></label>
-			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_2' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_2' ) );?>" value="<?php echo esc_attr( $instance['ad_125_img_2'] ); ?>" />
+			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_2' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_2' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_img_2'] ); ?>" />
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_2' ) ); ?>"><?php esc_attr_e( 'Ad Link:', 'Avada' ); ?></label>
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_2' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_link_2' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_link_2'] ); ?>" />
 		</p>
+		<?php /* translators: Number.*/ ?>
 		<p><strong><?php printf( esc_attr__( 'Ad %s', 'Avada' ), '3' ); ?></strong></p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_3' ) ); ?>"><?php esc_attr_e( 'Image Ad Link:', 'Avada' ); ?></label>
-			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_3' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_3' ) );?>" value="<?php echo esc_attr( $instance['ad_125_img_3'] ); ?>" />
+			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_3' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_3' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_img_3'] ); ?>" />
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_3' ) ); ?>"><?php esc_attr_e( 'Ad Link:', 'Avada' ); ?></label>
 			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_3' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_link_3' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_link_3'] ); ?>" />
 		</p>
+		<?php /* translators: Number.*/ ?>
 		<p><strong><?php printf( esc_attr__( 'Ad %s', 'Avada' ), '4' ); ?></strong></p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_4' ) ); ?>"><?php esc_attr_e( 'Image Ad Link:', 'Avada' ); ?></label>
-			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_4' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_4' ) );?>" value="<?php echo esc_attr( $instance['ad_125_img_4'] ); ?>" />
+			<input class="widefat" type="text" id="<?php echo esc_attr( $this->get_field_id( 'ad_125_img_4' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_125_img_4' ) ); ?>" value="<?php echo esc_attr( $instance['ad_125_img_4'] ); ?>" />
 		</p>
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_125_link_4' ) ); ?>"><?php esc_attr_e( 'Ad Link:', 'Avada' ); ?></label>
