@@ -3,8 +3,8 @@ Contributors: ad33lx
 Donate link: 
 Tags: comments, spam, IP, blacklist, cloud, IP cloud, block, spamming, secure, failed login, hack attempt, auto block login
 Requires at least: 3.3
-Tested up to: 4.6.1
-Stable tag: 4.02
+Tested up to: 4.7.5
+Stable tag: 4.03
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,17 +35,17 @@ SpamChecker sends comments data (Name, Email, URL and Comment) to check Spam Per
 
 == How Does it Work ==
 
-1. If you want to block an IP manually, you can do this by providing IP in admin menu “IP Blacklist->Add IP to Blacklist”.
+1. If you want to block an IP manually, you can do this by providing IP in admin menu "IP Blacklist->Add IP to Blacklist".
 
-2. If any visitor or spamming bot post comment on your posts, by visiting “Comments” menu you can view IP and details on ip-finder.me or blacklist the IP.
+2. If any visitor or spamming bot post comment on your posts, by visiting "Comments" menu you can view IP and details on ip-finder.me or blacklist the IP.
 
-For example: https://www.ip-finder.me/wpip?IP=203.81.202.127
+For example: https://www.ip-finder.me/203.81.202.127/
 
 3. Once you black list the IP address, the visitor will not be able to view any content of your website and also post your website link and name on IP Finder cloud.
 
-4. You can delete any IP from blacklist by visiting admin menu “IP Blacklist->Blacklist” and it will also remove your site link and name from the list of websites which have blocked that specific IP.
+4. You can delete any IP from blacklist by visiting admin menu "IP Blacklist->Blacklist" and it will also remove your site link and name from the list of websites which have blocked that specific IP.
 
-5. You can leave comments on IP Cloud (example: https://www.ip-finder.me/wpip?IP=203.81.202.127 ) so that other users can get the idea why this IP have been blocked by your site.
+5. You can leave comments on IP Cloud (example: https://www.ip-finder.me/203.81.202.127/ ) so that other users can get the idea why this IP have been blocked by your site.
 
 == Frequently asked questions ==
 
@@ -90,6 +90,9 @@ http://demo.ip-finder.me/demo-details/
 
 
 == Changelog ==
+
+= 4.03 =
+* No updates in this version. Tested on WordPress 4.7.5 
 
 = 4.02 =
 * A notification will appear if your IP is not in whitelist. (Suggestion by @nonewwars)

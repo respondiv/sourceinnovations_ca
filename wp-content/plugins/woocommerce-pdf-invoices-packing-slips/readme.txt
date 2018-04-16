@@ -1,9 +1,10 @@
-=== Plugin Name ===
+=== WooCommerce PDF Invoices & Packing Slips ===
 Contributors: pomegranate
+Donate link: https://wpovernight.com/downloads/woocommerce-pdf-invoices-packing-slips-bundle/
 Tags: woocommerce, pdf, invoices, packing slips, print, delivery notes, invoice, packing slip, export, email, bulk, automatic
 Requires at least: 3.5
-Tested up to: 4.6
-Stable tag: 1.5.38
+Tested up to: 4.8
+Stable tag: 2.0.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,11 +64,17 @@ In the search field type "WooCommerce PDF Invoices & Packing Slips" and click Se
 
 == Frequently Asked Questions ==
 
-Make sure to check out [WooCommerce PDF Invoices & Packing Slips documentation](http://docs.wpovernight.com/woocommerce-pdf-invoices-packing-slips/) on our site - it covers most of the questions below (and more!) in more detail!
+= Where can I find the documentation? =
 
-= How do I create my own custom template? =
+[WooCommerce PDF Invoices & Packing Slips documentation](http://docs.wpovernight.com/woocommerce-pdf-invoices-packing-slips/)
 
-Copy the files from `wp-content/plugins/woocommerce-pdf-invoices-packing-slips/templates/pdf/Simple/` to your (child) theme in `wp-content/themes/yourtheme/woocommerce/pdf/yourtemplate` and customize them there. The new template will show up as 'yourtemplate' (the folder name) in the settings panel.
+= It's not working! =
+
+Check out our step by step diagnostic instructions here: https://wordpress.org/support/topic/read-this-first-9/
+
+
+
+
 
 = Where can I find more templates? =
 
@@ -80,151 +87,9 @@ This is a feature of our Professional extension, which can be found at [wpoverni
 You're more than welcome! This plugin is hosted on github, where you can post issues or make pull requests.
 https://github.com/wpovernight/woocommerce-pdf-invoices-packing-slips
 
-= My language is not included, how can I contribute? =
-
-This plugin is translation ready, which means that you can translate it using standard WordPress methods.
-
-1. Download POEdit at (http://www.poedit.net/download.php)
-2. Open POEdit
-3. File > New from POT
-4. Open wpo_wcpdf.pot (from `woocommerce-pdf-invoices-packing-slips/languages/`)
-5. A popup will ask you for your language
-6. This step is a bit tricky, configuring the plurals. Somehow the settings can't be copied from the pot. Go to Catalogue > Preferences. Then enter nplurals=2; plural=n != 1; in the custom expression field
-7. Enter the translations. invoice and packing-slip now have two translation fields, single & plural. Note that this is a filename, so replace spaces with a - just to be sure!
-8. Save as `wpo_wcpdf-xx_XX.po`, where you replace xx_XX with your language code & country code suffix (da_DK, pl_PL, de_DE etc.)
-
-= How can I use my own font? =
-Although the plugin supports webfonts, this is somewhat limited and has a lot of caveats, read [this thread](https://wordpress.org/support/topic/webfonts-within-a-custom-template-not-rendering-in-pdf?replies=4#post-5395442) on the forum.
-Some languages (Japanese, Chinese, etc.) are not supported by the default font included with the plugin, in this case a custom font is required.
-The best method is to create a custom template first (see above), then add a `fonts/` folder to that template and use the following code (replace the font names/filenames) to load the font in the style.css from the pdf template:
-`
-<?php global $wpo_wcpdf;?>
-/* Load font */
-@font-face {
-	font-family: 'MyFont';
-	font-style: normal;
-	font-weight: normal;
-	src: local('MyFont'), local('MyFont'), url(<?php echo $wpo_wcpdf->export->template_path; ?>/fonts/myfont.ttf) format('truetype');
-}
-@font-face {
-	font-family: 'MyFont';
-	font-style: normal;
-	font-weight: bold;
-	src: local('MyFont Bold'), local('MyFont-Bold'), url(<?php echo $wpo_wcpdf->export->template_path; ?>/fonts/myfont-bold.ttf) format('truetype');
-}
-@font-face {
-	font-family: 'MyFont';
-	font-style: italic;
-	font-weight: normal;
-	src: local('MyFont Italic'), local('MyFont-Italic'), url(<?php echo $wpo_wcpdf->export->template_path; ?>/fonts/myfont-italic.ttf) format('truetype');
-}
-@font-face {
-	font-family: 'MyFont';
-	font-style: italic;
-	font-weight: bold;
-	src: local('MyFont Bold Italic'), local('MyFont-BoldItalic'), url(<?php echo $wpo_wcpdf->export->template_path; ?>/fonts/myfont-bolditalic.ttf) format('truetype');
-}
-`
-then make sure you assign that font family to the body or other elements of the template:
-`
-	font-family: 'MyFont';
-`
-
-Some notes:
-
-* Only TTF fonts are supported.
-* You can't use numeric font weights (like 700 instead of bold)!
-* Avoid spaces or special characters in the font filenames.
-* I have found that not all servers cope well with the font paths. If this is the case with your font, try to put the font in the root of your site and put that in the font url (i.e. `url(http://yoursite.com/fonts/myfont-italic.ttf)` )
-
-Some font links:
-
-* Japanese - http://ipafont.ipa.go.jp/index.html
-* Chinese - http://www.study-area.org/apt/firefly-font/
-
 = How can I display the HTML/CSS source for debugging/developing templates? =
 There's a setting on the Status tab of the settings page that allows you to toggle HTML output. Don't forget to turn if off after you're done testing!
 
-= How can I display custom fields in the invoice or packing slip? =
-First, you need to create a custom template following instructions from the first item in this FAQ.
-Then place the following snippet where you would like the custom field to appear:
-
-`
-<?php $wpo_wcpdf->custom_field('custom_fieldname', 'Custom field:'); ?>
-`
-
-Where you replace 'custom_fieldname' with the name of the field you want to display, and 'Custom field' with the label. The plugin only displays the field when it contains data. If you also want to display the label when the field is empty, you can pass a third parameter (true), like this:
-
-`
-<?php $wpo_wcpdf->custom_field('custom_fieldname', 'Custom field:',  true); ?>
-`
-
-= How can I display order notes in the invoice or packing slip? =
-First, you need to create a custom template following instructions from the first item in this FAQ.
-Then place the following snippet where you would like the order notes to appear:
-
-`
-<?php $wpo_wcpdf->order_notes(); ?>
-`
-
-if you want to display all order notes, including the (private) admin notes, use:
-`
-<?php $wpo_wcpdf->order_notes('all'); ?>
-`
-
-= How do can I modify the pdf filename? =
-You can do this via a filter in your theme's `functions.php` (Some themes have a "custom functions" area in the settings).
-
-Here's a simple example for putting your shop name in front of the filname.
-`
-add_filter( 'wpo_wcpdf_filename', 'wpo_wcpdf_custom_filename', 10, 4 );
-function wpo_wcpdf_custom_filename( $filename, $template_type, $order_ids, $context ) {
-	// prepend your shopname to the file
-	$new_filename = 'myshopname_' . $filename;
-
-	return $new_filename;
-}
-`
-You can also use the $template_type ('invoice' or 'packing-slip'), $order_ids (single array) or $context ('download' or 'attachment') variables to make more complex rules for the filename.
-
-= How can I add a download link to the invoice on the Thank you page? =
-You can do this with an action in your theme's `functions.php` (Some themes have a "custom functions" area in the settings). Note that due to security restrictions, this will only work for registered/logged in users!
-
-`
-add_filter('woocommerce_thankyou_order_received_text', 'wpo_wcpdf_thank_you_link', 10, 2);
-function wpo_wcpdf_thank_you_link( $text, $order ) {
-	if ( is_user_logged_in() ) {
-		$pdf_url = wp_nonce_url( admin_url( 'admin-ajax.php?action=generate_wpo_wcpdf&template_type=invoice&order_ids=' . $order->id . '&my-account'), 'generate_wpo_wcpdf' );
-		$text .= '<p><a href="'.esc_attr($pdf_url).'">Download a printable invoice / payment confirmation (PDF format)</a></p>';
-	}
-	return $text;
-}
-`
-
-alternatively, you can hook this text to the `woocommerce_thankyou` action, see [this thread](https://wordpress.org/support/topic/suggestion-for-the-faq?replies=5#post-6298810) on the support forum.
-
-= How can I get a copy of the invoice emailed to the shop manager? =
-The easiest way to do this is to just tick the 'new order' box. However, this also means that an invoice will be created for all new orders, also the ones that are never completed.
-
-Alternatively you can get a (BCC) copy of the completed order email by placing the following filter in your theme's `functions.php` (Some themes have a "custom functions" area in the settings)
-Modify the name & email address to your own preferences, 
-
-`
-add_filter( 'woocommerce_email_headers', 'mycustom_headers_filter_function', 10, 2);
-
-function mycustom_headers_filter_function( $headers, $object ) { 
-	if ($object == 'customer_completed_order') { 
-		$headers .= 'BCC: Your name <your@email.com>' . "\r\n"; //just repeat this line again to insert another email address in BCC
-	}
-
-	return $headers; 
-}
-`
-
-
-= Fatal error: Allowed memory size of ######## bytes exhausted (tried to allocate ### bytes) =
-
-This usually only happens on batch actions. PDF creation is a memory intensive job, especially if it includes several pages with images. Go to WooCommerce > System Status to check your WP Memory Limit. We recommend setting it to 128mb or more.
 
 == Screenshots ==
 
@@ -234,6 +99,107 @@ This usually only happens on batch actions. PDF creation is a memory intensive j
 4. Simple packing slip PDF
 
 == Changelog ==
+
+**2.0 is a BIG update! Make a full site backup before upgrading**
+
+= 2.0.7 =
+* Feature: Added button to delete legacy settings
+* Feature: Option to enable font subsetting
+* Fix: Invoice number sequence for databases with alternative auto_increment_increment settings
+* Fix: Fallback function for MB String (mb_stripos)
+
+= 2.0.6 =
+* Feature: Improved third party invoice number filters (`wpo_wcpdf_external_invoice_number_enabled` & `wpo_wcpdf_external_invoice_number`)
+* Fix: Underline position for Open Sans font
+* Fix: Invoice number auto_increment for servers that restarted frequently
+* Fix: Dompdf log file location (preventing open base_dir notices breaking PDF header)
+* Fix: 1.6.6 Settings migration duplicates merging
+* Tweak: Clear fonts folder when manually reinstalling fonts
+
+= 2.0.5 =
+* Feature: Remove temporary files (Status tab)
+* Fix: Page number replacement
+* Tweak: Fallback functions for MB String extension
+* Tweak: Improved wpo_wcpdf_check_privs usability for my account privileges
+* Legacy support: added wc_price alias for format_price method in document
+
+= 2.0.4 =
+* Fix: Apply filters for custom invoice number formatting in document too
+* Fix: Parent fallback for missing dates from refunds
+
+= 2.0.3 =
+* Fix: Better support for legacy invoice number filter (`wpo_wcpdf_invoice_number` -  replaced by `wpo_wcpdf_formatted_document_number`)
+* Fix: Document number formatting fallback to order date if no document date available
+* Fix: Updated classmap: PSR loading didn't work on some installations
+* Fix: Prevent order notes from all orders showing when document is not loaded properly in filter
+* Tweak: Disable deprecation notices during email sending
+* Tweak: ignore outdated language packs
+
+= 2.0.2 =
+* Fix: order notes using correct order_id
+* Fix: WC3.0 deprecation notice for currency
+* Fix: Avoid crashing on PHP5.2 and older
+* Fix: Only use PHP MB String when present
+* Fix: Remote images
+* Fix: Download option
+
+= 2.0.1 =
+* Fix: PHP 5.4 issue
+
+= 2.0.0 =
+* New: Better structured & more advanced settings for documents
+* New: Option to enable & disable Packing Slips or Invoices
+* New: Invoice number sequence stored separately for improved speed & performance
+* New: Completely rewritten codebase for more flexibility & better reliability
+* New: Updated PDF library to DOMPDF 0.8
+* New: PDF Library made pluggable (by using the `wpo_wcpdf_pdf_maker` filter)
+* New: lots of new functions & filters to allow developers to hook into the plugin
+* Changed: **$wpo_wcpdf variable is now deprecated** (legacy mode available & automatically enabled on update)
+* Fix: Improved PHP 7 & 7.1 support
+* Fix: Positive prices for refunds
+* Fix: Use parent for attributes retrieved for product variations
+* Fix: Set content type to PDF for download
+
+= 1.6.6 =
+* Feature: Facilitate downgrading from 2.0 (re-installing fonts & resetting version)
+* Fix: Update currencies font (added Georgian Lari)
+* Translations: Added Indonesian
+
+= 1.6.5 =
+* Fix: Duplicate invoice numbers when bulk completing orders (WC3.0)
+* Fix: Hidden Invoice date when order refunded
+
+= 1.6.4 =
+* Fix: My account invoice button visibility
+
+= 1.6.3 =
+* Fix: Empty date handling
+* Fix: Shipping notes on refunds (reason for refund)
+
+= 1.6.2 =
+* Fix: TM Extra Product Options compatibility (in WC3.0)
+* Fix: Tax display in WC3.0
+
+= 1.6.1 =
+* Fix: Error with totals in credit notes
+* Fix: Always set invoice date when invoice is create (even display is disabled in the settings)
+
+= 1.6.0.2 =
+* Fix: Don't crash with PHP 5.2 or older (5.3 or higher required, 5.6 or higher recommended)
+
+= 1.6.0 =
+* WooCommerce 3.0 Compatible
+* **Requires PHP version 5.3 or higher**
+* Fix: Invoice number display in mobile view
+* Fix: Update formatted invoice number in order meta when number is altered
+* Fix: global plugin object loading in wrapped cron methods
+* Tweak: Avoid PHP7 scan false positives in DomPDF
+
+= 1.5.39 =
+* Feature: new template action hooks `wpo_wcpdf_before_document` & `wpo_wcpdf_after_document`
+* Tweak: In totals, emphasize order total rather than last item
+* Fix: User deprecation notices
+* Translations: Updated Slovenian
 
 = 1.5.38 =
 * Fix: Thumbnail path fallback
@@ -639,5 +605,5 @@ This usually only happens on batch actions. PDF creation is a memory intensive j
 
 == Upgrade Notice ==
 
-= 1.5 =
-Version 1.5 changes where temporary files are stored - everything is now stored centrally in the WP uploads folder. For backwards compatibility, this feature is turned off by default, but we recommend to use the new folders. Check the plugin Status panel for more information!
+= 2.0.7 =
+**2.0 is a BIG update! Make a full site backup before upgrading!**
